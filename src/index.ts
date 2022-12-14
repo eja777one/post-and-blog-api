@@ -15,7 +15,7 @@ app.use('/ht_02/api/blogs', blogsRouter);
 
 app.use('/ht_02/api/posts', postsRouter);
 
-app.delete('/ht_02/apr/testing/all-data', (req: Request, res: Response) => {
+app.delete('/ht_02/api/testing/all-data', (req: Request, res: Response) => {
   blogRepository.deleteAll();
   postsRepository.deleteAll();
   res.sendStatus(HTTP.NO_CONTENT_204); // TEST #1.1

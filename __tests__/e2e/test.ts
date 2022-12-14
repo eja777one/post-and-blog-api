@@ -7,7 +7,7 @@ describe('/ht_02/apr/testing/all-data', () => {
   // TEST #1.1
   it('should delete all videos and return empty array', async () => {
     await request(app)
-      .delete('/ht_02/apr/testing/all-data')
+      .delete('/ht_02/api/testing/all-data')
       .expect(HTTP.NO_CONTENT_204);
   });
 });
@@ -43,7 +43,7 @@ describe('/ht_02/api/blogs', () => {
   };
 
   beforeAll(async () => {
-    await request(app).delete('/ht_02/apr/testing/all-data');
+    await request(app).delete('/ht_02/api/testing/all-data');
   }); // blogs = [];
 
   // TEST #2.1
