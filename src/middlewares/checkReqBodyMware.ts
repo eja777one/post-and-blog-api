@@ -5,12 +5,14 @@ import { blogRepository } from "../repositories/blogs-repository";
 export const testBlogsReqBody = checkSchema({
   name: {
     isString: true,
+    trim: { options: [' '] },
     isLength: {
       options: { max: 15 }
     },
   },
   description: {
     isString: true,
+    trim: { options: [' '] },
     isLength: {
       options: { max: 500 }
     },
@@ -29,24 +31,28 @@ export const testBlogsReqBody = checkSchema({
 export const testPostsReqBody = checkSchema({
   title: {
     isString: true,
+    trim: { options: [' '] },
     isLength: {
       options: { max: 30 }
     },
   },
   shortDescription: {
     isString: true,
+    trim: { options: [' '] },
     isLength: {
       options: { max: 100 }
     },
   },
   content: {
     isString: true,
+    trim: { options: [' '] },
     isLength: {
       options: { max: 1000 }
     },
   },
   blogId: {
     isString: true,
+    trim: { options: [' '] },
     custom: {
       options: (value, { req, location, path }) => {
         const blog = blogRepository.getBlogById(value);
