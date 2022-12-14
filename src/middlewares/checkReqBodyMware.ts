@@ -71,15 +71,21 @@ export const checkReqBodyMware = (
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const myErrors: any = []; // BAD BAD BAD
+    const rawErrors: string[] = [];
 
     for (let el of errors.array()) {
-      const error = {
-        message: `incorrect ${el.param}`,
-        field: el.param
-      };
-      myErrors.push(error);
-    }
+      rawErrors.push(el.param);
+    };
+
+    const tempErrors = Array.from(new Set(rawErrors));
+
+    const myErrors = tempErrors.map(e => (
+      {
+        message: `incorrect ${e}`,
+        field: e
+      }
+    ));
+
     return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #3.3, #3.9
   } else next();
 };
