@@ -7,14 +7,14 @@ export const testBlogsReqBody = checkSchema({
     isString: true,
     trim: { options: [' '] },
     isLength: {
-      options: { max: 15 }
+      options: { min: 1, max: 15 }
     },
   },
   description: {
     isString: true,
     trim: { options: [' '] },
     isLength: {
-      options: { max: 500 }
+      options: { min: 1, max: 500 }
     },
   },
   websiteUrl: {
@@ -33,21 +33,21 @@ export const testPostsReqBody = checkSchema({
     isString: true,
     trim: { options: [' '] },
     isLength: {
-      options: { max: 30 }
+      options: { min: 1, max: 30 }
     },
   },
   shortDescription: {
     isString: true,
     trim: { options: [' '] },
     isLength: {
-      options: { max: 100 }
+      options: { min: 1, max: 100 }
     },
   },
   content: {
     isString: true,
     trim: { options: [' '] },
     isLength: {
-      options: { max: 1000 }
+      options: { min: 1, max: 1000 }
     },
   },
   blogId: {
