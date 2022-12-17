@@ -6,6 +6,7 @@ dotenv.config()
 
 const mongoUri = process.env.mongoURI;
 
+
 if (!mongoUri) {
   throw new Error('DB url does not found');
 };
