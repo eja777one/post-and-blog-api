@@ -1,9 +1,14 @@
 import { BlogViewModel } from './../models';
 import { MongoClient } from 'mongodb';
 import { PostViewModel } from '../models';
+import * as dotenv from 'dotenv';
+dotenv.config()
 
-const mongoUri = process.env.mongoURI
-  || 'mongodb+srv://admin:admin@cluster0.3koqkkh.mongodb.net/?retryWrites=true&w=majority';
+const mongoUri = process.env.mongoURI;
+
+if (!mongoUri) {
+  throw new Error('DB url does not found');
+};
 
 const client = new MongoClient(mongoUri);
 

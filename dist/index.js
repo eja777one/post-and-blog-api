@@ -24,9 +24,9 @@ exports.app = (0, express_1.default)();
 const port = process.env.PORT || 3003;
 const jsonBodyMiddleware = express_1.default.json();
 exports.app.use(jsonBodyMiddleware);
-exports.app.use('/ht_02/api/blogs', blogs_router_1.blogsRouter);
-exports.app.use('/ht_02/api/posts', posts_router_1.postsRouter);
-exports.app.delete('/ht_02/api/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.app.use('/hometask_03/api/blogs', blogs_router_1.blogsRouter);
+exports.app.use('/hometask_03/api/posts', posts_router_1.postsRouter);
+exports.app.delete('/hometask_03/api/testing/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield blogs_db_repository_1.blogRepository.deleteAll();
     yield posts_db_repository_1.postsRepository.deleteAll();
     res.sendStatus(HTTPStatusCodes_1.HTTP.NO_CONTENT_204); // TEST #1.1
