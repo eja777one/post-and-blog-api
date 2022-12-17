@@ -13,7 +13,8 @@ if (!mongoUri) {
 
 const client = new MongoClient(mongoUri);
 
-const db = client.db('platform');
+// const db = client.db('platform');
+const db = client.db();
 
 export const postsCollection = db.collection<PostViewModel>('posts');
 export const blogsCollection = db.collection<BlogViewModel>('blogs');
