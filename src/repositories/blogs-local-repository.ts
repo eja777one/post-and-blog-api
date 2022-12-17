@@ -24,21 +24,20 @@ const blogs: Array<BlogViewModel> | [] = [
 ];
 
 export const blogRepository = {
-  getBlogs() { return blogs },
+  async getBlogs() { return blogs },
 
-  addBlog(body: BlogInputModel) {
+  async createBlog(body: BlogInputModel) {
     const id = `b${randomizer()}`;
     const blog = { id, ...body };
     blogs.push(blog);
     return blog
   },
 
-  getBlogById(id: string) {
-    console.log(blogs.filter(blog => blog.id === id)[0]);
+  async getBlogById(id: string) {
     return blogs.filter(blog => blog.id === id)[0];
   },
 
-  updateBlog(id: string, body: BlogInputModel) {
+  async updateBlog(id: string, body: BlogInputModel) {
     let blog = blogs.filter(blog => blog.id === id)[0];
     blog.name = body.name;
     blog.description = body.description;
@@ -46,7 +45,7 @@ export const blogRepository = {
     return blog;
   },
 
-  deleteBlogById(id: string) {
+  async deleteBlogById(id: string) {
     for (let i = 0; i < blogs.length; i++) {
       if (blogs[i].id === id) {
         blogs.splice(i, 1);
@@ -55,5 +54,5 @@ export const blogRepository = {
     }
   },
 
-  deleteAll() { return blogs.splice(0) }
+  async deleteAll() { return blogs.splice(0) }
 };

@@ -1,4 +1,4 @@
-import { blogRepository } from './blogs-repository';
+import { blogRepository } from './blogs-local-repository';
 import { PostInputModel, PostViewModel } from '../models';
 
 const randomizer = () => (Math.random() * 10000).toFixed(0);
@@ -31,10 +31,11 @@ const posts: Array<PostViewModel> | [] = [
 ];
 
 export const postsRepository = {
-  getPosts() { return posts },
+  async getPosts() { return posts },
 
-  createPost(body: PostInputModel) {
-    const blogName = blogRepository.getBlogById(body.blogId).name;
+  async createPost(body: PostInputModel) {
+    // const blogName = await blogRepository.getBlogById(body.blogId).name;
+    const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
 
     const id = `p${randomizer()}`;
     const post = { id, blogName, ...body };
@@ -42,12 +43,12 @@ export const postsRepository = {
     return post;
   },
 
-  getPostById(id: string) {
+  async getPostById(id: string) {
     const post = posts.filter(post => post.id === id)[0];
     return post;
   },
 
-  updatePost(id: string, body: PostInputModel) {
+  async updatePost(id: string, body: PostInputModel) {
     let post = posts.filter(post => post.id === id)[0];
     post.title = body.title;
     post.shortDescription = body.shortDescription;
@@ -56,7 +57,7 @@ export const postsRepository = {
     return post = { ...post, ...body };
   },
 
-  deletePostById(id: string) {
+  async deletePostById(id: string) {
     for (let i = 0; i < posts.length; i++) {
       if (posts[i].id === id) {
         posts.splice(i, 1);
@@ -65,5 +66,5 @@ export const postsRepository = {
     }
   },
 
-  deleteAll() { return posts.splice(0) }
+  async deleteAll() { return posts.splice(0) }
 }

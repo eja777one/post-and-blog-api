@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
-import { blogRepository } from "../repositories/blogs-repository";
+import { blogRepository } from "../repositories/blogs-db-repository";
 
 export const testBlogsReqBody = checkSchema({
   name: {
@@ -54,9 +54,9 @@ export const testPostsReqBody = checkSchema({
     isString: true,
     trim: { options: [' '] },
     custom: {
-      options: (value, { req, location, path }) => {
-        const blog = blogRepository.getBlogById(value);
-        if (!blog) throw new Error('Blog id is unexist')
+      options: async (value) => {
+        const blog = await blogRepository.getBlogById(value).then(value => value);
+        if (!blog) throw new Error('Blog id is unexist');
         else return true;
       }
     }
