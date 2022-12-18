@@ -1,4 +1,3 @@
-import { BlogViewModel } from './../models';
 import { blogsCollection } from './db';
 import { BlogInputModel } from "../models";
 
@@ -11,10 +10,11 @@ export const blogRepository = {
 
   async createBlog(body: BlogInputModel) {
     const id = `b${randomizer()}`;
-    const blog = { id, ...body };
+    const createdAt = new Date().toISOString();
+    const blog = { id, createdAt, ...body };
 
     const result = await blogsCollection.insertOne(blog);
-    return blog
+    return blog;
   },
 
   async getBlogById(id: string) {

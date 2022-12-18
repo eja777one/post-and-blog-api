@@ -13,7 +13,9 @@ export const postsRepository = {
     const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
 
     const id = `p${randomizer()}`;
-    const post = { id, blogName, ...body };
+    const createdAt = new Date().toISOString();
+
+    const post = { id, blogName, createdAt, ...body };
 
     const result = await postsCollection.insertOne(post);
 
@@ -26,13 +28,16 @@ export const postsRepository = {
   },
 
   async updatePost(id: string, body: PostInputModel) {
+    const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
+
     const result = await postsCollection.updateOne({ id: id },
       {
         $set: {
           title: body.title,
           shortDescription: body.shortDescription,
           content: body.content,
-          blogId: body.blogId
+          blogId: body.blogId,
+          blogName
         }
       });
 
@@ -46,7 +51,7 @@ export const postsRepository = {
 
   async deleteAll() {
     const result = await postsCollection.deleteMany({});
-    const posts = await postsCollection.find({}).toArray()
+    const posts = await postsCollection.find({}).toArray();
     return posts.length === 0;
   }
 }

@@ -11,6 +11,7 @@ const posts: Array<PostViewModel> | [] = [
     content: 'content1',
     blogId: 'blogId1',
     blogName: 'blogName1',
+    createdAt: "2022-12-18T06:57:43.998Z"
   },
   {
     id: `p${randomizer()}`,
@@ -19,6 +20,7 @@ const posts: Array<PostViewModel> | [] = [
     content: 'content2',
     blogId: 'blogId2',
     blogName: 'blogName2',
+    createdAt: "2022-12-18T06:57:43.998Z"
   },
   {
     id: `p${randomizer()}`,
@@ -27,6 +29,7 @@ const posts: Array<PostViewModel> | [] = [
     content: 'content3',
     blogId: 'blogId3',
     blogName: 'blogName3',
+    createdAt: "2022-12-18T06:57:43.998Z"
   },
 ];
 
@@ -38,7 +41,9 @@ export const postsRepository = {
     const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
 
     const id = `p${randomizer()}`;
-    const post = { id, blogName, ...body };
+    const createdAt = new Date().toISOString();
+
+    const post = { id, blogName, createdAt, ...body };
     posts.push(post);
     return post;
   },
@@ -49,12 +54,14 @@ export const postsRepository = {
   },
 
   async updatePost(id: string, body: PostInputModel) {
+    const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
     let post = posts.filter(post => post.id === id)[0];
     post.title = body.title;
     post.shortDescription = body.shortDescription;
     post.content = body.content;
     post.blogId = body.blogId;
-    return post = { ...post, ...body };
+    post.blogName = blogName;
+    return post;
   },
 
   async deletePostById(id: string) {

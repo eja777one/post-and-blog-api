@@ -88,6 +88,7 @@ describe('/hometask_03/api/blogs', () => {
       name: reqBodyToCreate.name,
       description: reqBodyToCreate.description,
       websiteUrl: reqBodyToCreate.websiteUrl,
+      createdAt: expect.any(String)
     });
 
     blog1 = blog;
@@ -164,6 +165,7 @@ describe('/hometask_03/api/blogs', () => {
     expect(blog).toStrictEqual({
       _id: expect.any(String),
       id: blog1.id,
+      createdAt: expect.any(String),
       ...reqBodyToUpdate
     });
   }); // blogs = [blog1];
@@ -268,6 +270,7 @@ describe('/hometask_03/api/posts', () => {
       name: reqBody.name,
       description: reqBody.description,
       websiteUrl: reqBody.websiteUrl,
+      createdAt: expect.any(String)
     });
 
     blog1 = blog;
@@ -319,7 +322,8 @@ describe('/hometask_03/api/posts', () => {
       shortDescription: reqBodyToCreate.shortDescription,
       content: reqBodyToCreate.content,
       blogId: reqBodyToCreate.blogId,
-      blogName: blog1.name
+      blogName: blog1.name,
+      createdAt: expect.any(String)
     });
 
     post1 = post;
@@ -396,6 +400,7 @@ describe('/hometask_03/api/posts', () => {
       _id: expect.any(String),
       id: post1.id,
       blogName: blog1.name,
+      createdAt: expect.any(String),
       ...reqBodyToUpdate
     });
   }); // posts = [post1]; blogs = [blog1];
