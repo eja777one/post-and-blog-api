@@ -114,7 +114,13 @@ describe('/hometask_03/api/blogs', () => {
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
-    expect(blog).toStrictEqual(blog1);
+    expect(blog).toStrictEqual({
+      id: blog1.id,
+      name: blog1.name,
+      description: blog1.description,
+      websiteUrl: blog1.websiteUrl,
+      createdAt: blog1.createdAt
+    });
   }); // blogs = [blog1];
 
   // TEST #2.7
@@ -163,7 +169,6 @@ describe('/hometask_03/api/blogs', () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
     expect(blog).toStrictEqual({
-      _id: expect.any(String),
       id: blog1.id,
       createdAt: expect.any(String),
       ...reqBodyToUpdate
@@ -346,8 +351,13 @@ describe('/hometask_03/api/posts', () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
     expect(post).toStrictEqual({
-      _id: expect.any(String),
-      ...post1
+      id: post1.id,
+      title: post1.title,
+      shortDescription: post1.shortDescription,
+      content: post1.content,
+      blogId: post1.blogId,
+      blogName: blog1.name,
+      createdAt: post1.createdAt
     });
   }); // posts = [post1]; blogs = [blog1];
 
@@ -397,7 +407,6 @@ describe('/hometask_03/api/posts', () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
     expect(post).toStrictEqual({
-      _id: expect.any(String),
       id: post1.id,
       blogName: blog1.name,
       createdAt: expect.any(String),

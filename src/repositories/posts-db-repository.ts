@@ -4,9 +4,23 @@ import { PostInputModel } from '../models';
 
 const randomizer = () => (Math.random() * 10000).toFixed(0);
 
+const options = {
+  projection: {
+    _id: 0,
+    id: 1,
+    title: 1,
+    shortDescription: 1,
+    content: 1,
+    blogId: 1,
+    blogName: 1,
+    createdAt: 1,
+  }
+};
+
 export const postsRepository = {
+
   async getPosts() {
-    return await postsCollection.find({}).toArray();
+    return await postsCollection.find({}, options).toArray();
   },
 
   async createPost(body: PostInputModel) {
@@ -23,7 +37,7 @@ export const postsRepository = {
   },
 
   async getPostById(id: string) {
-    const post = await postsCollection.findOne({ id: id });
+    const post = await postsCollection.findOne({ id: id }, options);
     return post;
   },
 

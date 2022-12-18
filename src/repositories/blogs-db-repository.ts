@@ -3,9 +3,20 @@ import { BlogInputModel } from "../models";
 
 const randomizer = () => (Math.random() * 10000).toFixed(0);
 
+const options = {
+  projection: {
+    _id: 0,
+    id: 1,
+    name: 1,
+    description: 1,
+    websiteUrl: 1,
+    createdAt: 1
+  }
+};
+
 export const blogRepository = {
   async getBlogs() {
-    return await blogsCollection.find({}).toArray();
+    return await blogsCollection.find({}, options).toArray();
   },
 
   async createBlog(body: BlogInputModel) {
@@ -18,7 +29,7 @@ export const blogRepository = {
   },
 
   async getBlogById(id: string) {
-    const blog: any = await blogsCollection.findOne({ id: id }); // BAD
+    const blog: any = await blogsCollection.findOne({ id: id }, options); // BAD
     return blog;
   },
 
