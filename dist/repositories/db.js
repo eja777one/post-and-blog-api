@@ -42,7 +42,8 @@ if (!mongoUri) {
 }
 ;
 const client = new mongodb_1.MongoClient(mongoUri);
-const db = client.db('platform');
+// const db = client.db('platform');
+const db = client.db();
 exports.postsCollection = db.collection('posts');
 exports.blogsCollection = db.collection('blogs');
 function runDb() {

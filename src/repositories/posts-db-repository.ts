@@ -33,7 +33,7 @@ export const postsRepository = {
 
     const result = await postsCollection.insertOne(post);
 
-    return post;
+    return this.getPostById(post.id);
   },
 
   async getPostById(id: string) {

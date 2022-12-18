@@ -23,9 +23,9 @@ export const blogRepository = {
     const id = `b${randomizer()}`;
     const createdAt = new Date().toISOString();
     const blog = { id, createdAt, ...body };
-
+    console.log(blog)
     const result = await blogsCollection.insertOne(blog);
-    return blog;
+    return this.getBlogById(blog.id);
   },
 
   async getBlogById(id: string) {

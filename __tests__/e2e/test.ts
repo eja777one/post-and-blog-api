@@ -83,7 +83,6 @@ describe('/hometask_03/api/blogs', () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(blog).toStrictEqual({
-      _id: expect.any(String),
       id: expect.any(String),
       name: reqBodyToCreate.name,
       description: reqBodyToCreate.description,
@@ -270,7 +269,6 @@ describe('/hometask_03/api/posts', () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(blog).toStrictEqual({
-      _id: expect.any(String),
       id: expect.any(String),
       name: reqBody.name,
       description: reqBody.description,
@@ -321,7 +319,6 @@ describe('/hometask_03/api/posts', () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(post).toStrictEqual({
-      _id: expect.any(String),
       id: expect.any(String),
       title: reqBodyToCreate.title,
       shortDescription: reqBodyToCreate.shortDescription,

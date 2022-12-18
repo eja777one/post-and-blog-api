@@ -12,23 +12,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogRepository = void 0;
 const db_1 = require("./db");
 const randomizer = () => (Math.random() * 10000).toFixed(0);
+const options = {
+    projection: {
+        _id: 0,
+        id: 1,
+        name: 1,
+        description: 1,
+        websiteUrl: 1,
+        createdAt: 1
+    }
+};
 exports.blogRepository = {
     getBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.blogsCollection.find({}).toArray();
+            return yield db_1.blogsCollection.find({}, options).toArray();
         });
     },
     createBlog(body) {
         return __awaiter(this, void 0, void 0, function* () {
             const id = `b${randomizer()}`;
-            const blog = Object.assign({ id }, body);
+            const createdAt = new Date().toISOString();
+            const blog = Object.assign({ id, createdAt }, body);
+            console.log(blog);
             const result = yield db_1.blogsCollection.insertOne(blog);
-            return blog;
+            return this.getBlogById(blog.id);
         });
     },
     getBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield db_1.blogsCollection.findOne({ id: id }); // BAD
+            const blog = yield db_1.blogsCollection.findOne({ id: id }, options); // BAD
             return blog;
         });
     },
