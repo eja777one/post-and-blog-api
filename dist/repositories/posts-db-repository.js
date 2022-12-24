@@ -27,7 +27,8 @@ exports.postsRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const pagesCount = Math.ceil(items.length / limit);
+            const allItems = (yield this.getPosts()).length;
+            const pagesCount = Math.ceil(allItems / limit);
             const answer = {
                 pagesCount,
                 page: query.pageNumber,

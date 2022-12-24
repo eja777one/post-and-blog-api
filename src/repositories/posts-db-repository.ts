@@ -19,7 +19,9 @@ export const postsRepository = {
       .skip(skip)
       .toArray();
 
-    const pagesCount = Math.ceil(items.length / limit);
+    const allItems = (await this.getPosts()).length
+
+    const pagesCount = Math.ceil(allItems / limit);
 
     const answer = {
       pagesCount,
