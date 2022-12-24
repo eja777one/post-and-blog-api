@@ -2,17 +2,6 @@ import { blogsCollection } from './db';
 import { BlogInputModel } from "../models";
 import { ObjectID } from 'bson';
 
-const opt = {
-  projection: {
-    _id: 0,
-    id: 1,
-    name: 1,
-    description: 1,
-    websiteUrl: 1,
-    createdAt: 1
-  }
-};
-
 export const blogRepository = {
   async getBlogsByQuery(query: any) {
     const skip = (query.pageNumber - 1) * query.pageSize;
