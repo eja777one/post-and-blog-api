@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { header, validationResult } from "express-validator";
 
-const byffer = new Buffer(`${process.env.login}:${process.env.password}`)
+const byffer = new Buffer(`${'admin'}:${'qwerty'}`)
 const base64 = byffer.toString('base64')
 
 export const testBaseAuth = header('authorization')
