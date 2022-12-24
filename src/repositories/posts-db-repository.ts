@@ -27,7 +27,7 @@ export const postsRepository = {
       pagesCount,
       page: query.pageNumber,
       pageSize: query.pageSize,
-      totalCount: items.length,
+      totalCount: allItems,
       items
     };
 
