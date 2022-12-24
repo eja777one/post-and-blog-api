@@ -52,7 +52,7 @@ const checkParamMware = (req, res, next) => {
     // console.log(errors);
     if (!errors.isEmpty()) {
         console.log(errors);
-        return res.sendStatus(404); // TEST #2.5, #2.7, #2.12, #3.5, #3.7, #3.12
+        return res.sendStatus(404); // TEST #2.5, #2.7, #2.91, #2.93, #2.12, #3.5, #3.7, #3.12
     }
     else
         next();

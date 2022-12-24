@@ -12,16 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogRepository = void 0;
 const db_1 = require("./db");
 const bson_1 = require("bson");
-const opt = {
-    projection: {
-        _id: 0,
-        id: 1,
-        name: 1,
-        description: 1,
-        websiteUrl: 1,
-        createdAt: 1
-    }
-};
 exports.blogRepository = {
     getBlogsByQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,12 +22,13 @@ exports.blogRepository = {
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
             const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
-            const items = yield db_1.blogsCollection.find(findObj, opt)
+            const items = yield db_1.blogsCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const pagesCount = Math.ceil(items.length / limit);
+            const allItems = (yield this.getBlogs()).length;
+            const pagesCount = Math.ceil(allItems / limit);
             const answer = {
                 pagesCount,
                 page: query.pageNumber,
@@ -80,7 +71,7 @@ exports.blogRepository = {
     },
     getBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogs = yield db_1.blogsCollection.find({}, opt).toArray();
+            const blogs = yield db_1.blogsCollection.find({}).toArray();
             return blogs;
         });
     },

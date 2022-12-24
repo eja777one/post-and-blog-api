@@ -11,18 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsRepository = void 0;
 const db_1 = require("./db");
-const opt = {
-    projection: {
-        _id: 0,
-        id: 1,
-        title: 1,
-        shortDescription: 1,
-        content: 1,
-        blogId: 1,
-        blogName: 1,
-        createdAt: 1,
-    }
-};
+const bson_1 = require("bson");
 exports.postsRepository = {
     getPostsByBlogId(id, query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -32,8 +21,8 @@ exports.postsRepository = {
             const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const findObj = { 'blogId': query.blogId };
-            const items = yield db_1.postsCollection.find(findObj, query)
+            const findObj = { 'blogId': id };
+            const items = yield db_1.postsCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
@@ -57,7 +46,7 @@ exports.postsRepository = {
             const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const items = yield db_1.postsCollection.find({}, opt)
+            const items = yield db_1.postsCollection.find({})
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
@@ -75,7 +64,7 @@ exports.postsRepository = {
     },
     getPosts() {
         return __awaiter(this, void 0, void 0, function* () {
-            const items = yield db_1.postsCollection.find({}, opt).toArray();
+            const items = yield db_1.postsCollection.find({}).toArray();
             return items;
         });
     },
@@ -88,13 +77,13 @@ exports.postsRepository = {
     getPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             // const post = await postsCollection.findOne({ id: id }, opt);
-            const post = yield db_1.postsCollection.findOne({ id: id });
+            const post = yield db_1.postsCollection.findOne({ _id: new bson_1.ObjectID(id) });
             return post;
         });
     },
     updatePost(id, body, blogName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.postsCollection.updateOne({ id: id }, {
+            const result = yield db_1.postsCollection.updateOne({ _id: new bson_1.ObjectID(id) }, {
                 $set: {
                     title: body.title,
                     shortDescription: body.shortDescription,
@@ -108,7 +97,7 @@ exports.postsRepository = {
     },
     deletePostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.postsCollection.deleteOne({ id: id });
+            const result = yield db_1.postsCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
             return result.deletedCount === 1;
         });
     },

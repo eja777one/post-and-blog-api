@@ -52,13 +52,13 @@ exports.blogsRouter.get('/:blogId/posts', checkParamMware_1.testBlogsParamBlogID
     const query = (0, mappers_1.prepareQueries)(req.query);
     const posts = yield blogs_services_1.blogServices.getPostsByBlogId(req.params.blogId, query);
     const formatPosts = (0, mappers_1.preparePosts)(posts);
-    return res.status(models_1.HTTP.OK_200).json(formatPosts);
+    return res.status(models_1.HTTP.OK_200).json(formatPosts); // TEST #2.92, #2.97
 }));
 exports.blogsRouter.post('/:blogId/posts', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkParamMware_1.testBlogsParamBlogID, checkParamMware_1.checkParamMware, checkReqBodyMware_1.testPostsReqBodyNoBlogId, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post = yield blogs_services_1.blogServices.createPostsByBlogId(req.params.blogId, req.body);
     if (post) {
         const formatPost = (0, mappers_1.preparePost)(post);
-        return res.status(models_1.HTTP.CREATED_201).json(formatPost); // TEST #2.4
+        return res.status(models_1.HTTP.CREATED_201).json(formatPost); // TEST #2.96
     }
     ;
 }));

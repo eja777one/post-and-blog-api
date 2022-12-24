@@ -109,7 +109,7 @@ const checkReqBodyMware = (req, res, next) => {
             message: `incorrect ${e}`,
             field: e
         }));
-        return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #3.3, #3.9
+        return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #2.95, #3.3, #3.9
     }
     else
         next();

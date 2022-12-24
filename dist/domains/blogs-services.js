@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogServices = void 0;
+const posts_services_1 = require("./posts-services");
 const blogs_db_repository_1 = require("../repositories/blogs-db-repository");
 const posts_db_repository_1 = require("../repositories/posts-db-repository");
 exports.blogServices = {
@@ -53,7 +54,7 @@ exports.blogServices = {
     },
     createPostsByBlogId(blogId, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield posts_db_repository_1.postsRepository.createPost(Object.assign(Object.assign({}, body), { blogId }));
+            return yield posts_services_1.postsServices.createPost(Object.assign(Object.assign({}, body), { blogId }));
         });
     },
     deleteAll() {
