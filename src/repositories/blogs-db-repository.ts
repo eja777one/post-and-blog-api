@@ -23,7 +23,7 @@ export const blogRepository = {
     sortObj[sortBy] = sortDirection
     const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
 
-    const items = await blogsCollection.find(findObj, query)
+    const items = await blogsCollection.find(findObj)
       .sort(sortObj)
       .limit(limit)
       .skip(skip)

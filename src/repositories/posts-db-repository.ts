@@ -2,19 +2,6 @@ import { postsCollection } from './db';
 import { PostInputModel } from '../models';
 import { ObjectID } from 'bson';
 
-const opt = {
-  projection: {
-    _id: 0,
-    id: 1,
-    title: 1,
-    shortDescription: 1,
-    content: 1,
-    blogId: 1,
-    blogName: 1,
-    createdAt: 1,
-  }
-};
-
 export const postsRepository = {
   async getPostsByBlogId(id: string, query: any) {
 
@@ -26,7 +13,7 @@ export const postsRepository = {
     sortObj[sortBy] = sortDirection
     const findObj = { 'blogId': id };
 
-    const items = await postsCollection.find(findObj, query)
+    const items = await postsCollection.find(findObj)
       .sort(sortObj)
       .limit(limit)
       .skip(skip)
