@@ -63,6 +63,30 @@ export const testPostsReqBody = checkSchema({
   },
 });
 
+export const testPostsReqBodyNoBlogId = checkSchema({
+  title: {
+    isString: true,
+    trim: { options: [' '] },
+    isLength: {
+      options: { min: 1, max: 30 }
+    },
+  },
+  shortDescription: {
+    isString: true,
+    trim: { options: [' '] },
+    isLength: {
+      options: { min: 1, max: 100 }
+    },
+  },
+  content: {
+    isString: true,
+    trim: { options: [' '] },
+    isLength: {
+      options: { min: 1, max: 1000 }
+    },
+  }
+});
+
 export const checkReqBodyMware = (
   req: Request,
   res: Response,
@@ -86,6 +110,6 @@ export const checkReqBodyMware = (
       }
     ));
 
-    return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #3.3, #3.9
+    return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #2.95, #3.3, #3.9
   } else next();
 };

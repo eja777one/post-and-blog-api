@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkReqBodyMware = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+exports.checkReqBodyMware = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
 const express_validator_1 = require("express-validator");
 const blogs_db_repository_1 = require("../repositories/blogs-db-repository");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
@@ -72,6 +72,29 @@ exports.testPostsReqBody = (0, express_validator_1.checkSchema)({
             })
         }
     },
+});
+exports.testPostsReqBodyNoBlogId = (0, express_validator_1.checkSchema)({
+    title: {
+        isString: true,
+        trim: { options: [' '] },
+        isLength: {
+            options: { min: 1, max: 30 }
+        },
+    },
+    shortDescription: {
+        isString: true,
+        trim: { options: [' '] },
+        isLength: {
+            options: { min: 1, max: 100 }
+        },
+    },
+    content: {
+        isString: true,
+        trim: { options: [' '] },
+        isLength: {
+            options: { min: 1, max: 1000 }
+        },
+    }
 });
 const checkReqBodyMware = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);

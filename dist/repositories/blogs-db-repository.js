@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogRepository = void 0;
 const db_1 = require("./db");
-const randomizer = () => (Math.random() * 10000).toFixed(0);
-const options = {
+const bson_1 = require("bson");
+const opt = {
     projection: {
         _id: 0,
         id: 1,
@@ -23,30 +23,46 @@ const options = {
     }
 };
 exports.blogRepository = {
-    getBlogs() {
+    getBlogsByQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.blogsCollection.find({}, options).toArray();
+            const skip = (query.pageNumber - 1) * query.pageSize;
+            const limit = query.pageSize;
+            const sortBy = query.sortBy;
+            const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+            const sortObj = {};
+            sortObj[sortBy] = sortDirection;
+            const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
+            const items = yield db_1.blogsCollection.find(findObj, opt)
+                .sort(sortObj)
+                .limit(limit)
+                .skip(skip)
+                .toArray();
+            const pagesCount = Math.ceil(items.length / limit);
+            const answer = {
+                pagesCount,
+                page: query.pageNumber,
+                pageSize: query.pageSize,
+                totalCount: items.length,
+                items
+            };
+            return answer;
         });
     },
-    createBlog(body) {
+    createBlog(blog) {
         return __awaiter(this, void 0, void 0, function* () {
-            const id = `b${randomizer()}`;
-            const createdAt = new Date().toISOString();
-            const blog = Object.assign({ id, createdAt }, body);
-            console.log(blog);
             const result = yield db_1.blogsCollection.insertOne(blog);
-            return this.getBlogById(blog.id);
+            return this.getBlogById(result.insertedId.toString());
         });
     },
     getBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield db_1.blogsCollection.findOne({ id: id }, options); // BAD
+            const blog = yield db_1.blogsCollection.findOne({ _id: new bson_1.ObjectID(id) });
             return blog;
         });
     },
     updateBlog(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.updateOne({ id: id }, {
+            const result = yield db_1.blogsCollection.updateOne({ _id: new bson_1.ObjectID(id) }, {
                 $set: {
                     name: body.name,
                     description: body.description,
@@ -58,15 +74,20 @@ exports.blogRepository = {
     },
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.deleteOne({ id: id });
+            const result = yield db_1.blogsCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
             return result.deletedCount === 1;
+        });
+    },
+    getBlogs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blogs = yield db_1.blogsCollection.find({}, opt).toArray();
+            return blogs;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.blogsCollection.deleteMany({});
-            const posts = yield db_1.blogsCollection.find({}).toArray();
-            return posts.length === 0;
+            return result.deletedCount;
         });
     }
 };

@@ -1,10 +1,8 @@
 import { postsCollection } from './db';
-import { blogRepository } from './blogs-db-repository';
 import { PostInputModel } from '../models';
+import { ObjectID } from 'bson';
 
-const randomizer = () => (Math.random() * 10000).toFixed(0);
-
-const options = {
+const opt = {
   projection: {
     _id: 0,
     id: 1,
@@ -18,32 +16,79 @@ const options = {
 };
 
 export const postsRepository = {
+  async getPostsByBlogId(id: string, query: any) {
 
-  async getPosts() {
-    return await postsCollection.find({}, options).toArray();
+    const skip = (query.pageNumber - 1) * query.pageSize;
+    const limit = query.pageSize;
+    const sortBy = query.sortBy;
+    const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+    const sortObj: any = {};
+    sortObj[sortBy] = sortDirection
+    const findObj = { 'blogId': id };
+
+    const items = await postsCollection.find(findObj, query)
+      .sort(sortObj)
+      .limit(limit)
+      .skip(skip)
+      .toArray();
+
+    const pagesCount = Math.ceil(items.length / limit);
+
+    const answer = {
+      pagesCount,
+      page: query.pageNumber,
+      pageSize: query.pageSize,
+      totalCount: items.length,
+      items
+    };
+
+    return answer;
   },
 
-  async createPost(body: PostInputModel) {
-    const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
+  async getPostsByQuery(query: any) {
+    const skip = (query.pageNumber - 1) * query.pageSize;
+    const limit = query.pageSize;
+    const sortBy = query.sortBy;
+    const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+    const sortObj: any = {};
+    sortObj[sortBy] = sortDirection
 
-    const id = `p${randomizer()}`;
-    const createdAt = new Date().toISOString();
+    const items = await postsCollection.find({})
+      .sort(sortObj)
+      .limit(limit)
+      .skip(skip)
+      .toArray();
 
-    const post = { id, blogName, createdAt, ...body };
+    const pagesCount = Math.ceil(items.length / limit);
 
+    const answer = {
+      pagesCount,
+      page: query.pageNumber,
+      pageSize: query.pageSize,
+      totalCount: items.length,
+      items
+    }
+
+    return answer;
+  },
+
+  async getPosts() {
+    const items = await postsCollection.find({}).toArray()
+    return items;
+  },
+
+  async createPost(post: any) {
     const result = await postsCollection.insertOne(post);
-
-    return this.getPostById(post.id);
+    return this.getPostById(result.insertedId.toString());
   },
 
   async getPostById(id: string) {
-    const post = await postsCollection.findOne({ id: id }, options);
+    // const post = await postsCollection.findOne({ id: id }, opt);
+    const post = await postsCollection.findOne({ _id: new ObjectID(id) });
     return post;
   },
 
-  async updatePost(id: string, body: PostInputModel) {
-    const blogName = await blogRepository.getBlogById(body.blogId).then(value => value.name);
-
+  async updatePost(id: string, body: PostInputModel, blogName: string) {
     const result = await postsCollection.updateOne({ id: id },
       {
         $set: {
@@ -59,7 +104,7 @@ export const postsRepository = {
   },
 
   async deletePostById(id: string) {
-    const result = await postsCollection.deleteOne({ id: id });
+    const result = await postsCollection.deleteOne({ _id: new ObjectID(id) });
     return result.deletedCount === 1;
   },
 
@@ -68,4 +113,4 @@ export const postsRepository = {
     const posts = await postsCollection.find({}).toArray();
     return posts.length === 0;
   }
-}
+};

@@ -1,19 +1,19 @@
 import request from "supertest";
-import { app } from "../../src";
-import { HTTP } from "../../src/HTTPStatusCodes";
-import { BlogViewModel, PostViewModel } from "../../src/models";
+import { app } from "../../src/app";
+import { BlogViewModel, PostViewModel, HTTP } from "../../src/models";
 
-describe('/hometask_03/apr/testing/all-data', () => {
+describe('/hometask_04/apr/testing/all-data', () => {
   // TEST #1.1
-  it('should delete all videos and return empty array', async () => {
+  it('should delete all data and return empty array', async () => {
     await request(app)
-      .delete('/hometask_03/api/testing/all-data')
+      .delete('/hometask_04/api/testing/all-data')
       .expect(HTTP.NO_CONTENT_204);
   });
 });
 
-describe('/hometask_03/api/blogs', () => {
+describe('/hometask_04/api/blogs', () => {
   let blog1: BlogViewModel;
+  let post1: PostViewModel;
 
   const reqBodyToCreate = {
     name: "string",
@@ -42,39 +42,56 @@ describe('/hometask_03/api/blogs', () => {
     ]
   };
 
+  const reqBodyToCreatePost = {
+    title: "string",
+    shortDescription: "string",
+    content: "string",
+  };
+
+  const reqBadBodyToCreatePost = {
+    title: "string",
+    shortDescription: "string",
+  }
+
   beforeAll(async () => {
-    await request(app).delete('/hometask_03/api/testing/all-data');
+    await request(app).delete('/hometask_04/api/testing/all-data');
   }); // blogs = [];
 
   // TEST #2.1
-  it('READ blogs. Should return 200', async () => {
+  it('READ blogs. Status 200', async () => {
     await request(app)
-      .get('/hometask_03/api/blogs')
-      .expect(HTTP.OK_200, []);
+      .get('/hometask_04/api/blogs')
+      .expect(HTTP.OK_200, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: []
+      });
   }); // blogs = [];
 
   // TEST #2.2
-  it('CREATE blog (unauthorized). Should return 401', async () => {
+  it('CREATE blog (unauthorized). Status 401', async () => {
     await request(app)
-      .post('/hometask_03/api/blogs')
+      .post('/hometask_04/api/blogs')
       .auth('admin', 'admin', { type: 'basic' })
       .send(reqBodyToCreate)
       .expect(HTTP.UNAUTHORIZED_401);
   }); // blogs = [];
 
   // TEST #2.3
-  it('CREATE blog (bad request). Should return 400', async () => {
+  it('CREATE blog (bad request). Status 400', async () => {
     await request(app)
-      .post('/hometask_03/api/blogs')
+      .post('/hometask_04/api/blogs')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(badReqBody)
       .expect(HTTP.BAD_REQUEST_400, resBody);
   }); // blogs = [];
 
   // TEST #2.4
-  it('CREATE blog. Should return 201', async () => {
+  it('CREATE blog. Status 201', async () => {
     const response = await request(app)
-      .post('/hometask_03/api/blogs')
+      .post('/hometask_04/api/blogs')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBodyToCreate);
 
@@ -91,25 +108,21 @@ describe('/hometask_03/api/blogs', () => {
     });
 
     blog1 = blog;
-    // console.log(blog1)
   }); // blogs = [blog1];
 
   // TEST #2.5
-  it('READ blog with id 100. Should return 404', async () => {
+  it('READ blog with id 100. Status 404', async () => {
     await request(app)
-      .get(`/hometask_03/api/blogs/100`)
+      .get(`/hometask_04/api/blogs/100`)
       .expect(HTTP.NOT_FOUND_404);
   }); // blogs = [blog1];
 
   // TEST #2.6 
-  it('READ blog1. Should return 200', async () => {
+  it('READ blog1. Status 200', async () => {
     const response = await request(app)
-      .get(`/hometask_03/api/blogs/${blog1.id}`)
+      .get(`/hometask_04/api/blogs/${blog1.id}`)
 
     const blog = response.body;
-
-    console.log(blog1.id);
-    console.log(blog);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
@@ -123,45 +136,49 @@ describe('/hometask_03/api/blogs', () => {
   }); // blogs = [blog1];
 
   // TEST #2.7
-  it('UPDATE blog with id 100. Should return 404', async () => {
+  it('UPDATE blog with id 100. Status 404', async () => {
     await request(app)
-      .put(`/hometask_03/api/blogs/100`)
+      .put(`/hometask_04/api/blogs/100`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBodyToUpdate)
       .expect(HTTP.NOT_FOUND_404);
   }); // blogs = [blog1];
 
   // TEST #2.8
-  it('UPDATE blog1 (unauthorized). Should return 401', async () => {
+  it('UPDATE blog1 (unauthorized). Status 401', async () => {
     await request(app)
-      .put(`/hometask_03/api/blogs/${blog1.id}`)
+      .put(`/hometask_04/api/blogs/${blog1.id}`)
       .auth('admin', 'admin', { type: 'basic' })
       .send(reqBodyToUpdate)
       .expect(HTTP.UNAUTHORIZED_401);
   }); // blogs = [blog1];
 
   // TEST #2.9
-  it('UPDATE blog1 (bad request). Should return 400', async () => {
+  it('UPDATE blog1 (bad request). Status 400', async () => {
     await request(app)
-      .put(`/hometask_03/api/blogs/${blog1.id}`)
+      .put(`/hometask_04/api/blogs/${blog1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(badReqBody)
       .expect(HTTP.BAD_REQUEST_400, resBody);
   }); // blogs = [blog1];
 
   // TEST #2.10
-  it('UPDATE blog1. Should return 204', async () => {
+  it('UPDATE blog1. Status 204', async () => {
     await request(app)
-      .put(`/hometask_03/api/blogs/${blog1.id}`)
+      .put(`/hometask_04/api/blogs/${blog1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBodyToUpdate)
       .expect(HTTP.NO_CONTENT_204);
+
+    blog1.name = reqBodyToUpdate.name
+    blog1.description = reqBodyToUpdate.description
+
   }); // blogs = [blog1];
 
   // TEST #2.11
-  it('READ blog1. Should return 200', async () => {
+  it('READ blog1. Status 200', async () => {
     const response = await request(app)
-      .get(`/hometask_03/api/blogs/${blog1.id}`)
+      .get(`/hometask_04/api/blogs/${blog1.id}`)
 
     const blog = response.body;
 
@@ -174,39 +191,131 @@ describe('/hometask_03/api/blogs', () => {
     });
   }); // blogs = [blog1];
 
-  // TEST #2.12
-  it('Delete blog with id 100. Should return 404', async () => {
+  // TEST #2.91
+  it('GET posts of blog 100. Status 404', async () => {
     await request(app)
-      .delete(`/hometask_03/api/blogs/100`)
+      .get(`/hometask_04/api/blogs/100/posts`)
+      .expect(HTTP.NOT_FOUND_404);
+  });
+
+  // TEST #2.92
+  it('GET posts of blog1. Status 200', async () => {
+    await request(app)
+      .get(`/hometask_04/api/blogs/${blog1.id}/posts`)
+      .expect(HTTP.OK_200, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: []
+      });
+  });
+
+  // TEST #2.93
+  it('POST post for blog100. Status 404', async () => {
+    await request(app)
+      .post(`/hometask_04/api/blogs/100/posts`)
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(reqBodyToCreatePost)
+      .expect(HTTP.NOT_FOUND_404);
+  });
+
+  // TEST #2.94
+  it('POST post for blog1 (unauthorized). Status 401', async () => {
+    await request(app)
+      .post(`/hometask_04/api/blogs/${blog1.id}/posts`)
+      .auth('admin', 'admin', { type: 'basic' })
+      .send(reqBodyToCreatePost)
+      .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #2.95
+  it('POST post for blog1 (bad request). Status 400', async () => {
+    await request(app)
+      .post(`/hometask_04/api/blogs/${blog1.id}/posts`)
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(reqBadBodyToCreatePost)
+      .expect(HTTP.BAD_REQUEST_400);
+  });
+
+  // TEST #2.96
+  it('POST post for blog1. Status 201', async () => {
+    const response = await request(app)
+      .post(`/hometask_04/api/blogs/${blog1.id}/posts`)
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(reqBodyToCreatePost);
+
+    const post = response.body;
+
+    console.log(post)
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.CREATED_201);
+    expect(post).toStrictEqual({
+      id: expect.any(String),
+      title: reqBodyToCreatePost.title,
+      shortDescription: reqBodyToCreatePost.shortDescription,
+      content: reqBodyToCreatePost.content,
+      blogId: blog1.id,
+      blogName: blog1.name,
+      createdAt: expect.any(String)
+    });
+
+    post1 = post;
+  });
+
+  // TEST #2.97
+  it('GET posts of blog1. Status 200', async () => {
+    await request(app)
+      .get(`/hometask_04/api/blogs/${blog1.id}/posts`)
+      .expect(HTTP.OK_200, {
+        pagesCount: 1,
+        page: 1,
+        pageSize: 10,
+        totalCount: 1,
+        items: [post1]
+      });
+  });
+
+  // TEST #2.12
+  it('Delete blog with id 100. Status 404', async () => {
+    await request(app)
+      .delete(`/hometask_04/api/blogs/100`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NOT_FOUND_404);
   }); // blogs = [blog1];
 
   // TEST #2.13
-  it('Delete blog1 (unauthorized). Should return 401', async () => {
+  it('Delete blog1 (unauthorized). Status 401', async () => {
     await request(app)
-      .delete(`/hometask_03/api/blogs/${blog1.id}`)
+      .delete(`/hometask_04/api/blogs/${blog1.id}`)
       .auth('admin', 'admin', { type: 'basic' })
       .expect(HTTP.UNAUTHORIZED_401);
   }); // blogs = [blog1];
 
   // TEST #2.14
-  it('Delete blog1. Should return 204', async () => {
+  it('Delete blog1. Status 204', async () => {
     await request(app)
-      .delete(`/hometask_03/api/blogs/${blog1.id}`)
+      .delete(`/hometask_04/api/blogs/${blog1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NO_CONTENT_204);
   }); // blogs = [];
 
   // TEST #2.15
-  it('READ blogs. Should return 200', async () => {
+  it('READ blogs. Status 200', async () => {
     await request(app)
-      .get('/hometask_03/api/blogs')
-      .expect(HTTP.OK_200, []);
+      .get('/hometask_04/api/blogs')
+      .expect(HTTP.OK_200, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: []
+      });
   }); // blogs = [];
 });
 
-describe('/hometask_03/api/posts', () => {
+describe('/hometask_04/api/posts', () => {
 
   let post1: PostViewModel;
   let blog1 = {
@@ -247,11 +356,11 @@ describe('/hometask_03/api/posts', () => {
   };
 
   beforeAll(async () => {
-    await request(app).delete('/hometask_03/apr/testing/all-data');
+    await request(app).delete('/hometask_04/api/testing/all-data');
   }); // posts = []; blogs = [];
 
   // TEST #000
-  it('CREATE blog FOR TEST. Should return 201', async () => {
+  it('CREATE blog FOR TEST. Status 201', async () => {
 
     const reqBody = {
       name: "string",
@@ -260,7 +369,7 @@ describe('/hometask_03/api/posts', () => {
     };
 
     const response = await request(app)
-      .post('/hometask_03/api/blogs')
+      .post('/hometask_04/api/blogs')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBody);
 
@@ -283,34 +392,40 @@ describe('/hometask_03/api/posts', () => {
   }); // posts = []; blogs = [blog1];
 
   // TEST #3.1
-  it('READ posts. Should return 200', async () => {
+  it('READ posts. Status 200', async () => {
     await request(app)
-      .get('/hometask_03/api/posts')
-      .expect(HTTP.OK_200, []);
+      .get('/hometask_04/api/posts')
+      .expect(HTTP.OK_200, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: []
+      });
   }); // posts = []; blogs = [blog1];
 
   // TEST #3.2
-  it('CREATE post (unauthorized). Should return 401', async () => {
+  it('CREATE post (unauthorized). Status 401', async () => {
     await request(app)
-      .post('/hometask_03/api/posts')
+      .post('/hometask_04/api/posts')
       .auth('admin', 'admin', { type: 'basic' })
       .send(reqBodyToCreate)
       .expect(HTTP.UNAUTHORIZED_401);
   }); // posts = []; blogs = [blog1];
 
   // TEST #3.3
-  it('CREATE post (bad request). Should return 400', async () => {
+  it('CREATE post (bad request). Status 400', async () => {
     await request(app)
-      .post('/hometask_03/api/posts')
+      .post('/hometask_04/api/posts')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(badReqBody)
       .expect(HTTP.BAD_REQUEST_400, resBody);
   }); // posts = []; blogs = [blog1];
 
   // TEST #3.4
-  it('CREATE post. Should return 201', async () => {
+  it('CREATE post. Status 201', async () => {
     const response = await request(app)
-      .post('/hometask_03/api/posts')
+      .post('/hometask_04/api/posts')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBodyToCreate);
 
@@ -332,16 +447,16 @@ describe('/hometask_03/api/posts', () => {
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.5
-  it('READ post with id 100. Should return 404', async () => {
+  it('READ post with id 100. Status 404', async () => {
     await request(app)
-      .get(`/hometask_03/api/posts/100`)
+      .get(`/hometask_04/api/posts/100`)
       .expect(HTTP.NOT_FOUND_404);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.6
-  it('READ post1. Should return 200', async () => {
+  it('READ post1. Status 200', async () => {
     const response = await request(app)
-      .get(`/hometask_03/api/posts/${post1.id}`)
+      .get(`/hometask_04/api/posts/${post1.id}`)
 
     const post = response.body;
 
@@ -359,45 +474,45 @@ describe('/hometask_03/api/posts', () => {
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.7
-  it('UPDATE post with id 100. Should return 404', async () => {
+  it('UPDATE post with id 100. Status 404', async () => {
     await request(app)
-      .put(`/hometask_03/api/posts/100`)
+      .put(`/hometask_04/api/posts/100`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBodyToUpdate)
       .expect(HTTP.NOT_FOUND_404);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.8
-  it('UPDATE post1 (unauthorized). Should return 401', async () => {
+  it('UPDATE post1 (unauthorized). Status 401', async () => {
     await request(app)
-      .put(`/hometask_03/api/posts/${post1.id}`)
+      .put(`/hometask_04/api/posts/${post1.id}`)
       .auth('admin', 'admin', { type: 'basic' })
       .send(reqBodyToUpdate)
       .expect(HTTP.UNAUTHORIZED_401);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.9
-  it('UPDATE post1 (bad request). Should return 400', async () => {
+  it('UPDATE post1 (bad request). Status 400', async () => {
     await request(app)
-      .put(`/hometask_03/api/posts/${post1.id}`)
+      .put(`/hometask_04/api/posts/${post1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(badReqBody)
       .expect(HTTP.BAD_REQUEST_400, resBody);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.10
-  it('UPDATE post1. Should return 204', async () => {
+  it('UPDATE post1. Status 204', async () => {
     await request(app)
-      .put(`/hometask_03/api/posts/${post1.id}`)
+      .put(`/hometask_04/api/posts/${post1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(reqBodyToUpdate)
       .expect(HTTP.NO_CONTENT_204);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.11
-  it('READ post1. Should return 200', async () => {
+  it('READ post1. Status 200', async () => {
     const response = await request(app)
-      .get(`/hometask_03/api/posts/${post1.id}`)
+      .get(`/hometask_04/api/posts/${post1.id}`)
 
     const post = response.body;
 
@@ -412,33 +527,39 @@ describe('/hometask_03/api/posts', () => {
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.12
-  it('Delete post with id 100. Should return 404', async () => {
+  it('Delete post with id 100. Status 404', async () => {
     await request(app)
-      .delete(`/hometask_03/api/posts/100`)
+      .delete(`/hometask_04/api/posts/100`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NOT_FOUND_404);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.13
-  it('Delete post1 (unauthorized). Should return 401', async () => {
+  it('Delete post1 (unauthorized). Status 401', async () => {
     await request(app)
-      .delete(`/hometask_03/api/posts/${post1.id}`)
+      .delete(`/hometask_04/api/posts/${post1.id}`)
       .auth('admin', 'admin', { type: 'basic' })
       .expect(HTTP.UNAUTHORIZED_401);
   }); // posts = [post1]; blogs = [blog1];
 
   // TEST #3.14
-  it('Delete post1. Should return 204', async () => {
+  it('Delete post1. Status 204', async () => {
     await request(app)
-      .delete(`/hometask_03/api/posts/${post1.id}`)
+      .delete(`/hometask_04/api/posts/${post1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NO_CONTENT_204);
   }); // posts = []; blogs = [blog1];
 
   // TEST #3.15
-  it('READ posts. Should return 200', async () => {
+  it('READ posts. Status 200', async () => {
     await request(app)
-      .get('/hometask_03/api/posts')
-      .expect(HTTP.OK_200, []);
+      .get('/hometask_04/api/posts')
+      .expect(HTTP.OK_200, {
+        pagesCount: 0,
+        page: 1,
+        pageSize: 10,
+        totalCount: 0,
+        items: []
+      });
   }); // posts = []; blogs = [blog1];
 });

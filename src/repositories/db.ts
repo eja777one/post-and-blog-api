@@ -1,11 +1,10 @@
-import { BlogViewModel } from './../models';
+import { BlogDBModel, BlogViewModel, PostDBModel } from './../models';
 import { MongoClient } from 'mongodb';
 import { PostViewModel } from '../models';
 import * as dotenv from 'dotenv';
 dotenv.config()
 
 const mongoUri = process.env.mongoURI;
-
 
 if (!mongoUri) {
   throw new Error('DB url does not found');
@@ -16,8 +15,8 @@ const client = new MongoClient(mongoUri);
 // const db = client.db('platform');
 const db = client.db();
 
-export const postsCollection = db.collection<PostViewModel>('posts');
-export const blogsCollection = db.collection<BlogViewModel>('blogs');
+export const postsCollection = db.collection<PostDBModel>('posts');
+export const blogsCollection = db.collection<BlogDBModel>('blogs');
 
 export async function runDb() {
   try {

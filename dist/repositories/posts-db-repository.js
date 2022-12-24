@@ -11,9 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsRepository = void 0;
 const db_1 = require("./db");
-const blogs_db_repository_1 = require("./blogs-db-repository");
-const randomizer = () => (Math.random() * 10000).toFixed(0);
-const options = {
+const opt = {
     projection: {
         _id: 0,
         id: 1,
@@ -26,30 +24,76 @@ const options = {
     }
 };
 exports.postsRepository = {
-    getPosts() {
+    getPostsByBlogId(id, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.postsCollection.find({}, options).toArray();
+            const skip = (query.pageNumber - 1) * query.pageSize;
+            const limit = query.pageSize;
+            const sortBy = query.sortBy;
+            const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+            const sortObj = {};
+            sortObj[sortBy] = sortDirection;
+            const findObj = { 'blogId': query.blogId };
+            const items = yield db_1.postsCollection.find(findObj, query)
+                .sort(sortObj)
+                .limit(limit)
+                .skip(skip)
+                .toArray();
+            const pagesCount = Math.ceil(items.length / limit);
+            const answer = {
+                pagesCount,
+                page: query.pageNumber,
+                pageSize: query.pageSize,
+                totalCount: items.length,
+                items
+            };
+            return answer;
         });
     },
-    createPost(body) {
+    getPostsByQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogName = yield blogs_db_repository_1.blogRepository.getBlogById(body.blogId).then(value => value.name);
-            const id = `p${randomizer()}`;
-            const createdAt = new Date().toISOString();
-            const post = Object.assign({ id, blogName, createdAt }, body);
+            const skip = (query.pageNumber - 1) * query.pageSize;
+            const limit = query.pageSize;
+            const sortBy = query.sortBy;
+            const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+            const sortObj = {};
+            sortObj[sortBy] = sortDirection;
+            const items = yield db_1.postsCollection.find({}, opt)
+                .sort(sortObj)
+                .limit(limit)
+                .skip(skip)
+                .toArray();
+            const pagesCount = Math.ceil(items.length / limit);
+            const answer = {
+                pagesCount,
+                page: query.pageNumber,
+                pageSize: query.pageSize,
+                totalCount: items.length,
+                items
+            };
+            return answer;
+        });
+    },
+    getPosts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const items = yield db_1.postsCollection.find({}, opt).toArray();
+            return items;
+        });
+    },
+    createPost(post) {
+        return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.postsCollection.insertOne(post);
-            return this.getPostById(post.id);
+            return this.getPostById(result.insertedId.toString());
         });
     },
     getPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield db_1.postsCollection.findOne({ id: id }, options);
+            // const post = await postsCollection.findOne({ id: id }, opt);
+            const post = yield db_1.postsCollection.findOne({ id: id });
             return post;
         });
     },
-    updatePost(id, body) {
+    updatePost(id, body, blogName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogName = yield blogs_db_repository_1.blogRepository.getBlogById(body.blogId).then(value => value.name);
             const result = yield db_1.postsCollection.updateOne({ id: id }, {
                 $set: {
                     title: body.title,

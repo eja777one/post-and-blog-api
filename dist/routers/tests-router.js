@@ -9,12 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const db_1 = require("./repositories/db");
-const app_1 = require("./app");
-const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, db_1.runDb)();
-    app_1.app.listen(app_1.port, () => {
-        console.log(`Example app listening on port ${app_1.port}`);
-    });
-});
-startApp();
+exports.testsRouter = void 0;
+const express_1 = require("express");
+const posts_services_1 = require("./../domains/posts-services");
+const blogs_services_1 = require("./../domains/blogs-services");
+const models_1 = require("../models");
+exports.testsRouter = (0, express_1.Router)({});
+exports.testsRouter.delete('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield blogs_services_1.blogServices.deleteAll();
+    yield posts_services_1.postsServices.deleteAll();
+    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
+}));

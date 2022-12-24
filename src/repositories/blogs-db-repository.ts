@@ -1,9 +1,8 @@
 import { blogsCollection } from './db';
 import { BlogInputModel } from "../models";
+import { ObjectID } from 'bson';
 
-const randomizer = () => (Math.random() * 10000).toFixed(0);
-
-const options = {
+const opt = {
   projection: {
     _id: 0,
     id: 1,
@@ -15,26 +14,46 @@ const options = {
 };
 
 export const blogRepository = {
-  async getBlogs() {
-    return await blogsCollection.find({}, options).toArray();
+  async getBlogsByQuery(query: any) {
+    const skip = (query.pageNumber - 1) * query.pageSize;
+    const limit = query.pageSize;
+    const sortBy = query.sortBy;
+    const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+    const sortObj: any = {};
+    sortObj[sortBy] = sortDirection
+    const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
+
+    const items = await blogsCollection.find(findObj, query)
+      .sort(sortObj)
+      .limit(limit)
+      .skip(skip)
+      .toArray();
+
+    const pagesCount = Math.ceil(items.length / limit);
+
+    const answer = {
+      pagesCount,
+      page: query.pageNumber,
+      pageSize: query.pageSize,
+      totalCount: items.length,
+      items
+    }
+
+    return answer;
   },
 
-  async createBlog(body: BlogInputModel) {
-    const id = `b${randomizer()}`;
-    const createdAt = new Date().toISOString();
-    const blog = { id, createdAt, ...body };
-    console.log(blog)
+  async createBlog(blog: any) {
     const result = await blogsCollection.insertOne(blog);
-    return this.getBlogById(blog.id);
+    return this.getBlogById(result.insertedId.toString());
   },
 
   async getBlogById(id: string) {
-    const blog: any = await blogsCollection.findOne({ id: id }, options); // BAD
+    const blog = await blogsCollection.findOne({ _id: new ObjectID(id) });
     return blog;
   },
 
   async updateBlog(id: string, body: BlogInputModel) {
-    const result = await blogsCollection.updateOne({ id: id },
+    const result = await blogsCollection.updateOne({ _id: new ObjectID(id) },
       {
         $set: {
           name: body.name,
@@ -47,13 +66,17 @@ export const blogRepository = {
   },
 
   async deleteBlogById(id: string) {
-    const result = await blogsCollection.deleteOne({ id: id });
+    const result = await blogsCollection.deleteOne({ _id: new ObjectID(id) });
     return result.deletedCount === 1;
+  },
+
+  async getBlogs() {
+    const blogs = await blogsCollection.find({}).toArray();
+    return blogs;
   },
 
   async deleteAll() {
     const result = await blogsCollection.deleteMany({});
-    const posts = await blogsCollection.find({}).toArray()
-    return posts.length === 0;
+    return result.deletedCount;
   }
 };

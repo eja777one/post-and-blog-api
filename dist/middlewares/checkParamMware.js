@@ -9,24 +9,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkParamMware = exports.testPostsParam = exports.testBlogsParam = void 0;
+exports.checkParamMware = exports.testPostsParam = exports.testBlogsParamBlogID = exports.testBlogsParamId = void 0;
 const express_validator_1 = require("express-validator");
 const blogs_db_repository_1 = require("../repositories/blogs-db-repository");
 const posts_db_repository_1 = require("../repositories/posts-db-repository");
-exports.testBlogsParam = (0, express_validator_1.param)('id')
+exports.testBlogsParamId = (0, express_validator_1.param)('id')
     .custom((value) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogsIds = yield blogs_db_repository_1.blogRepository.getBlogs().then(value => value.map(el => el.id));
-    // console.log(blogsIds)
-    // console.log(value)
+    const blogsIds = yield blogs_db_repository_1.blogRepository.getBlogs().
+        then(value => value.map(el => el._id.toString()));
+    console.log(blogsIds);
+    console.log(value);
     if (blogsIds.indexOf(value) === -1)
         throw new Error("id is unexist");
+    else
+        return true;
+}));
+exports.testBlogsParamBlogID = (0, express_validator_1.param)('blogId')
+    .custom((value) => __awaiter(void 0, void 0, void 0, function* () {
+    const blogsIds = yield blogs_db_repository_1.blogRepository.getBlogs()
+        .then(value => value.map(el => el._id.toString()));
+    console.log(blogsIds);
+    console.log(value);
+    if (blogsIds.indexOf(value) === -1)
+        throw new Error("blogId is unexist");
     else
         return true;
 }));
 exports.testPostsParam = (0, express_validator_1.param)('id')
     .custom((value) => __awaiter(void 0, void 0, void 0, function* () {
     // const postsIds = postsRepository.getPosts().map(post => post.id);
-    const postsIds = yield posts_db_repository_1.postsRepository.getPosts().then(value => value.map(el => el.id));
+    const postsIds = yield posts_db_repository_1.postsRepository.getPosts()
+        .then(value => value.map(el => el._id.toString()));
     // console.log(postsIds)
     // console.log(value)
     if (postsIds.indexOf(value) === -1)
