@@ -8,7 +8,7 @@ export const postsRepository = {
     const skip = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
     const sortBy = query.sortBy;
-    const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+    const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
     const findObj = { 'blogId': id };
@@ -38,7 +38,7 @@ export const postsRepository = {
     const skip = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
     const sortBy = query.sortBy;
-    const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+    const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
 

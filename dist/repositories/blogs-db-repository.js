@@ -18,10 +18,12 @@ exports.blogRepository = {
             const skip = (query.pageNumber - 1) * query.pageSize;
             const limit = query.pageSize;
             const sortBy = query.sortBy;
-            const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+            console.log(query.sortDirection);
+            const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
             const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
+            console.log(sortObj);
             const items = yield db_1.blogsCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
