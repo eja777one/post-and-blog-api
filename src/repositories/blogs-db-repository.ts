@@ -19,15 +19,15 @@ export const blogRepository = {
       .skip(skip)
       .toArray();
 
-    const allItems = (await this.getBlogs()).length
+    const items2 = await blogsCollection.find(findObj).toArray();
 
-    const pagesCount = Math.ceil(allItems / limit);
+    const pagesCount = Math.ceil(items2.length / limit);
 
     const answer = {
       pagesCount,
       page: query.pageNumber,
       pageSize: query.pageSize,
-      totalCount: allItems,
+      totalCount: items2.length,
       items
     }
 

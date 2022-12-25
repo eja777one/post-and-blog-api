@@ -23,19 +23,18 @@ exports.blogRepository = {
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
             const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
-            console.log(sortObj);
             const items = yield db_1.blogsCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const allItems = (yield this.getBlogs()).length;
-            const pagesCount = Math.ceil(allItems / limit);
+            const items2 = yield db_1.blogsCollection.find(findObj).toArray();
+            const pagesCount = Math.ceil(items2.length / limit);
             const answer = {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: allItems,
+                totalCount: items2.length,
                 items
             };
             return answer;

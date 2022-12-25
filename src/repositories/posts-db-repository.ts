@@ -19,15 +19,16 @@ export const postsRepository = {
       .skip(skip)
       .toArray();
 
-    const allItems = (await this.getPosts()).length
+    const items2 = await postsCollection.find(findObj)
+      .toArray();
 
-    const pagesCount = Math.ceil(allItems / limit);
+    const pagesCount = Math.ceil(items2.length / limit);
 
     const answer = {
       pagesCount,
       page: query.pageNumber,
       pageSize: query.pageSize,
-      totalCount: allItems,
+      totalCount: items2.length,
       items
     };
 
@@ -48,13 +49,16 @@ export const postsRepository = {
       .skip(skip)
       .toArray();
 
-    const pagesCount = Math.ceil(items.length / limit);
+    const items2 = await postsCollection.find()
+      .toArray();
+
+    const pagesCount = Math.ceil(items2.length / limit);
 
     const answer = {
       pagesCount,
       page: query.pageNumber,
       pageSize: query.pageSize,
-      totalCount: items.length,
+      totalCount: items2.length,
       items
     }
 

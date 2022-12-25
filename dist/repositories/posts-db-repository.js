@@ -18,7 +18,7 @@ exports.postsRepository = {
             const skip = (query.pageNumber - 1) * query.pageSize;
             const limit = query.pageSize;
             const sortBy = query.sortBy;
-            const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+            const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
             const findObj = { 'blogId': id };
@@ -27,13 +27,14 @@ exports.postsRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const allItems = (yield this.getPosts()).length;
-            const pagesCount = Math.ceil(allItems / limit);
+            const items2 = yield db_1.postsCollection.find(findObj)
+                .toArray();
+            const pagesCount = Math.ceil(items2.length / limit);
             const answer = {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: allItems,
+                totalCount: items2.length,
                 items
             };
             return answer;
@@ -44,7 +45,7 @@ exports.postsRepository = {
             const skip = (query.pageNumber - 1) * query.pageSize;
             const limit = query.pageSize;
             const sortBy = query.sortBy;
-            const sortDirection = query.sortDirection = 'asc' ? 1 : -1;
+            const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
             const items = yield db_1.postsCollection.find({})
@@ -52,12 +53,14 @@ exports.postsRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const pagesCount = Math.ceil(items.length / limit);
+            const items2 = yield db_1.postsCollection.find()
+                .toArray();
+            const pagesCount = Math.ceil(items2.length / limit);
             const answer = {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: items.length,
+                totalCount: items2.length,
                 items
             };
             return answer;
