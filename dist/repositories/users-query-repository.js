@@ -30,9 +30,18 @@ exports.usersQueryRepository = {
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const findObj = {};
-            query.searchLoginTerm ? findObj.login = new RegExp(query.searchLoginTerm, 'i') : '';
-            query.searchEmailTerm ? findObj.email = new RegExp(query.searchEmailTerm, 'i') : '';
+            let findObj = { $or: [] };
+            if (query.searchLoginTerm) {
+                findObj.$or.push({ login: new RegExp(query.searchLoginTerm, 'i') });
+            }
+            ;
+            if (query.searchEmailTerm) {
+                findObj.$or.push({ email: new RegExp(query.searchEmailTerm, 'i') });
+            }
+            ;
+            if (findObj.$or.length === 0)
+                findObj = {};
+            console.log(findObj);
             const items = yield db_1.usersCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)

@@ -22,7 +22,7 @@ exports.usersRepository = {
     deleteUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield db_1.usersCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
-            return result.deletedCount;
+            return result.deletedCount === 1;
         });
     },
     deleteAll() {

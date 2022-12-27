@@ -9,7 +9,7 @@ export const usersRepository = {
 
   async deleteUserById(id: string) {
     const result = await usersCollection.deleteOne({ _id: new ObjectID(id) });
-    return result.deletedCount;
+    return result.deletedCount === 1;
   },
 
   async deleteAll() {

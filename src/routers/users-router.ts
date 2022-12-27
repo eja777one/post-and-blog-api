@@ -37,6 +37,9 @@ usersRouter.delete('/:id',
   checkAuthMware,
   checkIsObjectId,
   async (req: Request, res: Response) => {
-    await usersServices.deleteUserById(req.params.id);
-    res.sendStatus(HTTP.NO_CONTENT_204); // TEST #4.14
+    const result = await usersServices.deleteUserById(req.params.id);
+    if (result)
+      res.sendStatus(HTTP.NO_CONTENT_204); // TEST #4.
+    else
+      res.sendStatus(HTTP.NOT_FOUND_404);
   });

@@ -31,6 +31,9 @@ exports.usersRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware
     res.status(201).json(user); // TEST #4.5, #4.6
 }));
 exports.usersRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield users_services_1.usersServices.deleteUserById(req.params.id);
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #4.14
+    const result = yield users_services_1.usersServices.deleteUserById(req.params.id);
+    if (result)
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #4.
+    else
+        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
 }));
