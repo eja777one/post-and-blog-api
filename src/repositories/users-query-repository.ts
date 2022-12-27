@@ -30,7 +30,8 @@ export const usersQueryRepository = {
       findObj.$or.push({ email: new RegExp(query.searchEmailTerm, 'i') });
     };
 
-    if (findObj.$or.length = 0) findObj = {};
+    if (findObj.$or.length === 0) findObj = {};
+    console.log(findObj)
 
     const items = await usersCollection.find(findObj)
       .sort(sortObj)
