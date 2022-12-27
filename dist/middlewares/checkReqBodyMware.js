@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkReqBodyMware = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+exports.checkReqBodyMware = exports.testAddUserReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
 const express_validator_1 = require("express-validator");
-const blogs_db_repository_1 = require("../repositories/blogs-db-repository");
+const mongodb_1 = require("mongodb");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
     name: {
         isString: true,
@@ -64,8 +64,7 @@ exports.testPostsReqBody = (0, express_validator_1.checkSchema)({
         trim: { options: [' '] },
         custom: {
             options: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                const blog = yield blogs_db_repository_1.blogRepository.getBlogById(value).then(value => value);
-                if (!blog)
+                if (!mongodb_1.ObjectId.isValid(value))
                     throw new Error('Blog id is unexist');
                 else
                     return true;
@@ -96,6 +95,30 @@ exports.testPostsReqBodyNoBlogId = (0, express_validator_1.checkSchema)({
         },
     }
 });
+exports.testLoginPassReqBody = (0, express_validator_1.checkSchema)({
+    loginOrEmail: { isString: true },
+    password: { isString: true }
+});
+exports.testAddUserReqBody = (0, express_validator_1.checkSchema)({
+    login: {
+        isString: true,
+        isLength: {
+            options: { min: 3, max: 10 }
+        },
+    },
+    password: {
+        isString: true,
+        isLength: {
+            options: { min: 6, max: 20 }
+        },
+    },
+    email: {
+        isString: true,
+        matches: {
+            options: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+        },
+    }
+});
 const checkReqBodyMware = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
@@ -105,11 +128,9 @@ const checkReqBodyMware = (req, res, next) => {
         }
         ;
         const tempErrors = Array.from(new Set(rawErrors));
-        const myErrors = tempErrors.map(e => ({
-            message: `incorrect ${e}`,
-            field: e
-        }));
-        return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #2.95, #3.3, #3.9
+        const myErrors = tempErrors.map(e => ({ message: `incorrect ${e}`, field: e }));
+        return res.status(400).json({ errorsMessages: myErrors });
+        // TEST #2.3, #2.9, #2.95, #3.3, #3.9
     }
     else
         next();

@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsRouter = void 0;
 const express_1 = require("express");
+const posts_query_repository_1 = require("./../repositories/posts-query-repository");
+const blogs_query_repository_1 = require("./../repositories/blogs-query-repository");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const checkParamMware_1 = require("../middlewares/checkParamMware");
 const checkAuthMware_1 = require("../middlewares/checkAuthMware");
@@ -20,45 +22,35 @@ const mappers_1 = require("./mappers");
 exports.blogsRouter = (0, express_1.Router)({});
 exports.blogsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = (0, mappers_1.prepareQueries)(req.query);
-    const blogs = yield blogs_services_1.blogServices.getBlogsByQuery(query);
-    const formatBlogs = (0, mappers_1.prepareBlogs)(blogs);
-    res.status(models_1.HTTP.OK_200).json(formatBlogs); // TEST #2.1, #2.15
+    const blogs = yield blogs_query_repository_1.blogsQueryRepository.getBlogsByQuery(query);
+    res.status(models_1.HTTP.OK_200).json(blogs); // TEST #2.1, #2.15
 }));
-exports.blogsRouter.post('/', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testBlogsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogs_services_1.blogServices.createBlog(req.body);
-    if (blog) {
-        const formatBlog = (0, mappers_1.prepareBlog)(blog);
-        res.status(models_1.HTTP.CREATED_201).json(formatBlog); // TEST #2.4
-    }
-    ;
+exports.blogsRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testBlogsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blogId = yield blogs_services_1.blogServices.createBlog(req.body);
+    const blog = yield blogs_query_repository_1.blogsQueryRepository.getBlogById(blogId);
+    res.status(models_1.HTTP.CREATED_201).json(blog); // TEST #2.4
 }));
-exports.blogsRouter.get('/:id', checkParamMware_1.testBlogsParamId, checkParamMware_1.checkParamMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogs_services_1.blogServices.getBlogById(req.params.id);
-    if (blog) {
-        const formatBlog = (0, mappers_1.prepareBlog)(blog);
-        res.status(models_1.HTTP.OK_200).json(formatBlog); // TEST #2.6, #2.11
-    }
-    ;
+exports.blogsRouter.get('/:id', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blog = yield blogs_query_repository_1.blogsQueryRepository.getBlogById(req.params.id);
+    res.status(models_1.HTTP.OK_200).json(blog); // TEST #2.6, #2.11
 }));
-exports.blogsRouter.put('/:id', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkParamMware_1.testBlogsParamId, checkParamMware_1.checkParamMware, checkReqBodyMware_1.testBlogsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsRouter.put('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testBlogsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield blogs_services_1.blogServices.updateBlog(req.params.id, req.body);
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #2.10
 }));
-exports.blogsRouter.delete('/:id', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkParamMware_1.testBlogsParamId, checkParamMware_1.checkParamMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield blogs_services_1.blogServices.deleteBlogById(req.params.id);
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #2.14
 }));
-exports.blogsRouter.get('/:blogId/posts', checkParamMware_1.testBlogsParamBlogID, checkParamMware_1.checkParamMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.blogsRouter.get('/:blogId/posts', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = (0, mappers_1.prepareQueries)(req.query);
-    const posts = yield blogs_services_1.blogServices.getPostsByBlogId(req.params.blogId, query);
-    const formatPosts = (0, mappers_1.preparePosts)(posts);
-    return res.status(models_1.HTTP.OK_200).json(formatPosts); // TEST #2.92, #2.97
+    const posts = yield posts_query_repository_1.postsQueryRepository
+        .getPostsByBlogId(req.params.blogId, query);
+    return res.status(models_1.HTTP.OK_200).json(posts); // TEST #2.92, #2.97
 }));
-exports.blogsRouter.post('/:blogId/posts', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkParamMware_1.testBlogsParamBlogID, checkParamMware_1.checkParamMware, checkReqBodyMware_1.testPostsReqBodyNoBlogId, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield blogs_services_1.blogServices.createPostsByBlogId(req.params.blogId, req.body);
-    if (post) {
-        const formatPost = (0, mappers_1.preparePost)(post);
-        return res.status(models_1.HTTP.CREATED_201).json(formatPost); // TEST #2.96
-    }
-    ;
+exports.blogsRouter.post('/:blogId/posts', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testPostsReqBodyNoBlogId, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const postId = yield blogs_services_1.blogServices
+        .createPostsByBlogId(req.params.blogId, req.body);
+    const post = yield posts_query_repository_1.postsQueryRepository.getPostById(postId);
+    return res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.96
 }));

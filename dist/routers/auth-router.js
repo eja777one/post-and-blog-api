@@ -9,16 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testsRouter = void 0;
+exports.authRouter = void 0;
 const express_1 = require("express");
 const users_services_1 = require("./../domains/users-services");
-const posts_services_1 = require("./../domains/posts-services");
-const blogs_services_1 = require("./../domains/blogs-services");
 const models_1 = require("../models");
-exports.testsRouter = (0, express_1.Router)({});
-exports.testsRouter.delete('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield blogs_services_1.blogServices.deleteAll();
-    yield posts_services_1.postsServices.deleteAll();
-    yield users_services_1.usersServices.deleteAll();
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
+const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
+exports.authRouter = (0, express_1.Router)({});
+exports.authRouter.post('/', checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield users_services_1.usersServices
+        .checkAuth(req.body.login, req.body.password);
+    if (result)
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+    else
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
 }));

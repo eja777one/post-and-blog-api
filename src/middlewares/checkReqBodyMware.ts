@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
-import { blogRepository } from "../repositories/blogs-db-repository";
+import { ObjectId } from 'mongodb';
 
 export const testBlogsReqBody = checkSchema({
   name: {
@@ -55,8 +55,8 @@ export const testPostsReqBody = checkSchema({
     trim: { options: [' '] },
     custom: {
       options: async (value) => {
-        const blog = await blogRepository.getBlogById(value).then(value => value);
-        if (!blog) throw new Error('Blog id is unexist');
+        if (!ObjectId.isValid(value))
+          throw new Error('Blog id is unexist');
         else return true;
       }
     }
@@ -87,6 +87,32 @@ export const testPostsReqBodyNoBlogId = checkSchema({
   }
 });
 
+export const testLoginPassReqBody = checkSchema({
+  loginOrEmail: { isString: true },
+  password: { isString: true }
+});
+
+export const testAddUserReqBody = checkSchema({
+  login: {
+    isString: true,
+    isLength: {
+      options: { min: 3, max: 10 }
+    },
+  },
+  password: {
+    isString: true,
+    isLength: {
+      options: { min: 6, max: 20 }
+    },
+  },
+  email: {
+    isString: true,
+    matches: {
+      options: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+    },
+  }
+});
+
 export const checkReqBodyMware = (
   req: Request,
   res: Response,
@@ -104,12 +130,9 @@ export const checkReqBodyMware = (
     const tempErrors = Array.from(new Set(rawErrors));
 
     const myErrors = tempErrors.map(e => (
-      {
-        message: `incorrect ${e}`,
-        field: e
-      }
-    ));
+      { message: `incorrect ${e}`, field: e }));
 
-    return res.status(400).json({ errorsMessages: myErrors }); // TEST #2.3, #2.9, #2.95, #3.3, #3.9
+    return res.status(400).json({ errorsMessages: myErrors });
+    // TEST #2.3, #2.9, #2.95, #3.3, #3.9, #4.4, #4.12
   } else next();
 };

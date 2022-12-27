@@ -9,37 +9,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogRepository = void 0;
-const db_1 = require("./db");
+exports.usersRepository = void 0;
 const bson_1 = require("bson");
-exports.blogRepository = {
-    createBlog(blog) {
+const db_1 = require("./db");
+exports.usersRepository = {
+    addUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.insertOne(blog);
+            const result = yield db_1.usersCollection.insertOne(user);
             return result.insertedId.toString();
         });
     },
-    updateBlog(id, body) {
+    deleteUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.updateOne({ _id: new bson_1.ObjectID(id) }, {
-                $set: {
-                    name: body.name,
-                    description: body.description,
-                    websiteUrl: body.websiteUrl,
-                }
-            });
-            return result.matchedCount;
-        });
-    },
-    deleteBlogById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
+            const result = yield db_1.usersCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
             return result.deletedCount;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.blogsCollection.deleteMany({});
+            const result = yield db_1.usersCollection.deleteMany({});
             return result.deletedCount;
         });
     }

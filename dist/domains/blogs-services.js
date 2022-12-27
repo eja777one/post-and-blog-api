@@ -10,16 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogServices = void 0;
+const posts_query_repository_1 = require("./../repositories/posts-query-repository");
+const blogs_query_repository_1 = require("./../repositories/blogs-query-repository");
 const posts_services_1 = require("./posts-services");
 const blogs_db_repository_1 = require("../repositories/blogs-db-repository");
 const posts_db_repository_1 = require("../repositories/posts-db-repository");
 exports.blogServices = {
-    getBlogsByQuery(query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const blogs = yield blogs_db_repository_1.blogRepository.getBlogsByQuery(query);
-            return blogs;
-        });
-    },
     createBlog(body) {
         return __awaiter(this, void 0, void 0, function* () {
             const createdAt = new Date().toISOString();
@@ -27,29 +23,38 @@ exports.blogServices = {
             return yield blogs_db_repository_1.blogRepository.createBlog(blog);
         });
     },
-    getBlogById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield blogs_db_repository_1.blogRepository.getBlogById(id);
-        });
-    },
     updateBlog(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield blogs_db_repository_1.blogRepository.updateBlog(id, body);
+            const lastBlogName = (yield blogs_query_repository_1.blogsQueryRepository.getBlogById(id)).name;
+            yield blogs_db_repository_1.blogRepository.updateBlog(id, body);
+            const currentBlogName = (yield blogs_query_repository_1.blogsQueryRepository.getBlogById(id)).name;
+            if (lastBlogName !== currentBlogName) {
+                const posts = yield posts_query_repository_1.postsQueryRepository.getPostsIdByBlogId2(id);
+                for (let post of posts) {
+                    const newPost = yield posts_db_repository_1.postsRepository.updatePost(post._id.toString(), {
+                        title: post.title,
+                        shortDescription: post.shortDescription,
+                        content: post.content,
+                        blogId: post.blogId,
+                    }, currentBlogName);
+                }
+                ;
+            }
+            ;
         });
     },
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield blogs_db_repository_1.blogRepository.deleteBlogById(id);
-        });
-    },
-    getBlogs() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield blogs_db_repository_1.blogRepository.getBlogs();
-        });
-    },
-    getPostsByBlogId(id, query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield posts_db_repository_1.postsRepository.getPostsByBlogId(id, query);
+            yield blogs_db_repository_1.blogRepository.deleteBlogById(id);
+            const posts = yield posts_query_repository_1.postsQueryRepository.getPostsIdByBlogId2(id);
+            if (posts.length > 0) {
+                for (let post of posts) {
+                    const newPost = yield posts_db_repository_1.postsRepository
+                        .deletePostById(post._id.toString());
+                }
+                ;
+            }
+            ;
         });
     },
     createPostsByBlogId(blogId, body) {

@@ -1,4 +1,4 @@
-import { BlogInputModel, BlogViewModel } from "../models";
+import { BlogInputModel, BlogViewModel } from "../../models";
 
 const randomizer = () => (Math.random() * 10000).toFixed(0);
 

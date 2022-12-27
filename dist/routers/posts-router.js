@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsRouter = void 0;
+const posts_query_repository_1 = require("./../repositories/posts-query-repository");
 const express_1 = require("express");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const checkParamMware_1 = require("../middlewares/checkParamMware");
@@ -20,31 +21,23 @@ const mappers_1 = require("./mappers");
 exports.postsRouter = (0, express_1.Router)({});
 exports.postsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = (0, mappers_1.prepareQueries)(req.query);
-    const posts = yield posts_services_1.postsServices.getPostsByQuery(query);
-    const formatPosts = (0, mappers_1.preparePosts)(posts);
-    return res.status(200).json(formatPosts); // TEST #3.1, #3.15
+    const posts = yield posts_query_repository_1.postsQueryRepository.getPostsByQuery(query);
+    return res.status(200).json(posts); // TEST #3.1, #3.15
 }));
-exports.postsRouter.post('/', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield posts_services_1.postsServices.createPost(req.body);
-    if (post) {
-        const formatPost = (0, mappers_1.preparePost)(post);
-        return res.status(models_1.HTTP.CREATED_201).json(formatPost); // TEST #2.4
-    }
-    ;
+exports.postsRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const postId = yield posts_services_1.postsServices.createPost(req.body);
+    const post = yield posts_query_repository_1.postsQueryRepository.getPostById(postId);
+    return res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.4
 }));
-exports.postsRouter.get('/:id', checkParamMware_1.testPostsParam, checkParamMware_1.checkParamMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield posts_services_1.postsServices.getPostById(req.params.id);
-    if (post) {
-        const formatPost = (0, mappers_1.preparePost)(post);
-        res.status(models_1.HTTP.OK_200).json(formatPost); // TEST #3.6, #3.11
-    }
-    ;
+exports.postsRouter.get('/:id', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const post = yield posts_query_repository_1.postsQueryRepository.getPostById(req.params.id);
+    res.status(models_1.HTTP.OK_200).json(post); // TEST #3.6, #3.11
 }));
-exports.postsRouter.put('/:id', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkParamMware_1.testPostsParam, checkParamMware_1.checkParamMware, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.postsRouter.put('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield posts_services_1.postsServices.updatePost(req.params.id, req.body);
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.10
 }));
-exports.postsRouter.delete('/:id', checkAuthMware_1.testBaseAuth, checkAuthMware_1.checkAuthMware, checkParamMware_1.testPostsParam, checkParamMware_1.checkParamMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.postsRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield posts_services_1.postsServices.deletePostById(req.params.id);
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.14
 }));

@@ -1,5 +1,5 @@
 import { blogRepository } from './blogs-local-repository';
-import { PostInputModel, PostViewModel } from '../models';
+import { PostInputModel, PostViewModel } from '../../models';
 
 const randomizer = () => (Math.random() * 10000).toFixed(0);
 

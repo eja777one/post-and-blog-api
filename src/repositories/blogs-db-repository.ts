@@ -3,45 +3,9 @@ import { BlogInputModel } from "../models";
 import { ObjectID } from 'bson';
 
 export const blogRepository = {
-  async getBlogsByQuery(query: any) {
-    const skip = (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
-    const sortBy = query.sortBy;
-    console.log(query.sortDirection);
-    const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
-    const sortObj: any = {};
-    sortObj[sortBy] = sortDirection
-    const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
-
-    const items = await blogsCollection.find(findObj)
-      .sort(sortObj)
-      .limit(limit)
-      .skip(skip)
-      .toArray();
-
-    const items2 = await blogsCollection.find(findObj).toArray();
-
-    const pagesCount = Math.ceil(items2.length / limit);
-
-    const answer = {
-      pagesCount,
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-      totalCount: items2.length,
-      items
-    }
-
-    return answer;
-  },
-
   async createBlog(blog: any) {
     const result = await blogsCollection.insertOne(blog);
-    return this.getBlogById(result.insertedId.toString());
-  },
-
-  async getBlogById(id: string) {
-    const blog = await blogsCollection.findOne({ _id: new ObjectID(id) });
-    return blog;
+    return result.insertedId.toString();
   },
 
   async updateBlog(id: string, body: BlogInputModel) {
@@ -54,17 +18,12 @@ export const blogRepository = {
         }
       });
 
-    return result.matchedCount === 1;
+    return result.matchedCount;
   },
 
   async deleteBlogById(id: string) {
     const result = await blogsCollection.deleteOne({ _id: new ObjectID(id) });
-    return result.deletedCount === 1;
-  },
-
-  async getBlogs() {
-    const blogs = await blogsCollection.find({}).toArray();
-    return blogs;
+    return result.deletedCount;
   },
 
   async deleteAll() {
