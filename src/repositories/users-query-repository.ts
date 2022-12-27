@@ -21,9 +21,16 @@ export const usersQueryRepository = {
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection;
-    const findObj: any = {};
-    query.searchLoginTerm ? findObj.login = new RegExp(query.searchLoginTerm, 'i') : '';
-    query.searchEmailTerm ? findObj.email = new RegExp(query.searchEmailTerm, 'i') : '';
+    let findObj: any = { $or: [] };
+
+    if (query.searchLoginTerm) {
+      findObj.$or.push({ login: new RegExp(query.searchLoginTerm, 'i') });
+    };
+    if (query.searchEmailTerm) {
+      findObj.$or.push({ email: new RegExp(query.searchEmailTerm, 'i') });
+    };
+
+    if (findObj.$or.length = 0) findObj = {};
 
     const items = await usersCollection.find(findObj)
       .sort(sortObj)

@@ -17,9 +17,9 @@ const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 exports.authRouter = (0, express_1.Router)({});
 exports.authRouter.post('/', checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield users_services_1.usersServices
-        .checkAuth(req.body.login, req.body.password);
+        .checkAuth(req.body.loginOrEmail, req.body.password);
     if (result)
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #4.11
     else
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #4.13
 }));

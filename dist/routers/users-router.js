@@ -23,14 +23,14 @@ exports.usersRouter.get('/', checkAuthMware_1.checkAuthMware, (req, res) => __aw
     const query = (0, mappers_1.prepareQueries)(req.query);
     const users = yield users_query_repository_1.usersQueryRepository
         .getUsersByQuery(query);
-    res.status(models_1.HTTP.OK_200).json(users);
+    res.status(models_1.HTTP.OK_200).json(users); // TEST #4.2, #4.7, #4.15
 }));
 exports.usersRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newUserId = yield users_services_1.usersServices.createUser(req.body);
     const user = yield users_query_repository_1.usersQueryRepository.getUserById(newUserId);
-    res.status(201).json(user);
+    res.status(201).json(user); // TEST #4.5, #4.6
 }));
 exports.usersRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield users_services_1.usersServices.deleteUserById(req.params.id);
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #4.14
 }));
