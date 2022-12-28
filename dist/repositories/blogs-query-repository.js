@@ -23,16 +23,6 @@ const prepareBlog = (input) => {
     };
     return obj;
 };
-const prepareBlogs = (input) => {
-    const obj = {
-        pagesCount: input.pagesCount,
-        page: input.page,
-        pageSize: input.pageSize,
-        totalCount: input.totalCount,
-        items: input.items.map((el) => prepareBlog(el))
-    };
-    return obj;
-};
 exports.blogsQueryRepository = {
     getBlogsByQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -64,7 +54,10 @@ exports.blogsQueryRepository = {
     getBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const blog = yield db_1.blogsCollection.findOne({ _id: new bson_1.ObjectID(id) });
-            return prepareBlog(blog);
+            if (blog)
+                return prepareBlog(blog);
+            else
+                return null;
         });
     },
     getBlogs() {

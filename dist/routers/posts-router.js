@@ -26,9 +26,12 @@ exports.postsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, fun
 }));
 exports.postsRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const postId = yield posts_services_1.postsServices.createPost(req.body);
-    const post = yield posts_query_repository_1.postsQueryRepository.getPostById(postId);
-    if (post)
-        res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.4
+    if (postId) {
+        const post = yield posts_query_repository_1.postsQueryRepository.getPostById(postId);
+        if (post)
+            res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.4
+    }
+    ;
 }));
 exports.postsRouter.get('/:id', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post = yield posts_query_repository_1.postsQueryRepository.getPostById(req.params.id);

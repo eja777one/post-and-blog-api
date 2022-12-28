@@ -17,6 +17,8 @@ exports.postsServices = {
         return __awaiter(this, void 0, void 0, function* () {
             const blogName = yield blogs_query_repository_1.blogsQueryRepository.getBlogById(body.blogId)
                 .then(value => value ? value.name : '');
+            if (!blogName)
+                return null;
             const createdAt = new Date().toISOString();
             const post = Object.assign({ blogName, createdAt }, body);
             return yield posts_db_repository_1.postsRepository.createPost(post);

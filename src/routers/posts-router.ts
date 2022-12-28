@@ -26,8 +26,10 @@ postsRouter.post('/',
     res: Response<PostViewModel>
   ) => {
     const postId = await postsServices.createPost(req.body);
-    const post = await postsQueryRepository.getPostById(postId);
-    if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4
+    if (postId) {
+      const post = await postsQueryRepository.getPostById(postId);
+      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4
+    };
   });
 
 postsRouter.get('/:id',

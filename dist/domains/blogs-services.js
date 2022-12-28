@@ -25,9 +25,12 @@ exports.blogServices = {
     },
     updateBlog(id, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            const lastBlogName = (yield blogs_query_repository_1.blogsQueryRepository.getBlogById(id)).name;
-            yield blogs_db_repository_1.blogRepository.updateBlog(id, body);
-            const currentBlogName = (yield blogs_query_repository_1.blogsQueryRepository.getBlogById(id)).name;
+            const blog = yield blogs_query_repository_1.blogsQueryRepository.getBlogById(id);
+            if (!blog)
+                return null;
+            const lastBlogName = blog.name;
+            const updated = yield blogs_db_repository_1.blogRepository.updateBlog(id, body);
+            const currentBlogName = body.name;
             if (lastBlogName !== currentBlogName) {
                 const posts = yield posts_query_repository_1.postsQueryRepository.getPostsIdByBlogId2(id);
                 for (let post of posts) {
@@ -41,11 +44,12 @@ exports.blogServices = {
                 ;
             }
             ;
+            return updated;
         });
     },
     deleteBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield blogs_db_repository_1.blogRepository.deleteBlogById(id);
+            const deleted = yield blogs_db_repository_1.blogRepository.deleteBlogById(id);
             const posts = yield posts_query_repository_1.postsQueryRepository.getPostsIdByBlogId2(id);
             if (posts.length > 0) {
                 for (let post of posts) {
@@ -55,6 +59,7 @@ exports.blogServices = {
                 ;
             }
             ;
+            return deleted;
         });
     },
     createPostsByBlogId(blogId, body) {
