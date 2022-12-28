@@ -38,8 +38,11 @@ exports.postsRouter.get('/:id', checkParamMware_1.checkIsObjectId, (req, res) =>
         res.sendStatus(models_1.HTTP.NOT_FOUND_404);
 }));
 exports.postsRouter.put('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield posts_services_1.postsServices.updatePost(req.params.id, req.body);
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.10
+    const modified = yield posts_services_1.postsServices.updatePost(req.params.id, req.body);
+    if (modified)
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.10
+    else
+        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
 }));
 exports.postsRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post = yield posts_services_1.postsServices.deletePostById(req.params.id);

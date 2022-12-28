@@ -30,7 +30,7 @@ exports.postsRepository = {
                     blogName
                 }
             });
-            return result.matchedCount === 1;
+            return result.modifiedCount === 1;
         });
     },
     deletePostById(id) {

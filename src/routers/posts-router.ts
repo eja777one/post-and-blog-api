@@ -50,8 +50,9 @@ postsRouter.put('/:id',
     req: Request<{ id: string }, PostInputModel>,
     res: Response
   ) => {
-    await postsServices.updatePost(req.params.id, req.body);
-    res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.10
+    const modified = await postsServices.updatePost(req.params.id, req.body);
+    if (modified) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.10
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });
 
 postsRouter.delete('/:id',
