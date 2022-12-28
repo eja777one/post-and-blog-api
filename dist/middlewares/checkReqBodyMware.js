@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkReqBodyMware = exports.testAddUserReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+const blogs_query_repository_1 = require("./../repositories/blogs-query-repository");
 const express_validator_1 = require("express-validator");
-const mongodb_1 = require("mongodb");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
     name: {
         isString: true,
@@ -64,7 +64,8 @@ exports.testPostsReqBody = (0, express_validator_1.checkSchema)({
         trim: { options: [' '] },
         custom: {
             options: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                if (!mongodb_1.ObjectId.isValid(value))
+                const blog = yield blogs_query_repository_1.blogsQueryRepository.getBlogById(value);
+                if (!blog)
                     throw new Error('Blog id is unexist');
                 else
                     return true;

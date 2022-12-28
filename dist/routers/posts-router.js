@@ -27,17 +27,24 @@ exports.postsRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, fun
 exports.postsRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const postId = yield posts_services_1.postsServices.createPost(req.body);
     const post = yield posts_query_repository_1.postsQueryRepository.getPostById(postId);
-    return res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.4
+    if (post)
+        res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.4
 }));
 exports.postsRouter.get('/:id', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post = yield posts_query_repository_1.postsQueryRepository.getPostById(req.params.id);
-    res.status(models_1.HTTP.OK_200).json(post); // TEST #3.6, #3.11
+    if (post)
+        res.status(models_1.HTTP.OK_200).json(post); // TEST #3.6, #3.11
+    else
+        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
 }));
 exports.postsRouter.put('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testPostsReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield posts_services_1.postsServices.updatePost(req.params.id, req.body);
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.10
 }));
 exports.postsRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield posts_services_1.postsServices.deletePostById(req.params.id);
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.14
+    const post = yield posts_services_1.postsServices.deletePostById(req.params.id);
+    if (post)
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #3.14
+    else
+        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
 }));

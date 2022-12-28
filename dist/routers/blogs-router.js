@@ -52,5 +52,6 @@ exports.blogsRouter.post('/:blogId/posts', checkAuthMware_1.checkAuthMware, chec
     const postId = yield blogs_services_1.blogServices
         .createPostsByBlogId(req.params.blogId, req.body);
     const post = yield posts_query_repository_1.postsQueryRepository.getPostById(postId);
-    return res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.96
+    if (post)
+        res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.96
 }));

@@ -84,5 +84,5 @@ blogsRouter.post('/:blogId/posts',
     const postId = await blogServices
       .createPostsByBlogId(req.params.blogId, req.body);
     const post = await postsQueryRepository.getPostById(postId);
-    return res.status(HTTP.CREATED_201).json(post); // TEST #2.96
+    if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.96
   });

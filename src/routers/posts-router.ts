@@ -38,13 +38,14 @@ postsRouter.get('/:id',
   ) => {
     const post = await postsQueryRepository.getPostById(req.params.id);
     if (post) res.status(HTTP.OK_200).json(post); // TEST #3.6, #3.11
-    else res.status(HTTP.NOT_FOUND_404);
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });
 
 postsRouter.put('/:id',
   checkAuthMware,
   checkIsObjectId,
-  testPostsReqBody, checkReqBodyMware,
+  testPostsReqBody,
+  checkReqBodyMware,
   async (
     req: Request<{ id: string }, PostInputModel>,
     res: Response

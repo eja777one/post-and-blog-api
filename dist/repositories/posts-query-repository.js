@@ -54,7 +54,10 @@ exports.postsQueryRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             const post = yield db_1.postsCollection
                 .findOne({ _id: new bson_1.ObjectID(id) });
-            return preparePost(post);
+            if (post)
+                return preparePost(post);
+            else
+                return null;
         });
     },
     getPostsByBlogId(id, query) {
