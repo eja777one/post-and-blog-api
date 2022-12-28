@@ -1,3 +1,4 @@
+import { blogsQueryRepository } from './../repositories/blogs-query-repository';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
 import { ObjectId } from 'mongodb';
@@ -55,8 +56,8 @@ export const testPostsReqBody = checkSchema({
     trim: { options: [' '] },
     custom: {
       options: async (value) => {
-        if (!ObjectId.isValid(value))
-          throw new Error('Blog id is unexist');
+        const blog = await blogsQueryRepository.getBlogById(value);
+        if (!blog) throw new Error('Blog id is unexist');
         else return true;
       }
     }
