@@ -6,6 +6,7 @@ export const postsServices = {
     async createPost(body: PostInputModel) {
         const blogName = await blogsQueryRepository.getBlogById(body.blogId)
             .then(value => value ? value.name : '');
+        if (!blogName) return null;
         const createdAt = new Date().toISOString();
         const post = { blogName, createdAt, ...body };
 

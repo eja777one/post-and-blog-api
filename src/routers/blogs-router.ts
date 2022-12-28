@@ -70,6 +70,8 @@ blogsRouter.get('/:blogId/posts',
     req: Request<{ blogId: string }>,
     res: Response<Paginator<PostViewModel>>
   ) => {
+    const blog = blogsQueryRepository.getBlogById(req.params.blogId);
+    if (!blog) res.sendStatus(HTTP.NOT_FOUND_404);
     const query = prepareQueries(req.query);
     const posts = await postsQueryRepository
       .getPostsByBlogId(req.params.blogId, query);
@@ -86,6 +88,9 @@ blogsRouter.post('/:blogId/posts',
   ) => {
     const postId = await blogServices
       .createPostsByBlogId(req.params.blogId, req.body);
-    const post = await postsQueryRepository.getPostById(postId);
-    if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.96
+    if (!postId) res.sendStatus(HTTP.NOT_FOUND_404);
+    else {
+      const post = await postsQueryRepository.getPostById(postId);
+      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.96
+    };
   });
