@@ -57,8 +57,9 @@ blogsRouter.delete('/:id',
   checkAuthMware,
   checkIsObjectId,
   async (req: Request<{ id: string }>, res: Response) => {
-    await blogServices.deleteBlogById(req.params.id);
-    res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.14
+    const deleted = await blogServices.deleteBlogById(req.params.id);
+    if (deleted) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.14
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });
 
 blogsRouter.get('/:blogId/posts',

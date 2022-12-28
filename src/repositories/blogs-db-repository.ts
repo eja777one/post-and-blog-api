@@ -23,7 +23,7 @@ export const blogRepository = {
 
   async deleteBlogById(id: string) {
     const result = await blogsCollection.deleteOne({ _id: new ObjectID(id) });
-    return result.deletedCount;
+    return result.deletedCount === 1;
   },
 
   async deleteAll() {

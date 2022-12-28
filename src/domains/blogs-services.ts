@@ -34,7 +34,7 @@ export const blogServices = {
     },
 
     async deleteBlogById(id: string) {
-        await blogRepository.deleteBlogById(id);
+        const deleted = await blogRepository.deleteBlogById(id);
         const posts = await postsQueryRepository.getPostsIdByBlogId2(id);
         if (posts.length > 0) {
             for (let post of posts) {
@@ -42,6 +42,7 @@ export const blogServices = {
                     .deletePostById(post._id.toString());
             };
         };
+        return deleted;
     },
 
     async createPostsByBlogId(blogId: string, body: any) {
