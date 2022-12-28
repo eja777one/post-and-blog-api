@@ -27,7 +27,7 @@ postsRouter.post('/',
   ) => {
     const postId = await postsServices.createPost(req.body);
     const post = await postsQueryRepository.getPostById(postId);
-    return res.status(HTTP.CREATED_201).json(post); // TEST #2.4
+    if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4
   });
 
 postsRouter.get('/:id',
@@ -37,7 +37,8 @@ postsRouter.get('/:id',
     res: Response<PostViewModel>
   ) => {
     const post = await postsQueryRepository.getPostById(req.params.id);
-    res.status(HTTP.OK_200).json(post); // TEST #3.6, #3.11
+    if (post) res.status(HTTP.OK_200).json(post); // TEST #3.6, #3.11
+    else res.status(HTTP.NOT_FOUND_404);
   });
 
 postsRouter.put('/:id',

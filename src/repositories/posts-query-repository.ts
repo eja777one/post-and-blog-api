@@ -49,7 +49,8 @@ export const postsQueryRepository = {
   async getPostById(id: string) {
     const post = await postsCollection
       .findOne({ _id: new ObjectID(id) });
-    return preparePost(post);
+    if (post) return preparePost(post);
+    else return null;
   },
 
   async getPostsByBlogId(id: string, query: any) {
