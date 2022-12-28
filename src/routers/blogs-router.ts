@@ -83,7 +83,8 @@ blogsRouter.get('/:blogId/posts',
 blogsRouter.post('/:blogId/posts',
   checkAuthMware,
   checkIsObjectId,
-  testPostsReqBodyNoBlogId, checkReqBodyMware,
+  testPostsReqBodyNoBlogId,
+  checkReqBodyMware,
   async (
     req: Request<{ blogId: string }, PostInputModelNoId>,
     res: Response<PostViewModel>

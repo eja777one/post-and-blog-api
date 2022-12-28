@@ -68,7 +68,7 @@ export const postsQueryRepository = {
       .skip(skip)
       .toArray();
 
-    const items2 = await this.getPosts();
+    const items2 = await postsCollection.find(findObj).toArray();
 
     const pagesCount = Math.ceil(items2.length / limit);
 
