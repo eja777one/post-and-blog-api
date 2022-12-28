@@ -13,9 +13,11 @@ export const blogServices = {
     },
 
     async updateBlog(id: string, body: BlogInputModel) {
-        const lastBlogName = (await blogsQueryRepository.getBlogById(id)).name;
-        await blogRepository.updateBlog(id, body);
-        const currentBlogName = (await blogsQueryRepository.getBlogById(id)).name;
+        const blog = await blogsQueryRepository.getBlogById(id);
+        if (!blog) return null;
+        const lastBlogName = blog.name;
+        const updated = await blogRepository.updateBlog(id, body);
+        const currentBlogName = body.name;
         if (lastBlogName !== currentBlogName) {
             const posts = await postsQueryRepository.getPostsIdByBlogId2(id);
             for (let post of posts) {
@@ -31,6 +33,7 @@ export const blogServices = {
                 );
             };
         };
+        return updated;
     },
 
     async deleteBlogById(id: string) {

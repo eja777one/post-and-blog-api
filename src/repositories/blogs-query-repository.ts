@@ -14,17 +14,6 @@ const prepareBlog = (input: any) => {
   return obj;
 };
 
-const prepareBlogs = (input: any) => {
-  const obj: Paginator<BlogViewModel> = {
-    pagesCount: input.pagesCount,
-    page: input.page,
-    pageSize: input.pageSize,
-    totalCount: input.totalCount,
-    items: input.items.map((el: any) => prepareBlog(el))
-  };
-  return obj;
-};
-
 export const blogsQueryRepository = {
   async getBlogsByQuery(query: any) {
     const skip = (query.pageNumber - 1) * query.pageSize;
@@ -59,7 +48,8 @@ export const blogsQueryRepository = {
 
   async getBlogById(id: string) {
     const blog = await blogsCollection.findOne({ _id: new ObjectID(id) });
-    return prepareBlog(blog);
+    if (blog) return prepareBlog(blog);
+    else return null;
   },
 
   async getBlogs() {

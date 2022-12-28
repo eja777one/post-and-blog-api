@@ -17,8 +17,7 @@ export const blogRepository = {
           websiteUrl: body.websiteUrl,
         }
       });
-
-    return result.matchedCount;
+    return result.modifiedCount === 1;
   },
 
   async deleteBlogById(id: string) {

@@ -28,7 +28,7 @@ blogsRouter.post('/',
   ) => {
     const blogId = await blogServices.createBlog(req.body);
     const blog = await blogsQueryRepository.getBlogById(blogId);
-    res.status(HTTP.CREATED_201).json(blog); // TEST #2.4
+    if (blog) res.status(HTTP.CREATED_201).json(blog); // TEST #2.4
   });
 
 blogsRouter.get('/:id',
@@ -38,7 +38,8 @@ blogsRouter.get('/:id',
     res: Response<BlogViewModel>
   ) => {
     const blog = await blogsQueryRepository.getBlogById(req.params.id);
-    res.status(HTTP.OK_200).json(blog); // TEST #2.6, #2.11
+    if (blog) res.status(HTTP.OK_200).json(blog); // TEST #2.6, #2.11
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });
 
 blogsRouter.put('/:id',
@@ -49,8 +50,9 @@ blogsRouter.put('/:id',
     req: Request<{ id: string }, BlogInputModel>,
     res: Response
   ) => {
-    await blogServices.updateBlog(req.params.id, req.body);
-    res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.10
+    const updated = await blogServices.updateBlog(req.params.id, req.body);
+    if (updated) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.10
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });
 
 blogsRouter.delete('/:id',
