@@ -56,6 +56,7 @@ postsRouter.delete('/:id',
   checkAuthMware,
   checkIsObjectId,
   async (req: Request<{ id: string }>, res: Response) => {
-    await postsServices.deletePostById(req.params.id);
-    res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.14
+    const post = await postsServices.deletePostById(req.params.id);
+    if (post) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.14
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });
