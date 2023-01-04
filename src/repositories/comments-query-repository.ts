@@ -33,7 +33,7 @@ export const commentsQueryRepository = {
       .skip(skip)
       .toArray();
 
-    const items2 = await this.getComments();
+    const items2 = await commentsCollection.find({ postId: postId }).toArray();
 
     const pagesCount = Math.ceil(items2.length / limit);
 
