@@ -31,7 +31,7 @@ export const usersQueryRepository = {
     };
 
     if (findObj.$or.length === 0) findObj = {};
-    console.log(findObj)
+    // console.log(findObj)
 
     const items = await usersCollection.find(findObj)
       .sort(sortObj)
@@ -56,7 +56,11 @@ export const usersQueryRepository = {
 
   async getUserById(id: any) {
     const user = await usersCollection.findOne({ _id: new ObjectID(id) });
-    return prepareUser(user);
+    if (user) return prepareUser(user);
+    else {
+      console.log('no user');
+      return null;
+    };
   },
 
   async getUserByLogin(login: string) {

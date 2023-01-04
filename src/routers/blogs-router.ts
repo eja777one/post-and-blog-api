@@ -16,12 +16,13 @@ blogsRouter.get('/', async (
 ) => {
   const query = prepareQueries(req.query);
   const blogs = await blogsQueryRepository.getBlogsByQuery(query);
-  res.status(HTTP.OK_200).json(blogs); // TEST #2.1, #2.15
+  res.status(HTTP.OK_200).json(blogs); // TEST #2.1, #2.22
 });
 
 blogsRouter.post('/',
   checkAuthMware,
-  testBlogsReqBody, checkReqBodyMware,
+  testBlogsReqBody,
+  checkReqBodyMware,
   async (
     req: Request<BlogInputModel>,
     res: Response<BlogViewModel>
@@ -60,7 +61,7 @@ blogsRouter.delete('/:id',
   checkIsObjectId,
   async (req: Request<{ id: string }>, res: Response) => {
     const deleted = await blogServices.deleteBlogById(req.params.id);
-    if (deleted) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.14
+    if (deleted) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.21
     else res.sendStatus(HTTP.NOT_FOUND_404);
   });
 
@@ -76,7 +77,7 @@ blogsRouter.get('/:blogId/posts',
       const query = prepareQueries(req.query);
       const posts = await postsQueryRepository
         .getPostsByBlogId(req.params.blogId, query);
-      return res.status(HTTP.OK_200).json(posts); // TEST #2.92, #2.97
+      return res.status(HTTP.OK_200).json(posts); // TEST #2.13, #2.18
     };
   });
 
@@ -94,6 +95,6 @@ blogsRouter.post('/:blogId/posts',
     if (!postId) res.sendStatus(HTTP.NOT_FOUND_404);
     else {
       const post = await postsQueryRepository.getPostById(postId);
-      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.96
+      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.17
     };
   });

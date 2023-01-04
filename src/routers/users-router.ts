@@ -30,7 +30,7 @@ usersRouter.post('/',
   ) => {
     const newUserId = await usersServices.createUser(req.body);
     const user = await usersQueryRepository.getUserById(newUserId);
-    res.status(201).json(user); // TEST #4.5, #4.6
+    if (user) res.status(HTTP.CREATED_201).json(user); // TEST #4.5, #4.6
   });
 
 usersRouter.delete('/:id',

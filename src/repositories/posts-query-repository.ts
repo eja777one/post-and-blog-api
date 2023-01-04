@@ -1,4 +1,3 @@
-import { PostDBModel } from './../models';
 import { Paginator, PostViewModel } from '../models';
 import { postsCollection } from './db';
 import { ObjectID } from 'bson';

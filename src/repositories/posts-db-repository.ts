@@ -19,7 +19,7 @@ export const postsRepository = {
           blogName
         }
       });
-    return result.modifiedCount === 1;
+    return result.matchedCount === 1;
   },
 
   async deletePostById(id: string) {

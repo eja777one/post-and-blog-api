@@ -1,3 +1,5 @@
+import { postsQueryRepository } from './../repositories/posts-query-repository';
+import { commentsQueryRepository } from './../repositories/comments-query-repository';
 import { blogsQueryRepository } from './../repositories/blogs-query-repository';
 import { PostInputModel } from '../models';
 import { postsRepository } from '../repositories/posts-db-repository';
@@ -20,7 +22,8 @@ export const postsServices = {
     },
 
     async deletePostById(id: string) {
-        return await postsRepository.deletePostById(id);
+        const deletedPost = await postsRepository.deletePostById(id);
+        return deletedPost;
     },
 
     async deleteAll() {

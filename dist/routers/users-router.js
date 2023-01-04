@@ -28,7 +28,8 @@ exports.usersRouter.get('/', checkAuthMware_1.checkAuthMware, (req, res) => __aw
 exports.usersRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newUserId = yield users_services_1.usersServices.createUser(req.body);
     const user = yield users_query_repository_1.usersQueryRepository.getUserById(newUserId);
-    res.status(201).json(user); // TEST #4.5, #4.6
+    if (user)
+        res.status(models_1.HTTP.CREATED_201).json(user); // TEST #4.5, #4.6
 }));
 exports.usersRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield users_services_1.usersServices.deleteUserById(req.params.id);

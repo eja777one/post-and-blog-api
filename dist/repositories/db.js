@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runDb = exports.usersCollection = exports.blogsCollection = exports.postsCollection = void 0;
+exports.runDb = exports.commentsCollection = exports.usersCollection = exports.blogsCollection = exports.postsCollection = void 0;
 const mongodb_1 = require("mongodb");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -47,6 +47,7 @@ const db = client.db();
 exports.postsCollection = db.collection('posts');
 exports.blogsCollection = db.collection('blogs');
 exports.usersCollection = db.collection('users');
+exports.commentsCollection = db.collection('comments');
 function runDb() {
     return __awaiter(this, void 0, void 0, function* () {
         try {

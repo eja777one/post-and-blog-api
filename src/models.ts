@@ -65,6 +65,7 @@ export enum HTTP {
 	'NO_CONTENT_204' = 204,
 	'BAD_REQUEST_400' = 400,
 	'UNAUTHORIZED_401' = 401,
+	'FORBIDDEN_403' = 403,
 	'NOT_FOUND_404' = 404,
 };
 
@@ -132,6 +133,36 @@ export type UserDBModel = {
 	login: string
 	email: string
 	createdAt: string
-	passwordHash: string,
+	passwordHash: string
 	passwordSalt: string
+};
+
+export type CommentInputModel = {
+	content: string
+};
+
+export type CommentViewModel = {
+	id: string | null
+	content: string
+	userId: string
+	userLogin: string
+	createdAt: string
+};
+
+export type CommentDBModel = {
+	_id: ObjectID
+	content: string
+	userId: string
+	userLogin: string
+	createdAt: string
+};
+
+export type LoginSuccessViewModel = {
+	accessToken: string
+};
+
+export type MeViewModel = {
+	email: string
+	login: string
+	userId: string
 };

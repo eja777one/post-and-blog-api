@@ -9,61 +9,56 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsQueryRepository = void 0;
-const db_1 = require("./db");
+exports.commentsQueryRepository = void 0;
 const bson_1 = require("bson");
-const prepareBlog = (input) => {
-    // console.log(input)
+const db_1 = require("./db");
+const prepareComment = (input) => {
     const obj = {
         id: input._id.toString(),
-        name: input.name,
-        description: input.description,
-        websiteUrl: input.websiteUrl,
-        createdAt: input.createdAt,
+        content: input.content,
+        userId: input.userId,
+        userLogin: input.userLogin,
+        createdAt: input.createdAt
     };
     return obj;
 };
-exports.blogsQueryRepository = {
-    getBlogsByQuery(query) {
+exports.commentsQueryRepository = {
+    getComment(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = yield db_1.commentsCollection.findOne({ _id: new bson_1.ObjectID(id) });
+            if (comment)
+                return prepareComment(comment);
+            return null;
+        });
+    },
+    getCommentByQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (query.pageNumber - 1) * query.pageSize;
             const limit = query.pageSize;
             const sortBy = query.sortBy;
-            // console.log(query.sortDirection);
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
-            const items = yield db_1.blogsCollection.find(findObj)
+            const items = yield db_1.commentsCollection.find({})
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const items2 = yield db_1.blogsCollection.find(findObj).toArray();
+            const items2 = yield this.getComments();
             const pagesCount = Math.ceil(items2.length / limit);
             const answer = {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
                 totalCount: items2.length,
-                items: items.map((el) => prepareBlog(el))
+                items: items.map((el) => prepareComment(el))
             };
             return answer;
         });
     },
-    getBlogById(id) {
+    getComments() {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield db_1.blogsCollection.findOne({ _id: new bson_1.ObjectID(id) });
-            if (blog)
-                return prepareBlog(blog);
-            else
-                return null;
-        });
-    },
-    getBlogs() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const blogs = yield db_1.blogsCollection.find({}).toArray();
-            return blogs;
+            return yield db_1.commentsCollection.find({}).toArray();
         });
     },
 };

@@ -3,7 +3,7 @@ import { blogsCollection } from './db';
 import { ObjectID } from 'bson';
 
 const prepareBlog = (input: any) => {
-  console.log(input)
+  // console.log(input)
   const obj = {
     id: input._id.toString(),
     name: input.name,
@@ -19,7 +19,7 @@ export const blogsQueryRepository = {
     const skip = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
     const sortBy = query.sortBy;
-    console.log(query.sortDirection);
+    // console.log(query.sortDirection);
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection

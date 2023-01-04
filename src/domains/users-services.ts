@@ -10,8 +10,8 @@ export const usersServices = {
     if (user) {
       const inputPass = await this
         ._generateHash(password, user.passwordSalt);
-      const checkPassword = inputPass === user.passwordHash ? true : false;
-      return checkPassword;
+      const result = inputPass === user.passwordHash ? user : false;
+      return result;
     } else return false;
   },
 

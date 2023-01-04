@@ -1,11 +1,11 @@
-import { UserViewModel } from '../../src/models';
 import request from "supertest";
 import { app } from "../../src/app";
-import { HTTP } from "../../src/models";
+import { HTTP, UserViewModel } from "../../src/models";
 
-describe('/hometask_05/api/users', () => {
+describe('/hometask_06/api/users', () => {
   let user1: UserViewModel;
   let user2: UserViewModel;
+  let token1: { accessToken: string };
 
   const user1Input = {
     login: 'userr1',
@@ -26,13 +26,13 @@ describe('/hometask_05/api/users', () => {
   }
 
   beforeAll(async () => {
-    await request(app).delete('/hometask_05/api/testing/all-data');
+    await request(app).delete('/hometask_06/api/testing/all-data');
   }); // blogs = [];
 
   // TEST #4.1
   it('GET Users. Status 401', async () => {
     await request(app)
-      .get('/hometask_05/api/users')
+      .get('/hometask_06/api/users')
       .auth('admin', 'admin', { type: 'basic' })
       .expect(HTTP.UNAUTHORIZED_401);
   });
@@ -40,7 +40,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.2
   it('GET Users. Status 200', async () => {
     await request(app)
-      .get('/hometask_05/api/users')
+      .get('/hometask_06/api/users')
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.OK_200, {
         pagesCount: 0,
@@ -54,7 +54,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.3
   it('Create User (unauthorized). Status 401', async () => {
     await request(app)
-      .post('/hometask_05/api/users')
+      .post('/hometask_06/api/users')
       .auth('admin', 'admin', { type: 'basic' })
       .send(user1Input)
       .expect(HTTP.UNAUTHORIZED_401);
@@ -63,7 +63,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.4
   it('Create User (bad request). Status 400', async () => {
     await request(app)
-      .post('/hometask_05/api/users')
+      .post('/hometask_06/api/users')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(user1BadInput)
       .expect(HTTP.BAD_REQUEST_400);
@@ -72,7 +72,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.5
   it('Create User1. Status 201', async () => {
     const response = await request(app)
-      .post('/hometask_05/api/users')
+      .post('/hometask_06/api/users')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(user1Input)
 
@@ -93,7 +93,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.6
   it('Create User2. Status 201', async () => {
     const response = await request(app)
-      .post('/hometask_05/api/users')
+      .post('/hometask_06/api/users')
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(user2Input)
 
@@ -114,7 +114,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.7
   it('GET Users. Status 200', async () => {
     await request(app)
-      .get('/hometask_05/api/users')
+      .get('/hometask_06/api/users')
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.OK_200, {
         pagesCount: 1,
@@ -128,7 +128,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.8
   it('DELETE User10. Status 404', async () => {
     await request(app)
-      .delete('/hometask_05/api/users/10')
+      .delete('/hometask_06/api/users/10')
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NOT_FOUND_404);
   });
@@ -136,7 +136,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.9
   it('DELETE User2. Status 401', async () => {
     await request(app)
-      .delete(`/hometask_05/api/users/${user2.id}`)
+      .delete(`/hometask_06/api/users/${user2.id}`)
       .auth('admin', 'admin', { type: 'basic' })
       .expect(HTTP.UNAUTHORIZED_401);
   });
@@ -144,21 +144,30 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.10
   it('DELETE User2. Status 204', async () => {
     await request(app)
-      .delete(`/hometask_05/api/users/${user2.id}`)
+      .delete(`/hometask_06/api/users/${user2.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NO_CONTENT_204);
   });
 
   // TEST #4.11
-  it('LOGIN User1. Status 204', async () => {
+  it('LOGIN User1. Status 200', async () => {
     const loginBody = {
       loginOrEmail: user1Input.login,
       password: user1Input.password
     };
-    await request(app)
-      .post(`/hometask_05/api/auth/login`)
+    const response = await request(app)
+      .post(`/hometask_06/api/auth/login`)
       .send(loginBody)
-      .expect(HTTP.NO_CONTENT_204);
+
+    const accessToken = response.body;
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.OK_200);
+    expect(accessToken).toStrictEqual({
+      accessToken: expect.any(String),
+    });
+
+    token1 = { ...accessToken };
   });
 
   // TEST #4.12
@@ -168,7 +177,7 @@ describe('/hometask_05/api/users', () => {
       password: user1Input.password
     };
     await request(app)
-      .post(`/hometask_05/api/auth/login`)
+      .post(`/hometask_06/api/auth/login`)
       .send(loginBody)
       .expect(HTTP.BAD_REQUEST_400);
   });
@@ -180,15 +189,35 @@ describe('/hometask_05/api/users', () => {
       password: user1Input.password
     };
     await request(app)
-      .post(`/hometask_05/api/auth/login`)
+      .post(`/hometask_06/api/auth/login`)
       .send(loginBody)
+      .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #4.13A
+  it('Get info about User1. Status 200', async () => {
+    await request(app)
+      .get(`/hometask_06/api/auth/me`)
+      .set('Authorization', `Bearer ${token1.accessToken}`)
+      .expect(HTTP.OK_200, {
+        email: user1Input.email,
+        login: user1Input.login,
+        userId: user1.id
+      });
+  });
+
+  // TEST #4.14A
+  it('Get info about User1. Status 401', async () => {
+    await request(app)
+      .get(`/hometask_06/api/auth/me`)
+      .set('Authorization', `Bearer token1.accessToken`)
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
   // TEST #4.14
   it('DELETE User1. Status 204', async () => {
     await request(app)
-      .delete(`/hometask_05/api/users/${user1.id}`)
+      .delete(`/hometask_06/api/users/${user1.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NO_CONTENT_204);
   });
@@ -196,7 +225,7 @@ describe('/hometask_05/api/users', () => {
   // TEST #4.15
   it('GET Users. Status 200', async () => {
     await request(app)
-      .get('/hometask_05/api/users')
+      .get('/hometask_06/api/users')
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.OK_200, {
         pagesCount: 0,

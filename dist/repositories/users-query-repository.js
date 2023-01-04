@@ -41,7 +41,7 @@ exports.usersQueryRepository = {
             ;
             if (findObj.$or.length === 0)
                 findObj = {};
-            console.log(findObj);
+            // console.log(findObj)
             const items = yield db_1.usersCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
@@ -62,7 +62,13 @@ exports.usersQueryRepository = {
     getUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield db_1.usersCollection.findOne({ _id: new bson_1.ObjectID(id) });
-            return prepareUser(user);
+            if (user)
+                return prepareUser(user);
+            else {
+                console.log('no user');
+                return null;
+            }
+            ;
         });
     },
     getUserByLogin(login) {

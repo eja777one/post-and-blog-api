@@ -1,13 +1,47 @@
+import { commentsQueryRepository } from './../repositories/comments-query-repository';
+import { commentsServices } from './../domains/comments-services';
+import { authMware } from './../middlewares/authMware';
 import { postsQueryRepository } from './../repositories/posts-query-repository';
 import { Router, Request, Response } from "express";
-import { testPostsReqBody, checkReqBodyMware } from '../middlewares/checkReqBodyMware';
+import { testPostsReqBody, checkReqBodyMware, testCommentBody } from '../middlewares/checkReqBodyMware';
 import { checkIsObjectId } from '../middlewares/checkParamMware';
 import { checkAuthMware } from '../middlewares/checkAuthMware';
 import { postsServices } from './../domains/posts-services';
-import { PostInputModel, HTTP, PostViewModel, Paginator } from '../models';
+import { PostInputModel, HTTP, PostViewModel, Paginator, CommentInputModel, CommentViewModel } from '../models';
 import { prepareQueries } from './mappers';
 
 export const postsRouter = Router({});
+
+postsRouter.get('/:postId/comments',
+  checkIsObjectId,
+  async (
+    req: Request,
+    res: Response<Paginator<CommentViewModel>>
+  ) => {
+    const post = postsQueryRepository.getPostById(req.params.postId);
+    if (!post) res.sendStatus(HTTP.NOT_FOUND_404) // TEST #3.12
+    const query = prepareQueries(req.query);
+    const comments = await commentsQueryRepository.getCommentByQuery(query);
+    res.status(HTTP.OK_200).json(comments); // TEST #3.13, #3.20
+  });
+
+postsRouter.post('/:postId/comments',
+  authMware,
+  checkIsObjectId,
+  testCommentBody,
+  checkReqBodyMware,
+  async (
+    req: Request<CommentInputModel>,
+    res: Response<CommentViewModel>
+  ) => {
+    if (!req.user) {
+      res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #3.17
+      return;
+    };
+    const commentId = await commentsServices.addComment(req.user!, req.body);
+    const comment = await commentsQueryRepository.getComment(commentId);
+    if (comment) res.status(HTTP.CREATED_201).json(comment); // TEST #3.19
+  });
 
 postsRouter.get('/', async (
   req: Request,
@@ -15,12 +49,13 @@ postsRouter.get('/', async (
 ) => {
   const query = prepareQueries(req.query);
   const posts = await postsQueryRepository.getPostsByQuery(query);
-  return res.status(200).json(posts); // TEST #3.1, #3.15
+  return res.status(200).json(posts); // TEST #3.1, #3.24
 });
 
 postsRouter.post('/',
   checkAuthMware,
-  testPostsReqBody, checkReqBodyMware,
+  testPostsReqBody,
+  checkReqBodyMware,
   async (
     req: Request<PostInputModel>,
     res: Response<PostViewModel>
@@ -28,7 +63,7 @@ postsRouter.post('/',
     const postId = await postsServices.createPost(req.body);
     if (postId) {
       const post = await postsQueryRepository.getPostById(postId);
-      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4
+      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4, #3.4
     };
   });
 
@@ -62,6 +97,6 @@ postsRouter.delete('/:id',
   checkIsObjectId,
   async (req: Request<{ id: string }>, res: Response) => {
     const post = await postsServices.deletePostById(req.params.id);
-    if (post) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.14
+    if (post) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.23
     else res.sendStatus(HTTP.NOT_FOUND_404);
   });

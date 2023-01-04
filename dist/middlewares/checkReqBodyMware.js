@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkReqBodyMware = exports.testAddUserReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+exports.checkReqBodyMware = exports.testCommentBody = exports.testAddUserReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
 const blogs_query_repository_1 = require("./../repositories/blogs-query-repository");
 const express_validator_1 = require("express-validator");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
@@ -120,6 +120,14 @@ exports.testAddUserReqBody = (0, express_validator_1.checkSchema)({
         },
     }
 });
+exports.testCommentBody = (0, express_validator_1.checkSchema)({
+    content: {
+        isString: true,
+        isLength: {
+            options: { min: 20, max: 300 }
+        }
+    }
+});
 const checkReqBodyMware = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
@@ -131,7 +139,7 @@ const checkReqBodyMware = (req, res, next) => {
         const tempErrors = Array.from(new Set(rawErrors));
         const myErrors = tempErrors.map(e => ({ message: `incorrect ${e}`, field: e }));
         return res.status(400).json({ errorsMessages: myErrors });
-        // TEST #2.3, #2.9, #2.95, #3.3, #3.9, #4.4, #4.12
+        // TEST #2.3, #2.9, #2.16, #3.3, #3.9, #3.18, #4.4, #4.12
     }
     else
         next();

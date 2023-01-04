@@ -1,7 +1,6 @@
 import { blogsQueryRepository } from './../repositories/blogs-query-repository';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
-import { ObjectId } from 'mongodb';
 
 export const testBlogsReqBody = checkSchema({
   name: {
@@ -114,6 +113,15 @@ export const testAddUserReqBody = checkSchema({
   }
 });
 
+export const testCommentBody = checkSchema({
+  content: {
+    isString: true,
+    isLength: {
+      options: { min: 20, max: 300 }
+    }
+  }
+})
+
 export const checkReqBodyMware = (
   req: Request,
   res: Response,
@@ -132,8 +140,7 @@ export const checkReqBodyMware = (
 
     const myErrors = tempErrors.map(e => (
       { message: `incorrect ${e}`, field: e }));
-
     return res.status(400).json({ errorsMessages: myErrors });
-    // TEST #2.3, #2.9, #2.95, #3.3, #3.9, #4.4, #4.12
+    // TEST #2.3, #2.9, #2.16, #3.3, #3.9, #3.18, #4.4, #4.12, #5.4
   } else next();
 };

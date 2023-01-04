@@ -9,39 +9,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsRepository = void 0;
-const db_1 = require("./db");
+exports.commentsRepository = void 0;
 const bson_1 = require("bson");
-exports.postsRepository = {
-    createPost(post) {
+const db_1 = require("./db");
+exports.commentsRepository = {
+    addComment(comment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.postsCollection.insertOne(post);
+            const result = yield db_1.commentsCollection.insertOne(comment);
             return result.insertedId.toString();
         });
     },
-    updatePost(id, body, blogName) {
+    updateComment(id, comment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.postsCollection.updateOne({ _id: new bson_1.ObjectID(id) }, {
+            const result = yield db_1.commentsCollection.updateOne({ _id: new bson_1.ObjectID(id) }, {
                 $set: {
-                    title: body.title,
-                    shortDescription: body.shortDescription,
-                    content: body.content,
-                    blogId: body.blogId,
-                    blogName
+                    content: comment.content,
+                    userId: comment.userId,
+                    userLogin: comment.userLogin,
+                    createdAt: comment.createdAt
                 }
             });
-            return result.matchedCount === 1;
+            return result.modifiedCount;
         });
     },
-    deletePostById(id) {
+    deleteComment(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.postsCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
-            return result.deletedCount === 1;
+            const result = yield db_1.commentsCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
+            return result.deletedCount;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.postsCollection.deleteMany({});
+            const result = yield db_1.commentsCollection.deleteMany({});
             return result.deletedCount;
         });
     }
