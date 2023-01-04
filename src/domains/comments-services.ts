@@ -5,12 +5,13 @@ import { UserViewModel, CommentInputModel } from './../models';
 
 
 export const commentsServices = {
-  async addComment(user: UserViewModel, content: CommentInputModel) {
+  async addComment(user: UserViewModel, postId: string, content: CommentInputModel) {
     const createdAt = new Date().toISOString();
     const comment = {
       content: content.content,
       userId: user.id,
       userLogin: user.login,
+      postId,
       createdAt
     };
     const commentId = await commentsRepository.addComment(comment);

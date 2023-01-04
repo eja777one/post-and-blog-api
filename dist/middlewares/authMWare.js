@@ -26,9 +26,7 @@ const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         next();
     }
     else {
-        // req.user = null;
-        // next();
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #5.3, #5.10
         return;
     }
     ;

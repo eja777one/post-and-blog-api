@@ -10,24 +10,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsRouter = void 0;
-const comments_query_repository_1 = require("./../repositories/comments-query-repository");
-const comments_services_1 = require("./../domains/comments-services");
-const authMware_1 = require("./../middlewares/authMware");
-const posts_query_repository_1 = require("./../repositories/posts-query-repository");
 const express_1 = require("express");
+const comments_query_repository_1 = require("./../repositories/comments-query-repository");
+const posts_query_repository_1 = require("./../repositories/posts-query-repository");
+const comments_services_1 = require("./../domains/comments-services");
+const posts_services_1 = require("./../domains/posts-services");
+const authMware_1 = require("./../middlewares/authMware");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const checkParamMware_1 = require("../middlewares/checkParamMware");
 const checkAuthMware_1 = require("../middlewares/checkAuthMware");
-const posts_services_1 = require("./../domains/posts-services");
 const models_1 = require("../models");
 const mappers_1 = require("./mappers");
 exports.postsRouter = (0, express_1.Router)({});
 exports.postsRouter.get('/:postId/comments', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post = posts_query_repository_1.postsQueryRepository.getPostById(req.params.postId);
-    if (!post)
+    if (!post) {
         res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #3.12
+        return;
+    }
+    ;
     const query = (0, mappers_1.prepareQueries)(req.query);
-    const comments = yield comments_query_repository_1.commentsQueryRepository.getCommentByQuery(query);
+    const comments = yield comments_query_repository_1.commentsQueryRepository.getCommentByQuery(query, req.params.postId);
     res.status(models_1.HTTP.OK_200).json(comments); // TEST #3.13, #3.20
 }));
 exports.postsRouter.post('/:postId/comments', authMware_1.authMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testCommentBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,7 +39,7 @@ exports.postsRouter.post('/:postId/comments', authMware_1.authMware, checkParamM
         return;
     }
     ;
-    const commentId = yield comments_services_1.commentsServices.addComment(req.user, req.body);
+    const commentId = yield comments_services_1.commentsServices.addComment(req.user, req.params.postId, req.body);
     const comment = yield comments_query_repository_1.commentsQueryRepository.getComment(commentId);
     if (comment)
         res.status(models_1.HTTP.CREATED_201).json(comment); // TEST #3.19

@@ -19,7 +19,7 @@ export const commentsQueryRepository = {
     if (comment) return prepareComment(comment);
     return null;
   },
-  async getCommentByQuery(query: any) {
+  async getCommentByQuery(query: any, postId: string) {
     const skip = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
     const sortBy = query.sortBy;
@@ -27,7 +27,7 @@ export const commentsQueryRepository = {
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
 
-    const items = await commentsCollection.find({})
+    const items = await commentsCollection.find({ postId: postId })
       .sort(sortObj)
       .limit(limit)
       .skip(skip)

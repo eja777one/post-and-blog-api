@@ -1,12 +1,12 @@
-import { commentsQueryRepository } from './../repositories/comments-query-repository';
-import { commentsServices } from './../domains/comments-services';
-import { authMware } from './../middlewares/authMware';
-import { postsQueryRepository } from './../repositories/posts-query-repository';
 import { Router, Request, Response } from "express";
+import { commentsQueryRepository } from './../repositories/comments-query-repository';
+import { postsQueryRepository } from './../repositories/posts-query-repository';
+import { commentsServices } from './../domains/comments-services';
+import { postsServices } from './../domains/posts-services';
+import { authMware } from './../middlewares/authMware';
 import { testPostsReqBody, checkReqBodyMware, testCommentBody } from '../middlewares/checkReqBodyMware';
 import { checkIsObjectId } from '../middlewares/checkParamMware';
 import { checkAuthMware } from '../middlewares/checkAuthMware';
-import { postsServices } from './../domains/posts-services';
 import { PostInputModel, HTTP, PostViewModel, Paginator, CommentInputModel, CommentViewModel } from '../models';
 import { prepareQueries } from './mappers';
 
@@ -19,9 +19,12 @@ postsRouter.get('/:postId/comments',
     res: Response<Paginator<CommentViewModel>>
   ) => {
     const post = postsQueryRepository.getPostById(req.params.postId);
-    if (!post) res.sendStatus(HTTP.NOT_FOUND_404) // TEST #3.12
+    if (!post) {
+      res.sendStatus(HTTP.NOT_FOUND_404); // TEST #3.12
+      return;
+    };
     const query = prepareQueries(req.query);
-    const comments = await commentsQueryRepository.getCommentByQuery(query);
+    const comments = await commentsQueryRepository.getCommentByQuery(query, req.params.postId);
     res.status(HTTP.OK_200).json(comments); // TEST #3.13, #3.20
   });
 
@@ -31,14 +34,14 @@ postsRouter.post('/:postId/comments',
   testCommentBody,
   checkReqBodyMware,
   async (
-    req: Request<CommentInputModel>,
+    req: Request<{ postId: string }, CommentInputModel>,
     res: Response<CommentViewModel>
   ) => {
     if (!req.user) {
       res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #3.17
       return;
     };
-    const commentId = await commentsServices.addComment(req.user!, req.body);
+    const commentId = await commentsServices.addComment(req.user!, req.params.postId, req.body);
     const comment = await commentsQueryRepository.getComment(commentId);
     if (comment) res.status(HTTP.CREATED_201).json(comment); // TEST #3.19
   });

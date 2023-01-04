@@ -13,13 +13,14 @@ exports.commentsServices = void 0;
 const comments_query_repository_1 = require("./../repositories/comments-query-repository");
 const comments_db_repository_1 = require("./../repositories/comments-db-repository");
 exports.commentsServices = {
-    addComment(user, content) {
+    addComment(user, postId, content) {
         return __awaiter(this, void 0, void 0, function* () {
             const createdAt = new Date().toISOString();
             const comment = {
                 content: content.content,
                 userId: user.id,
                 userLogin: user.login,
+                postId,
                 createdAt
             };
             const commentId = yield comments_db_repository_1.commentsRepository.addComment(comment);

@@ -31,7 +31,7 @@ exports.commentsQueryRepository = {
             return null;
         });
     },
-    getCommentByQuery(query) {
+    getCommentByQuery(query, postId) {
         return __awaiter(this, void 0, void 0, function* () {
             const skip = (query.pageNumber - 1) * query.pageSize;
             const limit = query.pageSize;
@@ -39,7 +39,7 @@ exports.commentsQueryRepository = {
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const items = yield db_1.commentsCollection.find({})
+            const items = yield db_1.commentsCollection.find({ postId: postId })
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)

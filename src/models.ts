@@ -155,6 +155,7 @@ export type CommentDBModel = {
 	userId: string
 	userLogin: string
 	createdAt: string
+	postId: string
 };
 
 export type LoginSuccessViewModel = {
