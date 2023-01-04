@@ -41,6 +41,11 @@ postsRouter.post('/:postId/comments',
       res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #3.17
       return;
     };
+    const post = await postsQueryRepository.getPostById(req.params.postId);
+    if (!post) {
+      res.sendStatus(HTTP.NOT_FOUND_404);
+      return;
+    };
     const commentId = await commentsServices.addComment(req.user!, req.params.postId, req.body);
     const comment = await commentsQueryRepository.getComment(commentId);
     if (comment) res.status(HTTP.CREATED_201).json(comment); // TEST #3.19

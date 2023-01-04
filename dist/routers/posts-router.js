@@ -39,6 +39,12 @@ exports.postsRouter.post('/:postId/comments', authMware_1.authMware, checkParamM
         return;
     }
     ;
+    const post = yield posts_query_repository_1.postsQueryRepository.getPostById(req.params.postId);
+    if (!post) {
+        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
+        return;
+    }
+    ;
     const commentId = yield comments_services_1.commentsServices.addComment(req.user, req.params.postId, req.body);
     const comment = yield comments_query_repository_1.commentsQueryRepository.getComment(commentId);
     if (comment)
