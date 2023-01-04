@@ -23,7 +23,7 @@ const models_1 = require("../models");
 const mappers_1 = require("./mappers");
 exports.postsRouter = (0, express_1.Router)({});
 exports.postsRouter.get('/:postId/comments', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = posts_query_repository_1.postsQueryRepository.getPostById(req.params.postId);
+    const post = yield posts_query_repository_1.postsQueryRepository.getPostById(req.params.postId);
     if (!post) {
         res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #3.12
         return;

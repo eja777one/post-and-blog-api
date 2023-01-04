@@ -18,7 +18,7 @@ postsRouter.get('/:postId/comments',
     req: Request,
     res: Response<Paginator<CommentViewModel>>
   ) => {
-    const post = postsQueryRepository.getPostById(req.params.postId);
+    const post = await postsQueryRepository.getPostById(req.params.postId);
     if (!post) {
       res.sendStatus(HTTP.NOT_FOUND_404); // TEST #3.12
       return;
