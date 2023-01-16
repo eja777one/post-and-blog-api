@@ -33,7 +33,9 @@ authRouter.post('/registration-confirmation',
     const result = await authServices.confirmEmail(req.body.code);
     console.log(result);
     if (result) res.sendStatus(HTTP.NO_CONTENT_204);
-    else res.sendStatus(HTTP.BAD_REQUEST_400);
+    else res.status(HTTP.BAD_REQUEST_400).json(
+      { errorsMessages: [{ message: 'incorrect code', field: 'code' }] }
+    );
   });
 
 authRouter.post('/registration',
