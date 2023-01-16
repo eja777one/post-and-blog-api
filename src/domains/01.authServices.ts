@@ -30,9 +30,10 @@ export const authServices = {
   },
 
   async createUser(body: UserInputModel, ip: string | undefined) {
-    const isUserExist = await usersQueryRepository.getUser(body.email);
+    const isEmailExist = await usersQueryRepository.getUser(body.email);
+    const isLoginExist = await usersQueryRepository.getUser(body.login);
     // check user by password
-    if (isUserExist) return null;
+    if (isEmailExist || isLoginExist) return null;
     // console.log(isUserExist)
 
     const passwordSalt = await bcrypt.genSalt(10);
