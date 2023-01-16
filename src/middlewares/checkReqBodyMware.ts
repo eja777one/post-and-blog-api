@@ -116,6 +116,9 @@ export const testAddUserReqBody = checkSchema({
     isLength: {
       options: { min: 3, max: 10 }
     },
+    matches: {
+      options: /^[a-zA-Z0-9_-]*$/
+    },
   },
   password: {
     isString: true,
