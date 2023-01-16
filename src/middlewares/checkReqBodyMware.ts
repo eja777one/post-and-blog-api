@@ -93,7 +93,12 @@ export const testLoginPassReqBody = checkSchema({
 });
 
 export const testCodeReqBody = checkSchema({
-  code: { isString: true },
+  code: {
+    isString: true,
+    matches: {
+      options: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    },
+  },
 });
 
 export const testEmailReqBody = checkSchema({
