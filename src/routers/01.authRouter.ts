@@ -57,7 +57,9 @@ authRouter.post('/registration-email-resending',
     res: Response) => {
     const result = await authServices.resendConfirmation(req.body.email);
     if (result) res.sendStatus(HTTP.NO_CONTENT_204);
-    else res.sendStatus(HTTP.BAD_REQUEST_400);
+    else res.status(HTTP.BAD_REQUEST_400).json(
+      { errorsMessages: [{ message: 'incorrect email', field: 'email' }] }
+    );
   });
 
 authRouter.get('/me',
