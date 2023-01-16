@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
-const _05_usersQueryRepository_1 = require("./../repositories/05.usersQueryRepository");
 const express_1 = require("express");
 const _01_authServices_1 = require("../domains/01.authServices");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
@@ -32,25 +31,23 @@ exports.authRouter.post('/registration-confirmation', checkReqBodyMware_1.testCo
     const result = yield _01_authServices_1.authServices.confirmEmail(req.body.code);
     console.log(result);
     if (result)
-        res.send(models_1.HTTP.NO_CONTENT_204);
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
     else
-        res.send(models_1.HTTP.BAD_REQUEST_400);
+        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
 }));
 exports.authRouter.post('/registration', checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newUserId = yield _01_authServices_1.authServices.createUser(req.body, req.socket.remoteAddress);
-    if (newUserId) {
-        const user = yield _05_usersQueryRepository_1.usersQueryRepository.getDbUserById(newUserId);
+    if (newUserId)
         res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-    }
     else
-        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
+        res.send(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect email', field: 'email' }] });
 }));
 exports.authRouter.post('/registration-email-resending', checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield _01_authServices_1.authServices.resendConfirmation(req.body.email);
     if (result)
-        res.send(models_1.HTTP.NO_CONTENT_204);
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
     else
-        res.send(models_1.HTTP.BAD_REQUEST_400);
+        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
 }));
 exports.authRouter.get('/me', authMware_1.authMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;

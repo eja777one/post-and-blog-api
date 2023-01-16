@@ -69,6 +69,15 @@ exports.usersQueryRepository = {
     getDbUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield _00_db_1.usersCollection.findOne({ _id: new bson_1.ObjectID(id) });
+            if (user)
+                return user;
+            else
+                return null;
+        });
+    },
+    getDbUser(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield _00_db_1.usersCollection.findOne({ 'accountData.email': email });
             const formatUser = {
                 _id: user === null || user === void 0 ? void 0 : user._id,
                 login: user === null || user === void 0 ? void 0 : user.accountData.login,
@@ -77,7 +86,7 @@ exports.usersQueryRepository = {
                 confirmationCode: user === null || user === void 0 ? void 0 : user.emailConfirmation.confirmationCode,
                 expirationDate: user === null || user === void 0 ? void 0 : user.emailConfirmation.expirationDate,
                 isConfirmed: user === null || user === void 0 ? void 0 : user.emailConfirmation.isConfirmed,
-                sentEmails: user === null || user === void 0 ? void 0 : user.emailConfirmation.sentEmails
+                sentEmailsCount: user === null || user === void 0 ? void 0 : user.emailConfirmation.sentEmails.length
             };
             if (user)
                 return formatUser;

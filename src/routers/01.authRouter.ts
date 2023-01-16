@@ -43,7 +43,9 @@ authRouter.post('/registration',
     res: Response) => {
     const newUserId = await authServices.createUser(req.body, req.socket.remoteAddress);
     if (newUserId) res.sendStatus(HTTP.NO_CONTENT_204);
-    else res.sendStatus(HTTP.BAD_REQUEST_400);
+    else res.send(HTTP.BAD_REQUEST_400).json(
+      { errorsMessages: [{ message: 'incorrect email', field: 'email' }] }
+    );
   });
 
 authRouter.post('/registration-email-resending',

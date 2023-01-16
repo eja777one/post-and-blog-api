@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.port = exports.app = void 0;
 const express_1 = __importDefault(require("express"));
-const email_router_1 = require("./routers/email-router");
 const _01_authRouter_1 = require("./routers/01.authRouter");
 const _02_blogsRouter_1 = require("./routers/02.blogsRouter");
 const _03_commentsRouter_1 = require("./routers/03.commentsRouter");
@@ -23,5 +22,4 @@ exports.app.use('/hometask_07/api/blogs', _02_blogsRouter_1.blogsRouter);
 exports.app.use('/hometask_07/api/comments', _03_commentsRouter_1.commentsRouter);
 exports.app.use('/hometask_07/api/posts', _04_postsRouter_1.postsRouter);
 exports.app.use('/hometask_07/api/users', _05_usersRouter_1.usersRouter);
-exports.app.use('/hometask_07/api/mails', email_router_1.emailRouter);
 exports.app.use('/hometask_07/api/testing/all-data', _06_testsRouter_1.testsRouter);
