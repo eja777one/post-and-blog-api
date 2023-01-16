@@ -20,10 +20,25 @@ export const usersRepository = {
     return result.matchedCount;
   },
 
+  async updateConfirmation(id: ObjectID, mail: MimeNode.Envelope, code: string, date: Date) {
+    const result = await usersCollection.updateOne(
+      { _id: id },
+      {
+        $push: { 'emailConfirmation.sentEmails': mail },
+        $set: {
+          'emailConfirmation.confirmationCode': code,
+          'emailConfirmation.expirationDate': date,
+        }
+      });
+    return result.matchedCount;
+  },
+
   async addConfirmMessage(id: ObjectID, mail: MimeNode.Envelope) {
     const result = await usersCollection.updateOne(
       { _id: id },
-      { $push: { 'emailConfirmation.sentEmails': mail } });
+      {
+        $push: { 'emailConfirmation.sentEmails': mail }
+      });
     return result.matchedCount;
   },
 

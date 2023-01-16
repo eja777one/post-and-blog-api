@@ -79,11 +79,14 @@ export const authServices = {
     if (user.emailConfirmation.expirationDate < new Date()) return false;
     if (user.emailConfirmation.sentEmails.length > 5) return false;
 
+    const newConfirmationCode = uuidv4();
+    const newExpirationDate = add(new Date(), { hours: 24 });
+
     try {
       const mail = await emailManager.sendEmailConfirmation(
         user.accountData.email,
-        user.emailConfirmation.confirmationCode);
-      usersRepository.addConfirmMessage(user._id, mail);
+        newConfirmationCode);
+      usersRepository.updateConfirmation(user._id, mail, newConfirmationCode, newExpirationDate);
       return true;
     } catch (error) {
       console.error(error);
