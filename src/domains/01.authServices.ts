@@ -32,9 +32,12 @@ export const authServices = {
   async createUser(body: UserInputModel, ip: string | undefined) {
     const isEmailExist = await usersQueryRepository.getUser(body.email);
     const isLoginExist = await usersQueryRepository.getUser(body.login);
-    // check user by password
-    if (isEmailExist || isLoginExist) return null;
-    // console.log(isUserExist)
+
+    const errorEmail = { errorsMessages: [{ message: 'incorrect email', field: 'email' }] };
+    const errorLogin = { errorsMessages: [{ message: 'incorrect login', field: 'login' }] };
+
+    if (isEmailExist) return errorEmail;
+    if (isLoginExist) return errorLogin;
 
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this
@@ -59,7 +62,7 @@ export const authServices = {
     };
 
     const newUserId = await usersRepository.addUser(user);
-    console.log(newUserId)
+
     try {
       const mail = await emailManager.sendEmailConfirmation(
         user.accountData.email,
@@ -68,7 +71,7 @@ export const authServices = {
     } catch (error) {
       console.error(error);
       await usersRepository.deleteUserById(user._id.toString());
-      return null;
+      return errorEmail;
     };
     return newUserId;
   },
