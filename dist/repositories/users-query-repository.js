@@ -41,22 +41,20 @@ exports.usersQueryRepository = {
             ;
             if (findObj.$or.length === 0)
                 findObj = {};
-            // console.log(findObj)
             const items = yield db_1.usersCollection.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const items2 = yield db_1.usersCollection.find(findObj).toArray();
-            const pagesCount = Math.ceil(items2.length / limit);
-            const answer = {
+            const usersCount = yield db_1.usersCollection.countDocuments(findObj);
+            const pagesCount = Math.ceil(usersCount / limit);
+            return {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: items2.length,
+                totalCount: usersCount,
                 items: items.map((el) => prepareUser(el))
             };
-            return answer;
         });
     },
     getUserById(id) {
@@ -64,23 +62,14 @@ exports.usersQueryRepository = {
             const user = yield db_1.usersCollection.findOne({ _id: new bson_1.ObjectID(id) });
             if (user)
                 return prepareUser(user);
-            else {
-                console.log('no user');
+            else
                 return null;
-            }
-            ;
         });
     },
     getUserByLogin(login) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield db_1.usersCollection.findOne({ login });
             return user;
-        });
-    },
-    getUsers() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield db_1.usersCollection.find({}).toArray();
-            return result;
         });
     },
 };

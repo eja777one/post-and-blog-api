@@ -44,21 +44,15 @@ exports.commentsQueryRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const items2 = yield this.getComments();
-            const pagesCount = Math.ceil(items2.length / limit);
-            const answer = {
+            const postsCommentsCount = yield db_1.commentsCollection.countDocuments({ postId: postId });
+            const pagesCount = Math.ceil(postsCommentsCount / limit);
+            return {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: items2.length,
+                totalCount: postsCommentsCount,
                 items: items.map((el) => prepareComment(el))
             };
-            return answer;
-        });
-    },
-    getComments() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.commentsCollection.find({}).toArray();
         });
     },
 };

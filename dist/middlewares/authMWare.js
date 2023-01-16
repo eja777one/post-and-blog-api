@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMware = void 0;
 const models_1 = require("../models");
-const users_query_repository_1 = require("../repositories/users-query-repository");
+const _05_usersQueryRepository_1 = require("../repositories/05.usersQueryRepository");
 const jwt_service_1 = require("../application/jwt-service");
 const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.headers.authorization) {
@@ -22,7 +22,7 @@ const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     const token = req.headers.authorization.split(' ')[1];
     const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
     if (userId) {
-        req.user = yield users_query_repository_1.usersQueryRepository.getUserById(userId.toString());
+        req.user = yield _05_usersQueryRepository_1.usersQueryRepository.getUserById(userId.toString());
         next();
     }
     else {

@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkReqBodyMware = exports.testCommentBody = exports.testAddUserReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
-const blogs_query_repository_1 = require("./../repositories/blogs-query-repository");
+exports.checkReqBodyMware = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+const _02_blogsQueryRepository_1 = require("../repositories/02.blogsQueryRepository");
 const express_validator_1 = require("express-validator");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
     name: {
@@ -64,7 +64,7 @@ exports.testPostsReqBody = (0, express_validator_1.checkSchema)({
         trim: { options: [' '] },
         custom: {
             options: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                const blog = yield blogs_query_repository_1.blogsQueryRepository.getBlogById(value);
+                const blog = yield _02_blogsQueryRepository_1.blogsQueryRepository.getBlogById(value);
                 if (!blog)
                     throw new Error('Blog id is unexist');
                 else
@@ -99,6 +99,17 @@ exports.testPostsReqBodyNoBlogId = (0, express_validator_1.checkSchema)({
 exports.testLoginPassReqBody = (0, express_validator_1.checkSchema)({
     loginOrEmail: { isString: true },
     password: { isString: true }
+});
+exports.testCodeReqBody = (0, express_validator_1.checkSchema)({
+    code: { isString: true },
+});
+exports.testEmailReqBody = (0, express_validator_1.checkSchema)({
+    email: {
+        isString: true,
+        matches: {
+            options: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+        },
+    }
 });
 exports.testAddUserReqBody = (0, express_validator_1.checkSchema)({
     login: {

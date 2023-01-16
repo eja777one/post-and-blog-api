@@ -38,16 +38,15 @@ exports.postsQueryRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const items2 = yield this.getPosts();
-            const pagesCount = Math.ceil(items2.length / limit);
-            const answer = {
+            const postsCount = yield db_1.postsCollection.countDocuments();
+            const pagesCount = Math.ceil(postsCount / limit);
+            return {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: items2.length,
+                totalCount: postsCount,
                 items: items.map((el) => preparePost(el))
             };
-            return answer;
         });
     },
     getPostById(id) {
@@ -74,16 +73,15 @@ exports.postsQueryRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const items2 = yield db_1.postsCollection.find(findObj).toArray();
-            const pagesCount = Math.ceil(items2.length / limit);
-            const answer = {
+            const postsCount = yield db_1.postsCollection.countDocuments(findObj);
+            const pagesCount = Math.ceil(postsCount / limit);
+            return {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: items2.length,
+                totalCount: postsCount,
                 items: items.map((el) => preparePost(el))
             };
-            return answer;
         });
     },
     getPostsIdByBlogId2(id) {
@@ -92,11 +90,6 @@ exports.postsQueryRepository = {
                 .find({ 'blogId': id })
                 .toArray();
             return items;
-        });
-    },
-    getPosts() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.postsCollection.find({}).toArray();
         });
     },
 };

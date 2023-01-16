@@ -1,5 +1,5 @@
 import { HTTP } from '../models';
-import { usersQueryRepository } from '../repositories/users-query-repository';
+import { usersQueryRepository } from '../repositories/05.usersQueryRepository';
 import { jwtService } from '../application/jwt-service';
 import { NextFunction, Request, Response } from "express";
 

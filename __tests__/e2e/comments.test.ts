@@ -1,70 +1,27 @@
-import { BlogViewModel, CommentViewModel, PostViewModel, UserViewModel } from './../../src/models';
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
+import { blog1, blogInput, blogPostInput, comment1, commentInput, commentInputToUpdate, loginInput1, loginInput2, post1, token1, token2, URL, user1, user2, userInput1, userInput2 } from './dataForTests';
 
-describe('/hometask_06/api/comments', () => {
-  let blog1: BlogViewModel;
-  let post1: PostViewModel;
-  let user1: UserViewModel;
-  let token1: { accessToken: string };
-  let user2: UserViewModel;
-  let token2: { accessToken: string };
-  let comment1: CommentViewModel;
+let blog_01 = { ...blog1 };
+let post_01 = { ...post1 };
+let user_01 = { ...user1 };
+let user_02 = { ...user2 };
+let token_01 = { ...token1 };
+let token_02 = { ...token2 };
+let comment_01 = { ...comment1 };
 
-  const reqBodyToCreatePost = {
-    title: "string",
-    shortDescription: "string",
-    content: "string",
-    blogId: "string"
-  };
-
-  const reqBodyUser1 = {
-    login: 'user1',
-    password: "user1pass",
-    email: 'user1@mail.ru'
-  };
-
-  const reqBodyUser2 = {
-    login: 'user2',
-    password: "user2pass",
-    email: 'user2@mail.ru'
-  };
-
-  const reqBodyLogin1 = {
-    loginOrEmail: reqBodyUser1.login,
-    password: reqBodyUser1.password
-  };
-
-  const reqBodyLogin2 = {
-    loginOrEmail: reqBodyUser2.login,
-    password: reqBodyUser2.password
-  };
-
-  const reqBodyComment = {
-    content: "stringstringstringst"
-  };
-
-  const reqBodyCommentUpdate = {
-    content: "updateupdateupdateup"
-  };
-
+describe(`${URL}/comments`, () => {
   beforeAll(async () => {
-    await request(app).delete('/hometask_06/api/testing/all-data');
+    await request(app).delete(`${URL}/testing/all-data`);
   }); // blogs = []; posts = []; users = []; comments = [];
 
   // TEST #000
   it('CREATE blog FOR TEST. Status 201', async () => {
-    const reqBody = {
-      name: "string",
-      description: "string",
-      websiteUrl: "https://www.google.com/"
-    };
-
     const response = await request(app)
-      .post('/hometask_06/api/blogs')
+      .post(`${URL}/blogs`)
       .auth('admin', 'qwerty', { type: 'basic' })
-      .send(reqBody);
+      .send(blogInput);
 
     const blog = response.body;
 
@@ -72,23 +29,21 @@ describe('/hometask_06/api/comments', () => {
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(blog).toStrictEqual({
       id: expect.any(String),
-      name: reqBody.name,
-      description: reqBody.description,
-      websiteUrl: reqBody.websiteUrl,
+      name: blogInput.name,
+      description: blogInput.description,
+      websiteUrl: blogInput.websiteUrl,
       createdAt: expect.any(String)
     });
 
-    blog1 = blog;
-
-    reqBodyToCreatePost.blogId = blog1.id;
-  }); // blogs = [blog1]; posts = []; users = []; comments = [];
+    blog_01 = blog;
+  }); // blogs = [blog_01]; posts = []; users = []; comments = [];
 
   // TEST #000
-  it('CREATE post. Status 201', async () => {
+  it('CREATE post for blog_01. Status 201', async () => {
     const response = await request(app)
-      .post('/hometask_06/api/posts')
+      .post(`${URL}/blogs/${blog_01.id}/posts`)
       .auth('admin', 'qwerty', { type: 'basic' })
-      .send(reqBodyToCreatePost);
+      .send(blogPostInput);
 
     const post = response.body;
 
@@ -96,23 +51,23 @@ describe('/hometask_06/api/comments', () => {
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(post).toStrictEqual({
       id: expect.any(String),
-      title: reqBodyToCreatePost.title,
-      shortDescription: reqBodyToCreatePost.shortDescription,
-      content: reqBodyToCreatePost.content,
-      blogId: reqBodyToCreatePost.blogId,
-      blogName: blog1.name,
+      title: blogPostInput.title,
+      shortDescription: blogPostInput.shortDescription,
+      content: blogPostInput.content,
+      blogId: blog_01.id,
+      blogName: blog_01.name,
       createdAt: expect.any(String)
     });
 
-    post1 = post;
-  }); // blogs = [blog1]; posts = [post1]; users = []; comments = [];
+    post_01 = post;
+  }); // blogs = [blog_01]; posts = [post_01]; users = []; comments = [];
 
   // TEST #000
-  it('Create user1 to creaete comment. Status 201', async () => {
+  it('Create user_01 to creaete comment. Status 201', async () => {
     const response = await request(app)
-      .post(`/hometask_06/api/users`)
+      .post(`${URL}/users`)
       .auth('admin', 'qwerty', { type: 'basic' })
-      .send(reqBodyUser1)
+      .send(userInput1)
 
     const user = response.body;
 
@@ -120,20 +75,20 @@ describe('/hometask_06/api/comments', () => {
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(user).toStrictEqual({
       id: expect.any(String),
-      login: reqBodyUser1.login,
-      email: reqBodyUser1.email,
+      login: userInput1.login,
+      email: userInput1.email,
       createdAt: expect.any(String)
     });
 
-    user1 = { ...user };
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [];
+    user_01 = { ...user };
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [];
 
   // TEST #000
-  it('Create user2 to creaete comment. Status 201', async () => {
+  it('Create user_02 to creaete comment. Status 201', async () => {
     const response = await request(app)
-      .post(`/hometask_06/api/users`)
+      .post(`${URL}/users`)
       .auth('admin', 'qwerty', { type: 'basic' })
-      .send(reqBodyUser2)
+      .send(userInput2);
 
     const user = response.body;
 
@@ -141,19 +96,19 @@ describe('/hometask_06/api/comments', () => {
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(user).toStrictEqual({
       id: expect.any(String),
-      login: reqBodyUser2.login,
-      email: reqBodyUser2.email,
+      login: userInput2.login,
+      email: userInput2.email,
       createdAt: expect.any(String)
     });
 
-    user2 = { ...user };
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [];
+    user_02 = { ...user };
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [];
 
   // TEST #000
-  it('Login user1. Status 200', async () => {
+  it('Login user_01. Status 200', async () => {
     const response = await request(app)
-      .post(`/hometask_06/api/auth/login`)
-      .send(reqBodyLogin1)
+      .post(`${URL}/auth/login`)
+      .send(loginInput1);
 
     const accessToken = response.body;
 
@@ -163,14 +118,14 @@ describe('/hometask_06/api/comments', () => {
       accessToken: expect.any(String),
     });
 
-    token1 = { ...accessToken };
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [];
+    token_01 = { ...accessToken };
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [];
 
   // TEST #000
-  it('Login user2. Status 200', async () => {
+  it('Login user_02. Status 200', async () => {
     const response = await request(app)
-      .post(`/hometask_06/api/auth/login`)
-      .send(reqBodyLogin2)
+      .post(`${URL}/auth/login`)
+      .send(loginInput2)
 
     const accessToken = response.body;
 
@@ -180,15 +135,15 @@ describe('/hometask_06/api/comments', () => {
       accessToken: expect.any(String),
     });
 
-    token2 = { ...accessToken };
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [];
+    token_02 = { ...accessToken };
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
 
   // TEST #000
-  it('Create comment for post1. Status 201', async () => {
+  it('Create comment_01 for post_01 by user_01. Status 201', async () => {
     const response = await request(app)
-      .post(`/hometask_06/api/posts/${post1.id}/comments`)
-      .set('Authorization', `Bearer ${token1.accessToken}`)
-      .send(reqBodyComment)
+      .post(`${URL}/posts/${post_01.id}/comments`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send(commentInput)
 
     const comment = response.body;
 
@@ -196,117 +151,117 @@ describe('/hometask_06/api/comments', () => {
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(comment).toStrictEqual({
       id: expect.any(String),
-      content: reqBodyComment.content,
-      userId: user1.id,
-      userLogin: user1.login,
+      content: commentInput.content,
+      userId: user_01.id,
+      userLogin: user_01.login,
       createdAt: expect.any(String)
     });
 
-    comment1 = { ...comment };
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+    comment_01 = comment;
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.1
   it('Update comment with id 100. Status 404', async () => {
     await request(app)
-      .put(`/hometask_06/api/comments/100`)
-      .set('Authorization', `Bearer ${token1.accessToken}`)
-      .send(reqBodyCommentUpdate)
+      .put(`${URL}/comments/100`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send(commentInputToUpdate)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.2
-  it('Update comment1. Status 403', async () => {
+  it('Update comment_01. Status 403', async () => {
     await request(app)
-      .put(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer ${token2.accessToken}`)
-      .send(reqBodyCommentUpdate)
+      .put(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer ${token_02.accessToken}`)
+      .send(commentInputToUpdate)
       .expect(HTTP.FORBIDDEN_403)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.3
-  it('Update comment1. Status 401', async () => {
+  it('Update comment_01. Status 401', async () => {
     await request(app)
-      .put(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer token1.accessToken`)
-      .send(reqBodyCommentUpdate)
+      .put(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer token_01.accessToken`)
+      .send(commentInputToUpdate)
       .expect(HTTP.UNAUTHORIZED_401)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.4
-  it('Update comment1. Status 400', async () => {
+  it('Update comment_01. Status 400', async () => {
     await request(app)
-      .put(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer ${token1.accessToken}`)
+      .put(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ content: 'bad content' })
       .expect(HTTP.BAD_REQUEST_400)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.5
-  it('Update comment1. Status 204', async () => {
+  it('Update comment_01. Status 204', async () => {
     await request(app)
-      .put(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer ${token1.accessToken}`)
-      .send(reqBodyCommentUpdate)
+      .put(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send(commentInputToUpdate)
       .expect(HTTP.NO_CONTENT_204)
 
-    comment1.content = reqBodyCommentUpdate.content;
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+    comment_01.content = commentInputToUpdate.content;
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.6
-  it('Get comment1. Status 200', async () => {
+  it('Get comment_01. Status 200', async () => {
     const response = await request(app)
-      .get(`/hometask_06/api/comments/${comment1.id}`)
+      .get(`${URL}/comments/${comment_01.id}`)
 
     const comment = response.body;
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
-    expect(comment).toStrictEqual(comment1);
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+    expect(comment).toStrictEqual(comment_01);
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.7
   it('Get comment with id 100. Status 200', async () => {
     const response = await request(app)
-      .get(`/hometask_06/api/comments/100`)
+      .get(`${URL}/comments/100`)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.8
   it('Delete comment with id 100. Status 404', async () => {
     await request(app)
-      .delete(`/hometask_06/api/comments/100`)
-      .set('Authorization', `Bearer ${token1.accessToken}`)
+      .delete(`${URL}/comments/100`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.9
-  it('Delete comment1. Status 403', async () => {
+  it('Delete comment_01. Status 403', async () => {
     await request(app)
-      .delete(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer ${token2.accessToken}`)
+      .delete(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer ${token_02.accessToken}`)
       .expect(HTTP.FORBIDDEN_403)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.10
-  it('Delete comment1. Status 401', async () => {
+  it('Delete comment_01. Status 401', async () => {
     await request(app)
-      .delete(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer token2.accessToken`)
+      .delete(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer token_02.accessToken`)
       .expect(HTTP.UNAUTHORIZED_401)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.11
-  it('Delete comment1. Status 204', async () => {
+  it('Delete comment_01. Status 204', async () => {
     await request(app)
-      .delete(`/hometask_06/api/comments/${comment1.id}`)
-      .set('Authorization', `Bearer ${token1.accessToken}`)
+      .delete(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
       .expect(HTTP.NO_CONTENT_204)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
 
   // TEST #5.12
   it('Get comment1. Status 404', async () => {
     await request(app)
-      .get(`/hometask_06/api/comments/${comment1.id}`)
+      .get(`${URL}/comments/${comment_01.id}`)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog1]; posts = [post1]; users = [user1]; comments = [comment1];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
 });

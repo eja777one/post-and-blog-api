@@ -13,7 +13,6 @@ exports.blogsQueryRepository = void 0;
 const db_1 = require("./db");
 const bson_1 = require("bson");
 const prepareBlog = (input) => {
-    // console.log(input)
     const obj = {
         id: input._id.toString(),
         name: input.name,
@@ -29,7 +28,6 @@ exports.blogsQueryRepository = {
             const skip = (query.pageNumber - 1) * query.pageSize;
             const limit = query.pageSize;
             const sortBy = query.sortBy;
-            // console.log(query.sortDirection);
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
@@ -39,16 +37,15 @@ exports.blogsQueryRepository = {
                 .limit(limit)
                 .skip(skip)
                 .toArray();
-            const items2 = yield db_1.blogsCollection.find(findObj).toArray();
-            const pagesCount = Math.ceil(items2.length / limit);
-            const answer = {
+            const searchBlogsCount = yield db_1.blogsCollection.countDocuments(findObj);
+            const pagesCount = Math.ceil(searchBlogsCount / limit);
+            return {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
-                totalCount: items2.length,
+                totalCount: searchBlogsCount,
                 items: items.map((el) => prepareBlog(el))
             };
-            return answer;
         });
     },
     getBlogById(id) {
@@ -58,12 +55,6 @@ exports.blogsQueryRepository = {
                 return prepareBlog(blog);
             else
                 return null;
-        });
-    },
-    getBlogs() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const blogs = yield db_1.blogsCollection.find({}).toArray();
-            return blogs;
         });
     },
 };

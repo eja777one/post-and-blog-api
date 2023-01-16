@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const db_1 = require("./repositories/db");
+const _00_db_1 = require("./repositories/00.db");
 const app_1 = require("./app");
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, db_1.runDb)();
+    yield (0, _00_db_1.runDb)();
     app_1.app.listen(app_1.port, () => {
         console.log(`Example app listening on port ${app_1.port}`);
     });

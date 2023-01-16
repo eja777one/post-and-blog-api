@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
+const auth_services_1 = require("./../domains/auth-services");
 const authMware_1 = require("../middlewares/authMware");
 const jwt_service_1 = require("./../application/jwt-service");
 const express_1 = require("express");
@@ -17,6 +18,10 @@ const users_services_1 = require("./../domains/users-services");
 const models_1 = require("../models");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 exports.authRouter = (0, express_1.Router)({});
+exports.authRouter.post('/registration', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield auth_services_1.authServices.createUser(req.body);
+    res.status(201).send();
+}));
 exports.authRouter.post('/login', checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield users_services_1.usersServices
         .checkAuth(req.body.loginOrEmail, req.body.password);

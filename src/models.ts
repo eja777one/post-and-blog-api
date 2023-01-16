@@ -128,13 +128,37 @@ export type UserViewModel = {
 	createdAt: string
 };
 
+// export type UserDBModel = {
+// 	_id: ObjectID
+// 	login: string
+// 	email: string
+// 	createdAt: string
+// 	passwordHash: string
+// 	passwordSalt: string
+// };
+
 export type UserDBModel = {
-	_id: ObjectID
-	login: string
-	email: string
-	createdAt: string
-	passwordHash: string
-	passwordSalt: string
+	_id: ObjectID,
+	accountData: {
+		login: string,
+		email: string,
+		passwordHash: string,
+		passwordSalt: string,
+		createdAt: string
+	},
+	emailConfirmation: {
+		confirmationCode: string,
+		expirationDate: Date,
+		isConfirmed: boolean,
+		sentEmails: []
+	},
+	registrationDataType: {
+		ip: string | undefined
+	}
+};
+
+export type SentEmailType = {
+	sentDate: Date
 };
 
 export type CommentInputModel = {
@@ -166,4 +190,12 @@ export type MeViewModel = {
 	email: string
 	login: string
 	userId: string
+};
+
+export type RegistrationConfirmationCodeModel = {
+	code: string
+};
+
+export type RegistrationEmailResending = {
+	email: string
 };

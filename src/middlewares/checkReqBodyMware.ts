@@ -1,4 +1,4 @@
-import { blogsQueryRepository } from './../repositories/blogs-query-repository';
+import { blogsQueryRepository } from '../repositories/02.blogsQueryRepository';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
 
@@ -90,6 +90,19 @@ export const testPostsReqBodyNoBlogId = checkSchema({
 export const testLoginPassReqBody = checkSchema({
   loginOrEmail: { isString: true },
   password: { isString: true }
+});
+
+export const testCodeReqBody = checkSchema({
+  code: { isString: true },
+});
+
+export const testEmailReqBody = checkSchema({
+  email: {
+    isString: true,
+    matches: {
+      options: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+    },
+  }
 });
 
 export const testAddUserReqBody = checkSchema({
