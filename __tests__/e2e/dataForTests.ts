@@ -1,7 +1,7 @@
 import { BlogInputModel, CommentViewModel, UserViewModel, LoginInputModel, UserInputModel, CommentInputModel } from '../../src/models';
 import { BlogViewModel, PostViewModel } from "../../src/models";
 
-export const URL = '/hometask_07/api';
+export const URL = '/hometask_08/api';
 
 // for Blogs
 

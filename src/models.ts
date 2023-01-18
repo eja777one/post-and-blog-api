@@ -67,6 +67,7 @@ export enum HTTP {
 	'UNAUTHORIZED_401' = 401,
 	'FORBIDDEN_403' = 403,
 	'NOT_FOUND_404' = 404,
+	'METHOD_NOT_ALLOWED_405' = 405
 };
 
 export type BlogDBModel = {
@@ -154,6 +155,9 @@ export type UserDBModel = {
 	},
 	registrationDataType: {
 		ip: string | undefined
+	},
+	loginData: {
+		refreshToken: string
 	}
 };
 

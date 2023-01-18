@@ -101,7 +101,12 @@ exports.testLoginPassReqBody = (0, express_validator_1.checkSchema)({
     password: { isString: true }
 });
 exports.testCodeReqBody = (0, express_validator_1.checkSchema)({
-    code: { isString: true },
+    code: {
+        isString: true,
+        matches: {
+            options: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        },
+    },
 });
 exports.testEmailReqBody = (0, express_validator_1.checkSchema)({
     email: {
@@ -116,6 +121,9 @@ exports.testAddUserReqBody = (0, express_validator_1.checkSchema)({
         isString: true,
         isLength: {
             options: { min: 3, max: 10 }
+        },
+        matches: {
+            options: /^[a-zA-Z0-9_-]*$/
         },
     },
     password: {

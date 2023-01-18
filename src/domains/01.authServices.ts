@@ -6,22 +6,53 @@ import { UserInputModel } from "../models";
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
+import { jwtService } from '../application/jwt-service';
 
 export const authServices = {
-
   async checkAuth(loginOrEmail: string, password: string) {
     const user = await usersQueryRepository.getUser(loginOrEmail);
-    if (!user) return false;
-    if (!user.emailConfirmation.isConfirmed) return false;
+
+    if (!user) return null;
+    if (!user.emailConfirmation.isConfirmed) return null;
+
     const inputPass = await this
       ._generateHash(password, user.accountData.passwordSalt);
-    const result = inputPass === user.accountData.passwordHash ? user : false;
-    return result;
+
+    if (inputPass !== user.accountData.passwordHash) return null;
+
+    const accessToken = await jwtService.createAccessJwt(user._id.toString());
+    const refreshToken = await jwtService.createRefreshJwt(user._id.toString());
+
+    await usersRepository.updateRefreshToken(user._id, refreshToken);
+
+    return { accessToken, refreshToken };
+  },
+
+  async getNewTokensPair(refreshToken: string) {
+    let userId = await jwtService.getUserIdByRefreshToken(refreshToken);
+    if (!userId) return null;
+
+    const newAccessToken = await jwtService.createAccessJwt(userId.toString());
+    const newRefreshToken = await jwtService.createRefreshJwt(userId.toString());
+
+    const result = await usersRepository.updateRefreshToken(userId, newRefreshToken);
+    if (result !== 1) return null;
+
+    return { newAccessToken, newRefreshToken };
+  },
+
+  async deleteRefreshToken(refreshToken: string) {
+    let userId = await jwtService.getUserIdByRefreshToken(refreshToken);
+    if (!userId) return false;
+
+    const result = await usersRepository.updateRefreshToken(userId, 'No Refresh Token');
+    if (result !== 1) return false;
+
+    return true;
   },
 
   async confirmEmail(code: string) {
     let user = await usersQueryRepository.getUserByConfirm(code);
-    // console.log(user)
     if (!user) return null;
     if (user.emailConfirmation.isConfirmed) return null;
     if (user.emailConfirmation.expirationDate < new Date()) return null;

@@ -108,8 +108,26 @@ exports.usersQueryRepository = {
     },
     getUserByConfirm(code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+            const user = yield _00_db_1.usersCollection.findOne({
+                'emailConfirmation.confirmationCode': code
+            });
             return user;
+        });
+    },
+    getUserByRefreshToken(refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield _00_db_1.usersCollection.findOne({
+                'loginData.refreshToken': refreshToken
+            });
+            return user;
+        });
+    },
+    getUsersRefreshToken(refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield _00_db_1.usersCollection.findOne({
+                'loginData.refreshToken': refreshToken
+            });
+            return user === null || user === void 0 ? void 0 : user.loginData.refreshToken;
         });
     },
 };

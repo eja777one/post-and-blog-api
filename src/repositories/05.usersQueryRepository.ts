@@ -59,7 +59,7 @@ export const usersQueryRepository = {
     else return null;
   },
 
-  async getDbUserById(id: any) {
+  async getDbUserById(id: string) {
     const user = await usersCollection.findOne({ _id: new ObjectID(id) });
     if (user) return user;
     else return null;
@@ -92,7 +92,23 @@ export const usersQueryRepository = {
   },
 
   async getUserByConfirm(code: string) {
-    const user = await usersCollection.findOne({ 'emailConfirmation.confirmationCode': code });
+    const user = await usersCollection.findOne({
+      'emailConfirmation.confirmationCode': code
+    });
     return user;
+  },
+
+  async getUserByRefreshToken(refreshToken: string) {
+    const user = await usersCollection.findOne({
+      'loginData.refreshToken': refreshToken
+    });
+    return user;
+  },
+
+  async getUsersRefreshToken(refreshToken: string) {
+    const user = await usersCollection.findOne({
+      'loginData.refreshToken': refreshToken
+    });
+    return user?.loginData.refreshToken;
   },
 };

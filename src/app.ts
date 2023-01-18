@@ -6,6 +6,10 @@ import { postsRouter } from './routers/04.postsRouter';
 import { testsRouter } from './routers/06.testsRouter';
 import { usersRouter } from './routers/05.usersRouter';
 import { UserViewModel } from './models';
+import { allowedMethods } from './middlewares/allowedMethodsMware';
+import cookieParser from "cookie-parser";
+import * as dotenv from 'dotenv';
+dotenv.config()
 
 export const app = express();
 export const port = process.env.PORT || 3003;
@@ -20,11 +24,13 @@ declare global {
 
 const jsonBodyMiddleware = express.json();
 app.use(jsonBodyMiddleware);
+app.use(allowedMethods);
+app.use(cookieParser('cookie'));
 app.set('trust proxy', true);
 
-app.use('/hometask_07/api/auth', authRouter);
-app.use('/hometask_07/api/blogs', blogsRouter);
-app.use('/hometask_07/api/comments', commentsRouter);
-app.use('/hometask_07/api/posts', postsRouter);
-app.use('/hometask_07/api/users', usersRouter);
-app.use('/hometask_07/api/testing/all-data', testsRouter);
+app.use('/hometask_08/api/auth', authRouter);
+app.use('/hometask_08/api/blogs', blogsRouter);
+app.use('/hometask_08/api/comments', commentsRouter);
+app.use('/hometask_08/api/posts', postsRouter);
+app.use('/hometask_08/api/users', usersRouter);
+app.use('/hometask_08/api/testing/all-data', testsRouter);

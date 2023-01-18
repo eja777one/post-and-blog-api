@@ -7,6 +7,7 @@ import { ObjectID } from 'bson';
 
 let user_01: any;
 let token_01 = { ...token1 };
+let cookie: string[];
 
 describe(`${URL}/auth`, () => {
   beforeAll(async () => {
@@ -132,10 +133,50 @@ describe(`${URL}/auth`, () => {
   });
 
   // TEST #5.9
+  it('LOGIN User_01. Status 401', async () => {
+    await request(app)
+      .post(`${URL}/auth/login`)
+      .send(badLoginBody2)
+      .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #5.10
+  it('LOGIN User_01. Status 400', async () => {
+    await request(app)
+      .post(`${URL}/auth/login`)
+      .send(badLoginBody)
+      .expect(HTTP.BAD_REQUEST_400);
+  });
+
+  // TEST #5.11
   it('LOGIN User_01. Status 200', async () => {
     const response = await request(app)
       .post(`${URL}/auth/login`)
       .send(loginInput1)
+
+    const accessToken = response.body;
+
+    cookie = response.get('Set-Cookie');
+    // cookie = response.get('Set-Cookie')[0].split('; ')[0].split('=')[1];
+
+    console.log(cookie);
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.OK_200);
+    expect(accessToken).toStrictEqual({
+      accessToken: expect.any(String),
+    });
+
+    token_01 = { ...accessToken };
+  });
+
+  // TEST #5.12
+  it('Refresh token to User_01. Status 200', async () => {
+    const response = await request(app)
+      .post(`${URL}/auth/refresh-token`)
+      .set('Cookie', cookie);
+
+    cookie = response.get('Set-Cookie');
 
     const accessToken = response.body;
 
@@ -148,23 +189,15 @@ describe(`${URL}/auth`, () => {
     token_01 = { ...accessToken };
   });
 
-  // TEST #5.10
-  it('LOGIN User_01. Status 400', async () => {
+  // TEST #5.13
+  it('Refresh token to User_01. Status 401', async () => {
     await request(app)
-      .post(`${URL}/auth/login`)
-      .send(badLoginBody)
-      .expect(HTTP.BAD_REQUEST_400);
-  });
-
-  // TEST #5.11
-  it('LOGIN User_01. Status 401', async () => {
-    await request(app)
-      .post(`${URL}/auth/login`)
-      .send(badLoginBody2)
+      .post(`${URL}/auth/refresh-token`)
+      .set('Cookie', '123')
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #5.12
+  // TEST #5.14
   it('Get info about User_01. Status 200', async () => {
     await request(app)
       .get(`${URL}/auth/me`)
@@ -176,11 +209,33 @@ describe(`${URL}/auth`, () => {
       });
   });
 
-  // TEST #5.13
+  // TEST #5.15
   it('Get info about User_01. Status 401', async () => {
     await request(app)
       .get(`${URL}/auth/me`)
       .set('Authorization', `Bearer token_01.accessToken`)
       .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #5.16
+  it('Logout User_01. Status 401', async () => {
+    const response = await request(app)
+      .post(`${URL}/auth/logout`)
+      .set('Cookie', '123')
+      .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #5.17
+  it('Refresh token to User_01. Status 200', async () => {
+    const response = await request(app)
+      .post(`${URL}/auth/logout`)
+      .set('Cookie', cookie);
+
+    const userRefreshToken = await usersQueryRepository
+      .getUsersRefreshToken('No Refresh Token');
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.NO_CONTENT_204);
+    expect(userRefreshToken).toStrictEqual('No Refresh Token');
   });
 });

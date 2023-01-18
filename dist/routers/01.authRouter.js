@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,24 +31,65 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
 const express_1 = require("express");
 const _01_authServices_1 = require("../domains/01.authServices");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const authMware_1 = require("../middlewares/authMware");
-const jwt_service_1 = require("../application/jwt-service");
 const models_1 = require("../models");
+const dotenv = __importStar(require("dotenv"));
+const add_1 = __importDefault(require("date-fns/add"));
+dotenv.config();
 exports.authRouter = (0, express_1.Router)({});
 exports.authRouter.post('/login', checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield _01_authServices_1.authServices
+    const tokens = yield _01_authServices_1.authServices
         .checkAuth(req.body.loginOrEmail, req.body.password);
-    if (user) {
-        const token = yield jwt_service_1.jwtService.createJwt(user);
-        res.status(models_1.HTTP.OK_200).json({ accessToken: token.token }); // TEST #4.11
+    if (tokens) {
+        res.status(models_1.HTTP.OK_200)
+            .cookie('refreshToken', tokens.refreshToken, {
+            secure: process.env.NODE_ENV !== "cookie",
+            httpOnly: true,
+            expires: (0, add_1.default)(new Date(), { seconds: 20 }),
+        })
+            .json({ accessToken: tokens.accessToken }); // TEST #4.11
     }
     else
         res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #4.13
+}));
+exports.authRouter.post('/logout', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.cookies.refreshToken) {
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+        return;
+    }
+    const refreshTokenWasRevoke = yield _01_authServices_1.authServices
+        .deleteRefreshToken(req.cookies.refreshToken);
+    if (refreshTokenWasRevoke)
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+    else
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+}));
+exports.authRouter.post('/refresh-token', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.cookies.refreshToken) {
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+        return;
+    }
+    ;
+    const tokens = yield _01_authServices_1.authServices.getNewTokensPair(req.cookies.refreshToken);
+    if (!tokens) {
+        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+        return;
+    }
+    res.status(models_1.HTTP.OK_200)
+        .cookie('refreshToken', tokens.newRefreshToken, {
+        secure: process.env.NODE_ENV !== "cookie",
+        httpOnly: true,
+        expires: (0, add_1.default)(new Date(), { seconds: 20 }),
+    })
+        .json({ accessToken: tokens.newAccessToken });
 }));
 exports.authRouter.post('/registration-confirmation', checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield _01_authServices_1.authServices.confirmEmail(req.body.code);
@@ -33,21 +97,22 @@ exports.authRouter.post('/registration-confirmation', checkReqBodyMware_1.testCo
     if (result)
         res.sendStatus(models_1.HTTP.NO_CONTENT_204);
     else
-        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
+        res.status(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect code', field: 'code' }] });
 }));
 exports.authRouter.post('/registration', checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newUserId = yield _01_authServices_1.authServices.createUser(req.body, req.socket.remoteAddress);
-    if (newUserId)
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+    if (typeof newUserId === 'object')
+        res.status(models_1.HTTP.BAD_REQUEST_400).json(newUserId);
     else
-        res.send(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect email', field: 'email' }] });
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+    ;
 }));
 exports.authRouter.post('/registration-email-resending', checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield _01_authServices_1.authServices.resendConfirmation(req.body.email);
     if (result)
         res.sendStatus(models_1.HTTP.NO_CONTENT_204);
     else
-        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
+        res.status(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect email', field: 'email' }] });
 }));
 exports.authRouter.get('/me', authMware_1.authMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;

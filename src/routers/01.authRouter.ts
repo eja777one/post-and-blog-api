@@ -1,11 +1,12 @@
-import { usersQueryRepository } from './../repositories/05.usersQueryRepository';
 import { Router, Request, Response } from "express";
 import { authServices } from '../domains/01.authServices';
-import { usersServices } from '../domains/05.usersServices';
 import { checkReqBodyMware, testAddUserReqBody, testCodeReqBody, testEmailReqBody, testLoginPassReqBody } from '../middlewares/checkReqBodyMware';
 import { authMware } from '../middlewares/authMware';
-import { jwtService } from '../application/jwt-service';
 import { LoginSuccessViewModel, MeViewModel, LoginInputModel, HTTP, RegistrationConfirmationCodeModel, UserInputModel, RegistrationEmailResending } from '../models';
+import * as dotenv from 'dotenv';
+import add from 'date-fns/add';
+
+dotenv.config()
 
 export const authRouter = Router({});
 
@@ -15,14 +16,55 @@ authRouter.post('/login',
   async (req: Request<LoginInputModel>,
     res: Response<LoginSuccessViewModel>) => {
 
-    const user = await authServices
+    const tokens = await authServices
       .checkAuth(req.body.loginOrEmail, req.body.password);
 
-    if (user) {
-      const token = await jwtService.createJwt(user);
-      res.status(HTTP.OK_200).json({ accessToken: token.token }); // TEST #4.11
+    if (tokens) {
+      res.status(HTTP.OK_200)
+        .cookie('refreshToken', tokens.refreshToken, {
+          secure: process.env.NODE_ENV !== "cookie",
+          httpOnly: true,
+          expires: add(new Date(), { seconds: 20 }),
+        })
+        .json({ accessToken: tokens.accessToken }); // TEST #4.11
+    } else res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #4.13
+  });
+
+authRouter.post('/logout',
+  async (req: Request, res: Response) => {
+    if (!req.cookies.refreshToken) {
+      res.sendStatus(HTTP.UNAUTHORIZED_401);
+      return
     }
-    else res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #4.13
+    const refreshTokenWasRevoke = await authServices
+      .deleteRefreshToken(req.cookies.refreshToken);
+
+    if (refreshTokenWasRevoke) res.sendStatus(HTTP.NO_CONTENT_204);
+    else res.sendStatus(HTTP.UNAUTHORIZED_401);
+  });
+
+authRouter.post('/refresh-token',
+  async (req: Request, res: Response) => {
+    if (!req.cookies.refreshToken) {
+      res.sendStatus(HTTP.UNAUTHORIZED_401);
+      return;
+    };
+
+    const tokens = await authServices.getNewTokensPair(req.cookies.refreshToken);
+
+    if (!tokens) {
+      res.sendStatus(HTTP.UNAUTHORIZED_401);
+      return;
+    }
+
+    res.status(HTTP.OK_200)
+      .cookie('refreshToken', tokens.newRefreshToken, {
+        secure: process.env.NODE_ENV !== "cookie",
+        httpOnly: true,
+        expires: add(new Date(), { seconds: 20 }),
+      })
+      .json({ accessToken: tokens.newAccessToken });
+      
   });
 
 authRouter.post('/registration-confirmation',
@@ -62,10 +104,7 @@ authRouter.post('/registration-email-resending',
 
 authRouter.get('/me',
   authMware,
-  async (
-    req: Request,
-    res: Response<MeViewModel>
-  ) => {
+  async (req: Request, res: Response<MeViewModel>) => {
     if (!req.user) {
       res.sendStatus(HTTP.UNAUTHORIZED_401);
       return;

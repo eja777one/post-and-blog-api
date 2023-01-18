@@ -20,24 +20,52 @@ const bson_1 = require("bson");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uuid_1 = require("uuid");
 const add_1 = __importDefault(require("date-fns/add"));
+const jwt_service_1 = require("../application/jwt-service");
 exports.authServices = {
     checkAuth(loginOrEmail, password) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(loginOrEmail);
             if (!user)
-                return false;
+                return null;
             if (!user.emailConfirmation.isConfirmed)
-                return false;
+                return null;
             const inputPass = yield this
                 ._generateHash(password, user.accountData.passwordSalt);
-            const result = inputPass === user.accountData.passwordHash ? user : false;
-            return result;
+            if (inputPass !== user.accountData.passwordHash)
+                return null;
+            const accessToken = yield jwt_service_1.jwtService.createAccessJwt(user._id.toString());
+            const refreshToken = yield jwt_service_1.jwtService.createRefreshJwt(user._id.toString());
+            yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(user._id, refreshToken);
+            return { accessToken, refreshToken };
+        });
+    },
+    getNewTokensPair(refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
+            if (!userId)
+                return null;
+            const newAccessToken = yield jwt_service_1.jwtService.createAccessJwt(userId.toString());
+            const newRefreshToken = yield jwt_service_1.jwtService.createRefreshJwt(userId.toString());
+            const result = yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(userId, newRefreshToken);
+            if (result !== 1)
+                return null;
+            return { newAccessToken, newRefreshToken };
+        });
+    },
+    deleteRefreshToken(refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
+            if (!userId)
+                return false;
+            const result = yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(userId, 'No Refresh Token');
+            if (result !== 1)
+                return false;
+            return true;
         });
     },
     confirmEmail(code) {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield _05_usersQueryRepository_1.usersQueryRepository.getUserByConfirm(code);
-            // console.log(user)
             if (!user)
                 return null;
             if (user.emailConfirmation.isConfirmed)
@@ -50,11 +78,14 @@ exports.authServices = {
     },
     createUser(body, ip) {
         return __awaiter(this, void 0, void 0, function* () {
-            const isUserExist = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(body.email);
-            // check user by password
-            if (isUserExist)
-                return null;
-            // console.log(isUserExist)
+            const isEmailExist = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(body.email);
+            const isLoginExist = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(body.login);
+            const errorEmail = { errorsMessages: [{ message: 'incorrect email', field: 'email' }] };
+            const errorLogin = { errorsMessages: [{ message: 'incorrect login', field: 'login' }] };
+            if (isEmailExist)
+                return errorEmail;
+            if (isLoginExist)
+                return errorLogin;
             const passwordSalt = yield bcrypt_1.default.genSalt(10);
             const passwordHash = yield this
                 ._generateHash(body.password, passwordSalt);
@@ -76,7 +107,6 @@ exports.authServices = {
                 registrationDataType: { ip }
             };
             const newUserId = yield _05_usersDbRepository_1.usersRepository.addUser(user);
-            console.log(newUserId);
             try {
                 const mail = yield email_manager_1.emailManager.sendEmailConfirmation(user.accountData.email, user.emailConfirmation.confirmationCode);
                 _05_usersDbRepository_1.usersRepository.addConfirmMessage(user._id, mail);
@@ -84,7 +114,7 @@ exports.authServices = {
             catch (error) {
                 console.error(error);
                 yield _05_usersDbRepository_1.usersRepository.deleteUserById(user._id.toString());
-                return null;
+                return errorEmail;
             }
             ;
             return newUserId;
@@ -101,9 +131,11 @@ exports.authServices = {
                 return false;
             if (user.emailConfirmation.sentEmails.length > 5)
                 return false;
+            const newConfirmationCode = (0, uuid_1.v4)();
+            const newExpirationDate = (0, add_1.default)(new Date(), { hours: 24 });
             try {
-                const mail = yield email_manager_1.emailManager.sendEmailConfirmation(user.accountData.email, user.emailConfirmation.confirmationCode);
-                _05_usersDbRepository_1.usersRepository.addConfirmMessage(user._id, mail);
+                const mail = yield email_manager_1.emailManager.sendEmailConfirmation(user.accountData.email, newConfirmationCode);
+                _05_usersDbRepository_1.usersRepository.updateConfirmation(user._id, mail, newConfirmationCode, newExpirationDate);
                 return true;
             }
             catch (error) {
