@@ -41,8 +41,11 @@ exports.authServices = {
     },
     getNewTokensPair(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            let userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
+            const userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
             if (!userId)
+                return null;
+            const user = yield _05_usersQueryRepository_1.usersQueryRepository.getDbUserById(userId.toString());
+            if ((user === null || user === void 0 ? void 0 : user.loginData.refreshToken) !== refreshToken)
                 return null;
             const newAccessToken = yield jwt_service_1.jwtService.createAccessJwt(userId.toString());
             const newRefreshToken = yield jwt_service_1.jwtService.createRefreshJwt(userId.toString());
@@ -54,8 +57,11 @@ exports.authServices = {
     },
     deleteRefreshToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            let userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
+            const userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
             if (!userId)
+                return false;
+            const user = yield _05_usersQueryRepository_1.usersQueryRepository.getDbUserById(userId.toString());
+            if ((user === null || user === void 0 ? void 0 : user.loginData.refreshToken) !== refreshToken)
                 return false;
             const result = yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(userId, 'No Refresh Token');
             if (result !== 1)

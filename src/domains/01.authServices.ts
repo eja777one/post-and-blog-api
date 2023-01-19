@@ -29,8 +29,11 @@ export const authServices = {
   },
 
   async getNewTokensPair(refreshToken: string) {
-    let userId = await jwtService.getUserIdByRefreshToken(refreshToken);
+    const userId = await jwtService.getUserIdByRefreshToken(refreshToken);
     if (!userId) return null;
+
+    const user = await usersQueryRepository.getDbUserById(userId.toString());
+    if (user?.loginData.refreshToken !== refreshToken) return null;
 
     const newAccessToken = await jwtService.createAccessJwt(userId.toString());
     const newRefreshToken = await jwtService.createRefreshJwt(userId.toString());
@@ -42,8 +45,11 @@ export const authServices = {
   },
 
   async deleteRefreshToken(refreshToken: string) {
-    let userId = await jwtService.getUserIdByRefreshToken(refreshToken);
+    const userId = await jwtService.getUserIdByRefreshToken(refreshToken);
     if (!userId) return false;
+
+    const user = await usersQueryRepository.getDbUserById(userId.toString());
+    if (user?.loginData.refreshToken !== refreshToken) return false;
 
     const result = await usersRepository.updateRefreshToken(userId, 'No Refresh Token');
     if (result !== 1) return false;

@@ -64,7 +64,6 @@ authRouter.post('/refresh-token',
         expires: add(new Date(), { seconds: 20 }),
       })
       .json({ accessToken: tokens.newAccessToken });
-      
   });
 
 authRouter.post('/registration-confirmation',
