@@ -1,7 +1,15 @@
-import { BlogInputModel, CommentViewModel, UserViewModel, LoginInputModel, UserInputModel, CommentInputModel } from '../../src/models';
-import { BlogViewModel, PostViewModel } from "../../src/models";
+import {
+  BlogViewModel,
+  PostViewModel,
+  BlogInputModel,
+  CommentViewModel,
+  UserViewModel,
+  LoginInputModel,
+  UserInputModel,
+  CommentInputModel
+} from '../../src/models';
 
-export const URL = '/hometask_08/api';
+export const URL = '/hometask_09/api';
 
 // for Blogs
 

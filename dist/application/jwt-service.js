@@ -19,14 +19,12 @@ const settings_1 = require("./settings");
 exports.jwtService = {
     createAccessJwt(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const token = jsonwebtoken_1.default.sign({ userId }, settings_1.settings.ACCESS_JWT_SECRET, { expiresIn: '10s' });
-            return token;
+            return jsonwebtoken_1.default.sign({ userId }, settings_1.settings.ACCESS_JWT_SECRET, { expiresIn: '10s' });
         });
     },
-    createRefreshJwt(userId) {
+    createRefreshJwt(userId, deviceId, createdAt) {
         return __awaiter(this, void 0, void 0, function* () {
-            const token = jsonwebtoken_1.default.sign({ userId }, settings_1.settings.REFRESH_JWT_SECRET, { expiresIn: '20s' });
-            return token;
+            return jsonwebtoken_1.default.sign({ userId, deviceId, createdAt }, settings_1.settings.REFRESH_JWT_SECRET, { expiresIn: '20s' });
         });
     },
     getUserIdByToken(token) {
@@ -41,13 +39,35 @@ exports.jwtService = {
             ;
         });
     },
-    getUserIdByRefreshToken(token) {
+    getPayloadRefToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = jsonwebtoken_1.default.verify(token, settings_1.settings.REFRESH_JWT_SECRET);
-                return new mongodb_1.ObjectId(result.userId);
+                return {
+                    userId: result.userId,
+                    deviceId: result.deviceId,
+                    createdAt: result.createdAt
+                };
             }
             catch (error) {
+                return null;
+            }
+            ;
+        });
+    },
+    getExpiredPayloadRefToken(token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = jsonwebtoken_1.default
+                    .verify(token, settings_1.settings.REFRESH_JWT_SECRET, { ignoreExpiration: true });
+                return {
+                    userId: result.userId,
+                    deviceId: result.deviceId,
+                    createdAt: result.createdAt
+                };
+            }
+            catch (error) {
+                console.log();
                 return null;
             }
             ;

@@ -83,11 +83,15 @@ export const usersQueryRepository = {
 
   async getUser(loginOrEmail: string) {
     let user: UserDBModel | null;
+
     if (loginOrEmail.indexOf('@') !== -1) {
-      user = await usersCollection.findOne({ 'accountData.email': loginOrEmail });
+      user = await usersCollection.
+        findOne({ 'accountData.email': loginOrEmail });
     } else {
-      user = await usersCollection.findOne({ 'accountData.login': loginOrEmail });
-    }
+      user = await usersCollection
+        .findOne({ 'accountData.login': loginOrEmail });
+    };
+
     return user;
   },
 
@@ -103,12 +107,5 @@ export const usersQueryRepository = {
       'loginData.refreshToken': refreshToken
     });
     return user;
-  },
-
-  async getUsersRefreshToken(refreshToken: string) {
-    const user = await usersCollection.findOne({
-      'loginData.refreshToken': refreshToken
-    });
-    return user?.loginData.refreshToken;
   },
 };

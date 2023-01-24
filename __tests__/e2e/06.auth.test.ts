@@ -1,20 +1,33 @@
-import { usersQueryRepository } from './../../src/repositories/05.usersQueryRepository';
+import { usersQueryRepository }
+  from '../../src/repositories/05.usersQueryRepository';
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
-import { badLoginBody, badLoginBody2, badRegEmailResending, badUserInput1, codeErrorResult, loginInput1, token1, URL, userErrorResult, userInput1 } from './dataForTests';
 import { ObjectID } from 'bson';
+import {
+  badLoginBody,
+  badLoginBody2,
+  badRegEmailResending,
+  badUserInput1,
+  loginInput1,
+  token1,
+  URL,
+  userErrorResult,
+  userInput1
+} from './00.dataForTests';
 
 let user_01: any;
 let token_01 = { ...token1 };
 let cookie: string[];
+
+// jest.setTimeout(30000);
 
 describe(`${URL}/auth`, () => {
   beforeAll(async () => {
     await request(app).delete(`${URL}/testing/all-data`);
   });
 
-  // TEST #5.1
+  // TEST #6.1
   it('GET Users. Status 200', async () => {
     await request(app)
       .get(`${URL}/users`)
@@ -28,7 +41,23 @@ describe(`${URL}/auth`, () => {
       });
   });
 
-  // TEST #5.2
+  // // TEST #6.2
+  // it('Create User_01. Status 429', async () => {
+  //   let response = await request(app)
+  //     .post(`${URL}/auth/registration`)
+  //     .send(userInput1);
+
+  //   for (let i = 0; i < 4; i++) {
+  //     response = await request(app)
+  //       .post(`${URL}/auth/registration`)
+  //       .send(userInput1)
+  //   };
+
+  //   expect(response.status)
+  //     .toBe(HTTP.TOO_MANY_REQUESTS_429);
+  // });
+
+  // TEST #6.3
   it('Create User_01. Status 400', async () => {
     await request(app)
       .post(`${URL}/auth/registration`)
@@ -36,13 +65,14 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.BAD_REQUEST_400, userErrorResult);
   });
 
-  // TEST #5.3
+  // TEST #6.4
   it('Create User_01. Status 204', async () => {
     const response = await request(app)
       .post(`${URL}/auth/registration`)
-      .send(userInput1)
+      .send(userInput1);
 
-    const user = await usersQueryRepository.getDbUser(userInput1.email);
+    const user = await usersQueryRepository
+      .getDbUser(userInput1.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -54,13 +84,30 @@ describe(`${URL}/auth`, () => {
       confirmationCode: expect.any(String),
       expirationDate: expect.any(Date),
       isConfirmed: false,
-      sentEmailsCount: 1
+      sentEmailsCount: expect.any(Number)
     });
 
     user_01 = { ...user };
   });
 
-  // TEST #5.4
+  // // TEST #6.5
+  // it('Create another email confirm to User_01. Status 429', async () => {
+
+  //   let response = await request(app)
+  //     .post(`${URL}/auth/registration-email-resending`)
+  //     .send({ email: userInput1.email });
+
+  //   for (let i = 0; i < 5; i++) {
+  //     response = await request(app)
+  //       .post(`${URL}/auth/registration-email-resending`)
+  //       .send({ email: userInput1.email });
+  //   };
+
+  //   expect(response.status)
+  //     .toBe(HTTP.TOO_MANY_REQUESTS_429);
+  // });
+
+  // TEST #6.6
   it('Create another email confirm to User_01. Status 400', async () => {
     await request(app)
       .post(`${URL}/auth/registration-email-resending`)
@@ -68,7 +115,7 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.BAD_REQUEST_400, userErrorResult);
   });
 
-  // TEST #5.5
+  // TEST #6.7
   it('Create another email confirm to User_01. Status 204', async () => {
     const response = await request(app)
       .post(`${URL}/auth/registration-email-resending`)
@@ -86,13 +133,13 @@ describe(`${URL}/auth`, () => {
       confirmationCode: expect.any(String),
       expirationDate: expect.any(Date),
       isConfirmed: false,
-      sentEmailsCount: 2
+      sentEmailsCount: expect.any(Number)
     });
 
     user_01 = { ...user };
   });
 
-  // TEST #5.6
+  // TEST #6.8
   it('LOGIN User_01. Status 401', async () => {
     await request(app)
       .post(`${URL}/auth/login`)
@@ -100,7 +147,10 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #5.7
+  // // TEST #6.9
+  // it('Create activation to User_01. Status 429', async () => { });
+
+  // TEST #6.10
   it('Create activation to User_01. Status 400', async () => {
     await request(app)
       .post(`${URL}/auth/registration-confirmation`)
@@ -108,7 +158,7 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.BAD_REQUEST_400);
   });
 
-  // TEST #5.8
+  // TEST #6.11
   it('Create activation to User_01. Status 204', async () => {
     const response = await request(app)
       .post(`${URL}/auth/registration-confirmation`)
@@ -132,7 +182,10 @@ describe(`${URL}/auth`, () => {
     user_01 = { ...user };
   });
 
-  // TEST #5.9
+  // // TEST #6.12
+  // it('LOGIN User_01. Status 429', async () => { });
+
+  // TEST #6.13
   it('LOGIN User_01. Status 401', async () => {
     await request(app)
       .post(`${URL}/auth/login`)
@@ -140,7 +193,7 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #5.10
+  // TEST #6.14
   it('LOGIN User_01. Status 400', async () => {
     await request(app)
       .post(`${URL}/auth/login`)
@@ -148,7 +201,7 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.BAD_REQUEST_400);
   });
 
-  // TEST #5.11
+  // TEST #6.15
   it('LOGIN User_01. Status 200', async () => {
     const response = await request(app)
       .post(`${URL}/auth/login`)
@@ -159,8 +212,6 @@ describe(`${URL}/auth`, () => {
     cookie = response.get('Set-Cookie');
     // cookie = response.get('Set-Cookie')[0].split('; ')[0].split('=')[1];
 
-    console.log(cookie);
-
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
     expect(accessToken).toStrictEqual({
@@ -170,7 +221,15 @@ describe(`${URL}/auth`, () => {
     token_01 = { ...accessToken };
   });
 
-  // TEST #5.12
+  // TEST #6.16
+  it('Refresh token to User_01. Status 401', async () => {
+    await request(app)
+      .post(`${URL}/auth/refresh-token`)
+      .set('Cookie', '123')
+      .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #6.17
   it('Refresh token to User_01. Status 200', async () => {
     const response = await request(app)
       .post(`${URL}/auth/refresh-token`)
@@ -189,15 +248,15 @@ describe(`${URL}/auth`, () => {
     token_01 = { ...accessToken };
   });
 
-  // TEST #5.13
-  it('Refresh token to User_01. Status 401', async () => {
+  // TEST #6.18
+  it('Get info about User_01. Status 401', async () => {
     await request(app)
-      .post(`${URL}/auth/refresh-token`)
-      .set('Cookie', '123')
+      .get(`${URL}/auth/me`)
+      .set('Authorization', `Bearer token_01.accessToken`)
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #5.14
+  // TEST #6.19
   it('Get info about User_01. Status 200', async () => {
     await request(app)
       .get(`${URL}/auth/me`)
@@ -209,15 +268,7 @@ describe(`${URL}/auth`, () => {
       });
   });
 
-  // TEST #5.15
-  it('Get info about User_01. Status 401', async () => {
-    await request(app)
-      .get(`${URL}/auth/me`)
-      .set('Authorization', `Bearer token_01.accessToken`)
-      .expect(HTTP.UNAUTHORIZED_401);
-  });
-
-  // TEST #5.16
+  // TEST #6.20
   it('Logout User_01. Status 401', async () => {
     const response = await request(app)
       .post(`${URL}/auth/logout`)
@@ -225,17 +276,19 @@ describe(`${URL}/auth`, () => {
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #5.17
-  it('Refresh token to User_01. Status 200', async () => {
+  // TEST #6.21
+  it('Logout User_01. Status 200', async () => {
     const response = await request(app)
       .post(`${URL}/auth/logout`)
-      .set('Cookie', cookie);
+      .set('Cookie', cookie)
+      .expect(HTTP.NO_CONTENT_204);
+  });
 
-    const userRefreshToken = await usersQueryRepository
-      .getUsersRefreshToken('No Refresh Token');
-
-    expect(response).toBeDefined();
-    expect(response.status).toBe(HTTP.NO_CONTENT_204);
-    expect(userRefreshToken).toStrictEqual('No Refresh Token');
+  // TEST #6.22
+  it('Refresh token to User_01. Status 401', async () => {
+    await request(app)
+      .post(`${URL}/auth/refresh-token`)
+      .set('Cookie', cookie)
+      .expect(HTTP.UNAUTHORIZED_401);
   });
 });

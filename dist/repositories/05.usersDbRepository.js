@@ -31,12 +31,6 @@ exports.usersRepository = {
             return result.matchedCount;
         });
     },
-    updateRefreshToken(id, refreshToken) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.updateOne({ _id: id }, { $set: { 'loginData.refreshToken': refreshToken } });
-            return result.matchedCount;
-        });
-    },
     updateConfirmation(id, mail, code, date) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield _00_db_1.usersCollection.updateOne({ _id: id }, {

@@ -1,15 +1,23 @@
+import { tokensQueryMetaRepository } from './../repositories/06.tokensQueryRepository';
+import { tokensMetaRepository } from '../repositories/06.tokensDBRepository';
 import { emailManager } from '../managers/email-manager';
 import { usersRepository } from '../repositories/05.usersDbRepository';
 import { usersQueryRepository } from '../repositories/05.usersQueryRepository';
 import { ObjectID } from 'bson';
-import { UserInputModel } from "../models";
+import { TokensMetaDBModel, UserInputModel } from "../models";
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { jwtService } from '../application/jwt-service';
 
 export const authServices = {
-  async checkAuth(loginOrEmail: string, password: string) {
+
+  async checkAuth(
+    loginOrEmail: string,
+    password: string,
+    ip: string | string[] | null,
+    deviceName: string) {
+
     const user = await usersQueryRepository.getUser(loginOrEmail);
 
     if (!user) return null;
@@ -20,41 +28,76 @@ export const authServices = {
 
     if (inputPass !== user.accountData.passwordHash) return null;
 
-    const accessToken = await jwtService.createAccessJwt(user._id.toString());
-    const refreshToken = await jwtService.createRefreshJwt(user._id.toString());
+    const checkSession = await tokensQueryMetaRepository
+      .checkSession(ip, deviceName, user._id.toString());
 
-    await usersRepository.updateRefreshToken(user._id, refreshToken);
+    if (checkSession) {
+      await tokensMetaRepository.deleteSessionBeforeLogin(
+        ip, deviceName, user._id.toString())
+    };
+
+    const deviceId = uuidv4();
+    const createdAt = new Date().toISOString();
+
+    const accessToken = await jwtService
+      .createAccessJwt(user._id.toString());
+
+    const refreshToken = await jwtService
+      .createRefreshJwt(user._id.toString(), deviceId, createdAt);
+
+    const sessionData: TokensMetaDBModel = {
+      ip,
+      deviceId,
+      deviceName,
+      _id: new ObjectID(),
+      userId: user._id.toString(),
+      createdAt,
+      expiredAt: add(new Date(), { seconds: 20 }).toISOString(),
+    };
+
+    await tokensMetaRepository.addSession(sessionData);
 
     return { accessToken, refreshToken };
   },
 
   async getNewTokensPair(refreshToken: string) {
-    const userId = await jwtService.getUserIdByRefreshToken(refreshToken);
-    if (!userId) return null;
+    const payload = await jwtService.
+      getPayloadRefToken(refreshToken);
 
-    const user = await usersQueryRepository.getDbUserById(userId.toString());
-    if (user?.loginData.refreshToken !== refreshToken) return null;
+    if (!payload) return null;
 
-    const newAccessToken = await jwtService.createAccessJwt(userId.toString());
-    const newRefreshToken = await jwtService.createRefreshJwt(userId.toString());
+    const tokenCreatedAt = await tokensQueryMetaRepository
+      .getTokenMeta(payload.userId, payload.deviceId);
 
-    const result = await usersRepository.updateRefreshToken(userId, newRefreshToken);
-    if (result !== 1) return null;
+    if (!tokenCreatedAt) return null;
+
+    if (payload.createdAt !== tokenCreatedAt) return null;
+
+    const newAccessToken = await jwtService
+      .createAccessJwt(payload.userId);
+
+    const createdAt = new Date().toISOString();
+    const expiredAt = add(new Date(), { seconds: 20 }).toISOString()
+
+    const newRefreshToken = await jwtService
+      .createRefreshJwt(payload.userId, payload.deviceId, createdAt);
+
+    const updatedSession = await tokensMetaRepository
+      .updateSession(payload.createdAt, createdAt, expiredAt);
 
     return { newAccessToken, newRefreshToken };
   },
 
   async deleteRefreshToken(refreshToken: string) {
-    const userId = await jwtService.getUserIdByRefreshToken(refreshToken);
-    if (!userId) return false;
+    const payload = await jwtService
+      .getExpiredPayloadRefToken(refreshToken);
 
-    const user = await usersQueryRepository.getDbUserById(userId.toString());
-    if (user?.loginData.refreshToken !== refreshToken) return false;
+    if (!payload) return false;
 
-    const result = await usersRepository.updateRefreshToken(userId, 'No Refresh Token');
-    if (result !== 1) return false;
+    const deletedSession = await tokensMetaRepository
+      .deleteSessionBeforeLogout(payload.userId, payload.deviceId);
 
-    return true;
+    return deletedSession === 1;
   },
 
   async confirmEmail(code: string) {
@@ -81,7 +124,7 @@ export const authServices = {
       ._generateHash(body.password, passwordSalt);
 
     const user = {
-      _id: new ObjectID,
+      _id: new ObjectID(),
       accountData: {
         login: body.login,
         email: body.email,
@@ -95,7 +138,9 @@ export const authServices = {
         isConfirmed: false,
         sentEmails: []
       },
-      registrationDataType: { ip }
+      registrationDataType: {
+        ip,
+      }
     };
 
     const newUserId = await usersRepository.addUser(user);
@@ -115,10 +160,10 @@ export const authServices = {
 
   async resendConfirmation(email: string) {
     const user = await usersQueryRepository.getUser(email);
+
     if (!user) return false;
     if (user.emailConfirmation.isConfirmed) return false;
     if (user.emailConfirmation.expirationDate < new Date()) return false;
-    if (user.emailConfirmation.sentEmails.length > 5) return false;
 
     const newConfirmationCode = uuidv4();
     const newExpirationDate = add(new Date(), { hours: 24 });
@@ -126,8 +171,14 @@ export const authServices = {
     try {
       const mail = await emailManager.sendEmailConfirmation(
         user.accountData.email,
-        newConfirmationCode);
-      usersRepository.updateConfirmation(user._id, mail, newConfirmationCode, newExpirationDate);
+        newConfirmationCode
+      );
+      usersRepository.updateConfirmation(
+        user._id,
+        mail,
+        newConfirmationCode,
+        newExpirationDate
+      );
       return true;
     } catch (error) {
       console.error(error);

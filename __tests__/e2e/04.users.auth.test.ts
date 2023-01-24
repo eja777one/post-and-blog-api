@@ -1,7 +1,19 @@
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
-import { badLoginBody, badLoginBody2, badUserInput1, loginInput1, token1, URL, user1, user2, userErrorResult, userInput1, userInput2 } from './dataForTests';
+import {
+  badLoginBody,
+  badLoginBody2,
+  badUserInput1,
+  loginInput1,
+  token1,
+  URL,
+  user1,
+  user2,
+  userErrorResult,
+  userInput1,
+  userInput2
+} from './00.dataForTests';
 
 let user_01 = { ...user1 };
 let user_02 = { ...user2 };
@@ -9,7 +21,7 @@ let token_01 = { ...token1 };
 
 describe(`${URL}/users`, () => {
   beforeAll(async () => {
-    await request(app).delete(`${URL}/testing/all-data`);
+    await request(app).delete(`${URL}/testing/all-data`)
   });
 
   // TEST #4.1
@@ -165,7 +177,7 @@ describe(`${URL}/users`, () => {
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #4.13A
+  // TEST #4.14
   it('Get info about User_01. Status 200', async () => {
     await request(app)
       .get(`${URL}/auth/me`)
@@ -177,7 +189,7 @@ describe(`${URL}/users`, () => {
       });
   });
 
-  // TEST #4.14A
+  // TEST #4.15
   it('Get info about User_01. Status 401', async () => {
     await request(app)
       .get(`${URL}/auth/me`)
@@ -185,7 +197,7 @@ describe(`${URL}/users`, () => {
       .expect(HTTP.UNAUTHORIZED_401);
   });
 
-  // TEST #4.14
+  // TEST #4.16
   it('DELETE User_01. Status 204', async () => {
     await request(app)
       .delete(`${URL}/users/${user_01.id}`)
@@ -193,7 +205,7 @@ describe(`${URL}/users`, () => {
       .expect(HTTP.NO_CONTENT_204);
   });
 
-  // TEST #4.15
+  // TEST #4.17
   it('GET Users. Status 200', async () => {
     await request(app)
       .get(`${URL}/users`)

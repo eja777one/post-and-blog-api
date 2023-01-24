@@ -1,7 +1,7 @@
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
-import { URL } from './dataForTests';
+import { URL } from './00.dataForTests';
 
 describe(`${URL}/testing/all-data`, () => {
   // TEST #1.1

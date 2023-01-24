@@ -20,13 +20,6 @@ export const usersRepository = {
     return result.matchedCount;
   },
 
-  async updateRefreshToken(id: ObjectID, refreshToken: string) {
-    const result = await usersCollection.updateOne(
-      { _id: id },
-      { $set: { 'loginData.refreshToken': refreshToken } });
-    return result.matchedCount;
-  },
-
   async updateConfirmation(id: ObjectID, mail: MimeNode.Envelope, code: string, date: Date) {
     const result = await usersCollection.updateOne(
       { _id: id },

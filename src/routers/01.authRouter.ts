@@ -1,3 +1,5 @@
+import { checkUsersRequest } from './../middlewares/checkUsersRequest';
+import { checkCookie } from './../middlewares/checkCookieMware';
 import { Router, Request, Response } from "express";
 import { authServices } from '../domains/01.authServices';
 import { checkReqBodyMware, testAddUserReqBody, testCodeReqBody, testEmailReqBody, testLoginPassReqBody } from '../middlewares/checkReqBodyMware';
@@ -13,11 +15,21 @@ export const authRouter = Router({});
 authRouter.post('/login',
   testLoginPassReqBody,
   checkReqBodyMware,
+  checkUsersRequest,
   async (req: Request<LoginInputModel>,
     res: Response<LoginSuccessViewModel>) => {
 
+    const ip = req.headers['x-forwarded-for']
+      || req.socket.remoteAddress
+      || null;
+
+    const { loginOrEmail, password } = req.body;
+
+    const deviceName =
+      `${req.useragent?.browser} ${req.useragent?.version}`;
+
     const tokens = await authServices
-      .checkAuth(req.body.loginOrEmail, req.body.password);
+      .checkAuth(loginOrEmail, password, ip, deviceName);
 
     if (tokens) {
       res.status(HTTP.OK_200)
@@ -30,49 +42,32 @@ authRouter.post('/login',
     } else res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #4.13
   });
 
-authRouter.post('/logout',
-  async (req: Request, res: Response) => {
-    if (!req.cookies.refreshToken) {
-      res.sendStatus(HTTP.UNAUTHORIZED_401);
-      return
-    }
-    const refreshTokenWasRevoke = await authServices
-      .deleteRefreshToken(req.cookies.refreshToken);
-
-    if (refreshTokenWasRevoke) res.sendStatus(HTTP.NO_CONTENT_204);
-    else res.sendStatus(HTTP.UNAUTHORIZED_401);
-  });
-
 authRouter.post('/refresh-token',
+  checkCookie,
   async (req: Request, res: Response) => {
-    if (!req.cookies.refreshToken) {
-      res.sendStatus(HTTP.UNAUTHORIZED_401);
-      return;
-    };
+    const tokens = await authServices
+      .getNewTokensPair(req.cookies.refreshToken);
 
-    const tokens = await authServices.getNewTokensPair(req.cookies.refreshToken);
-
-    if (!tokens) {
-      res.sendStatus(HTTP.UNAUTHORIZED_401);
-      return;
-    }
-
-    res.status(HTTP.OK_200)
-      .cookie('refreshToken', tokens.newRefreshToken, {
-        secure: process.env.NODE_ENV !== "cookie",
-        httpOnly: true,
-        expires: add(new Date(), { seconds: 20 }),
-      })
-      .json({ accessToken: tokens.newAccessToken });
+    if (tokens) {
+      res.status(HTTP.OK_200)
+        .cookie('refreshToken', tokens.newRefreshToken, {
+          secure: process.env.NODE_ENV !== "cookie",
+          httpOnly: true,
+          expires: add(new Date(), { seconds: 20 }),
+        })
+        .json({ accessToken: tokens.newAccessToken });
+    } else res.sendStatus(HTTP.UNAUTHORIZED_401);
   });
 
 authRouter.post('/registration-confirmation',
   testCodeReqBody,
   checkReqBodyMware,
+  checkUsersRequest,
   async (req: Request<RegistrationConfirmationCodeModel>,
     res: Response) => {
+
     const result = await authServices.confirmEmail(req.body.code);
-    console.log(result);
+
     if (result) res.sendStatus(HTTP.NO_CONTENT_204);
     else res.status(HTTP.BAD_REQUEST_400).json(
       { errorsMessages: [{ message: 'incorrect code', field: 'code' }] }
@@ -82,23 +77,43 @@ authRouter.post('/registration-confirmation',
 authRouter.post('/registration',
   testAddUserReqBody,
   checkReqBodyMware,
+  checkUsersRequest,
   async (req: Request<UserInputModel>,
     res: Response) => {
-    const newUserId = await authServices.createUser(req.body, req.socket.remoteAddress);
-    if (typeof newUserId === 'object') res.status(HTTP.BAD_REQUEST_400).json(newUserId)
-    else res.sendStatus(HTTP.NO_CONTENT_204);;
+
+    const newUserId = await authServices
+      .createUser(req.body, req.socket.remoteAddress);
+
+    if (typeof newUserId === 'object') {
+      res.status(HTTP.BAD_REQUEST_400).json(newUserId);
+    } else res.sendStatus(HTTP.NO_CONTENT_204);
   });
 
 authRouter.post('/registration-email-resending',
   testEmailReqBody,
   checkReqBodyMware,
+  checkUsersRequest,
   async (req: Request<RegistrationEmailResending>,
     res: Response) => {
-    const result = await authServices.resendConfirmation(req.body.email);
+
+    const result = await authServices
+      .resendConfirmation(req.body.email);
+
     if (result) res.sendStatus(HTTP.NO_CONTENT_204);
     else res.status(HTTP.BAD_REQUEST_400).json(
       { errorsMessages: [{ message: 'incorrect email', field: 'email' }] }
     );
+  });
+
+authRouter.post('/logout',
+  checkCookie,
+  async (req: Request, res: Response) => {
+
+    const refreshTokenWasRevoke = await authServices
+      .deleteRefreshToken(req.cookies.refreshToken);
+
+    if (refreshTokenWasRevoke) res.sendStatus(HTTP.NO_CONTENT_204);
+    else res.sendStatus(HTTP.UNAUTHORIZED_401);
   });
 
 authRouter.get('/me',

@@ -8,6 +8,7 @@ import { HTTP, UserInputModel, UserViewModel, Paginator } from "../models";
 import { prepareQueries } from '../application/prepareQuery';
 
 export const usersRouter = Router({});
+
 usersRouter.get('/',
   checkAuthMware,
   async (

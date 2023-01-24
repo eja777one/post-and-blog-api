@@ -1,4 +1,4 @@
-import { BlogDBModel, CommentDBModel, PostDBModel, UserDBModel } from '../models';
+import { BlogDBModel, CommentDBModel, PostDBModel, TokensMetaDBModel, UserDBModel, usersRequestDBModel } from '../models';
 import { MongoClient } from 'mongodb';
 import * as dotenv from 'dotenv';
 dotenv.config()
@@ -17,7 +17,9 @@ const db = client.db();
 export const postsCollection = db.collection<PostDBModel>('posts');
 export const blogsCollection = db.collection<BlogDBModel>('blogs');
 export const usersCollection = db.collection<UserDBModel>('users');
+export const tokensMetaCollection = db.collection<TokensMetaDBModel>('tokensMeta');
 export const commentsCollection = db.collection<CommentDBModel>('comments');
+export const usersRequestCollection = db.collection<usersRequestDBModel>('usersRequest');
 
 export async function runDb() {
   try {

@@ -1,7 +1,22 @@
 import request from "supertest";
 import { app } from "../../src/app";
-import { HTTP } from './../../src/models';
-import { blog1, blogInput, URL, postInput1, postInput1ToUpdate, badPostInput, postErrorResult, post1, userInput1, user1, loginInput1, token1, commentInput, comment1 } from './dataForTests';
+import { HTTP } from '../../src/models';
+import {
+  blog1,
+  blogInput,
+  URL,
+  postInput1,
+  postInput1ToUpdate,
+  badPostInput,
+  postErrorResult,
+  post1,
+  userInput1,
+  user1,
+  loginInput1,
+  token1,
+  commentInput,
+  comment1
+} from './00.dataForTests';
 
 let blog_01 = { ...blog1 };
 let post_01 = { ...post1 };

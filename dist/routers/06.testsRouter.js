@@ -16,11 +16,15 @@ const _05_usersServices_1 = require("../domains/05.usersServices");
 const _04_postsServices_1 = require("../domains/04.postsServices");
 const _02_blogsServices_1 = require("../domains/02.blogsServices");
 const models_1 = require("../models");
+const _07_usersDBRequest_1 = require("../repositories/07.usersDBRequest");
+const _06_tokensDBRepository_1 = require("../repositories/06.tokensDBRepository");
 exports.testsRouter = (0, express_1.Router)({});
 exports.testsRouter.delete('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield _02_blogsServices_1.blogServices.deleteAll();
     yield _04_postsServices_1.postsServices.deleteAll();
     yield _05_usersServices_1.usersServices.deleteAll();
     yield _03_commentsServices_1.commentsServices.deleteAll();
+    yield _07_usersDBRequest_1.usersRequestRepository.deleteAll();
+    yield _06_tokensDBRepository_1.tokensMetaRepository.deleteAll();
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
 }));

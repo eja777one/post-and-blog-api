@@ -1,5 +1,4 @@
 import { usersRepository } from '../repositories/05.usersDbRepository';
-import { usersQueryRepository } from '../repositories/05.usersQueryRepository';
 import { ObjectID } from 'bson';
 import { UserInputModel } from "../models";
 import bcrypt from 'bcrypt';

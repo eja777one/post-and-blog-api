@@ -98,11 +98,14 @@ exports.usersQueryRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             let user;
             if (loginOrEmail.indexOf('@') !== -1) {
-                user = yield _00_db_1.usersCollection.findOne({ 'accountData.email': loginOrEmail });
+                user = yield _00_db_1.usersCollection.
+                    findOne({ 'accountData.email': loginOrEmail });
             }
             else {
-                user = yield _00_db_1.usersCollection.findOne({ 'accountData.login': loginOrEmail });
+                user = yield _00_db_1.usersCollection
+                    .findOne({ 'accountData.login': loginOrEmail });
             }
+            ;
             return user;
         });
     },
@@ -120,14 +123,6 @@ exports.usersQueryRepository = {
                 'loginData.refreshToken': refreshToken
             });
             return user;
-        });
-    },
-    getUsersRefreshToken(refreshToken) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({
-                'loginData.refreshToken': refreshToken
-            });
-            return user === null || user === void 0 ? void 0 : user.loginData.refreshToken;
         });
     },
 };

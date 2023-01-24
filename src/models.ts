@@ -67,7 +67,8 @@ export enum HTTP {
 	'UNAUTHORIZED_401' = 401,
 	'FORBIDDEN_403' = 403,
 	'NOT_FOUND_404' = 404,
-	'METHOD_NOT_ALLOWED_405' = 405
+	'METHOD_NOT_ALLOWED_405' = 405,
+	'TOO_MANY_REQUESTS_429' = 429
 };
 
 export type BlogDBModel = {
@@ -129,15 +130,6 @@ export type UserViewModel = {
 	createdAt: string
 };
 
-// export type UserDBModel = {
-// 	_id: ObjectID
-// 	login: string
-// 	email: string
-// 	createdAt: string
-// 	passwordHash: string
-// 	passwordSalt: string
-// };
-
 export type UserDBModel = {
 	_id: ObjectID,
 	accountData: {
@@ -146,19 +138,19 @@ export type UserDBModel = {
 		passwordHash: string,
 		passwordSalt: string,
 		createdAt: string
-	},
+	}
 	emailConfirmation: {
 		confirmationCode: string,
 		expirationDate: Date,
 		isConfirmed: boolean,
 		sentEmails: []
-	},
-	registrationDataType: {
-		ip: string | undefined
-	},
-	loginData: {
-		refreshToken: string
 	}
+	registrationData: {
+		ip: string | undefined
+	}
+	// loginData: {
+	// 	refreshToken: string
+	// }
 };
 
 export type SentEmailType = {
@@ -202,4 +194,28 @@ export type RegistrationConfirmationCodeModel = {
 
 export type RegistrationEmailResending = {
 	email: string
+};
+
+export type TokensMetaDBModel = {
+	_id: ObjectID
+	createdAt: string
+	expiredAt: string
+	deviceId: string
+	ip: string | string[] | null
+	deviceName: string
+	userId: string
+};
+
+export type usersRequestDBModel = {
+	_id: ObjectID
+	ip: string | string[] | null
+	url: string
+	createdAt: string
+};
+
+export type DeviceViewModel = {
+	ip: string,
+	title: string,
+	lastActiveDate: string,
+	deviceId: string
 };

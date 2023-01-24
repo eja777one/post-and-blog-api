@@ -100,6 +100,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/*", "__tests__/e2e/dataForTests.ts"],
+  "include": ["src/*", "__tests__/e2e/00.dataForTests.ts"],
   "exclude": ["__tests__/**/*"]
 }

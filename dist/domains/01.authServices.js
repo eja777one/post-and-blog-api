@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authServices = void 0;
+const _06_tokensQueryRepository_1 = require("./../repositories/06.tokensQueryRepository");
+const _06_tokensDBRepository_1 = require("../repositories/06.tokensDBRepository");
 const email_manager_1 = require("../managers/email-manager");
 const _05_usersDbRepository_1 = require("../repositories/05.usersDbRepository");
 const _05_usersQueryRepository_1 = require("../repositories/05.usersQueryRepository");
@@ -22,7 +24,7 @@ const uuid_1 = require("uuid");
 const add_1 = __importDefault(require("date-fns/add"));
 const jwt_service_1 = require("../application/jwt-service");
 exports.authServices = {
-    checkAuth(loginOrEmail, password) {
+    checkAuth(loginOrEmail, password, ip, deviceName) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(loginOrEmail);
             if (!user)
@@ -33,40 +35,63 @@ exports.authServices = {
                 ._generateHash(password, user.accountData.passwordSalt);
             if (inputPass !== user.accountData.passwordHash)
                 return null;
-            const accessToken = yield jwt_service_1.jwtService.createAccessJwt(user._id.toString());
-            const refreshToken = yield jwt_service_1.jwtService.createRefreshJwt(user._id.toString());
-            yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(user._id, refreshToken);
+            const checkSession = yield _06_tokensQueryRepository_1.tokensQueryMetaRepository
+                .checkSession(ip, deviceName, user._id.toString());
+            if (checkSession) {
+                yield _06_tokensDBRepository_1.tokensMetaRepository.deleteSessionBeforeLogin(ip, deviceName, user._id.toString());
+            }
+            ;
+            const deviceId = (0, uuid_1.v4)();
+            const createdAt = new Date().toISOString();
+            const accessToken = yield jwt_service_1.jwtService
+                .createAccessJwt(user._id.toString());
+            const refreshToken = yield jwt_service_1.jwtService
+                .createRefreshJwt(user._id.toString(), deviceId, createdAt);
+            const sessionData = {
+                ip,
+                deviceId,
+                deviceName,
+                _id: new bson_1.ObjectID(),
+                userId: user._id.toString(),
+                createdAt,
+                expiredAt: (0, add_1.default)(new Date(), { seconds: 20 }).toISOString(),
+            };
+            yield _06_tokensDBRepository_1.tokensMetaRepository.addSession(sessionData);
             return { accessToken, refreshToken };
         });
     },
     getNewTokensPair(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
-            if (!userId)
+            const payload = yield jwt_service_1.jwtService.
+                getPayloadRefToken(refreshToken);
+            if (!payload)
                 return null;
-            const user = yield _05_usersQueryRepository_1.usersQueryRepository.getDbUserById(userId.toString());
-            if ((user === null || user === void 0 ? void 0 : user.loginData.refreshToken) !== refreshToken)
+            const tokenCreatedAt = yield _06_tokensQueryRepository_1.tokensQueryMetaRepository
+                .getTokenMeta(payload.userId, payload.deviceId);
+            if (!tokenCreatedAt)
                 return null;
-            const newAccessToken = yield jwt_service_1.jwtService.createAccessJwt(userId.toString());
-            const newRefreshToken = yield jwt_service_1.jwtService.createRefreshJwt(userId.toString());
-            const result = yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(userId, newRefreshToken);
-            if (result !== 1)
+            if (payload.createdAt !== tokenCreatedAt)
                 return null;
+            const newAccessToken = yield jwt_service_1.jwtService
+                .createAccessJwt(payload.userId);
+            const createdAt = new Date().toISOString();
+            const expiredAt = (0, add_1.default)(new Date(), { seconds: 20 }).toISOString();
+            const newRefreshToken = yield jwt_service_1.jwtService
+                .createRefreshJwt(payload.userId, payload.deviceId, createdAt);
+            const updatedSession = yield _06_tokensDBRepository_1.tokensMetaRepository
+                .updateSession(payload.createdAt, createdAt, expiredAt);
             return { newAccessToken, newRefreshToken };
         });
     },
     deleteRefreshToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = yield jwt_service_1.jwtService.getUserIdByRefreshToken(refreshToken);
-            if (!userId)
+            const payload = yield jwt_service_1.jwtService
+                .getExpiredPayloadRefToken(refreshToken);
+            if (!payload)
                 return false;
-            const user = yield _05_usersQueryRepository_1.usersQueryRepository.getDbUserById(userId.toString());
-            if ((user === null || user === void 0 ? void 0 : user.loginData.refreshToken) !== refreshToken)
-                return false;
-            const result = yield _05_usersDbRepository_1.usersRepository.updateRefreshToken(userId, 'No Refresh Token');
-            if (result !== 1)
-                return false;
-            return true;
+            const deletedSession = yield _06_tokensDBRepository_1.tokensMetaRepository
+                .deleteSessionBeforeLogout(payload.userId, payload.deviceId);
+            return deletedSession === 1;
         });
     },
     confirmEmail(code) {
@@ -96,7 +121,7 @@ exports.authServices = {
             const passwordHash = yield this
                 ._generateHash(body.password, passwordSalt);
             const user = {
-                _id: new bson_1.ObjectID,
+                _id: new bson_1.ObjectID(),
                 accountData: {
                     login: body.login,
                     email: body.email,
@@ -110,7 +135,9 @@ exports.authServices = {
                     isConfirmed: false,
                     sentEmails: []
                 },
-                registrationDataType: { ip }
+                registrationDataType: {
+                    ip,
+                }
             };
             const newUserId = yield _05_usersDbRepository_1.usersRepository.addUser(user);
             try {
@@ -134,8 +161,6 @@ exports.authServices = {
             if (user.emailConfirmation.isConfirmed)
                 return false;
             if (user.emailConfirmation.expirationDate < new Date())
-                return false;
-            if (user.emailConfirmation.sentEmails.length > 5)
                 return false;
             const newConfirmationCode = (0, uuid_1.v4)();
             const newExpirationDate = (0, add_1.default)(new Date(), { hours: 24 });

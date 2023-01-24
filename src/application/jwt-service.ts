@@ -3,14 +3,23 @@ import jwt from 'jsonwebtoken';
 import { settings } from './settings';
 
 export const jwtService = {
+
   async createAccessJwt(userId: string) {
-    const token = jwt.sign({ userId }, settings.ACCESS_JWT_SECRET, { expiresIn: '10s' });
-    return token;
+    return jwt.sign(
+      { userId },
+      settings.ACCESS_JWT_SECRET,
+      { expiresIn: '10s' }
+    );
   },
-  async createRefreshJwt(userId: string) {
-    const token = jwt.sign({ userId }, settings.REFRESH_JWT_SECRET, { expiresIn: '20s' });
-    return token;
+
+  async createRefreshJwt(userId: string, deviceId: string, createdAt: string) {
+    return jwt.sign(
+      { userId, deviceId, createdAt },
+      settings.REFRESH_JWT_SECRET,
+      { expiresIn: '20s' }
+    );
   },
+
   async getUserIdByToken(token: string) {
     try {
       const result: any = jwt.verify(token, settings.ACCESS_JWT_SECRET);
@@ -19,11 +28,31 @@ export const jwtService = {
       return null;
     };
   },
-  async getUserIdByRefreshToken(token: string) {
+
+  async getPayloadRefToken(token: string) {
     try {
       const result: any = jwt.verify(token, settings.REFRESH_JWT_SECRET);
-      return new ObjectId(result.userId);
+      return {
+        userId: result.userId,
+        deviceId: result.deviceId,
+        createdAt: result.createdAt
+      };
     } catch (error) {
+      return null;
+    };
+  },
+
+  async getExpiredPayloadRefToken(token: string) {
+    try {
+      const result: any = jwt
+        .verify(token, settings.REFRESH_JWT_SECRET, { ignoreExpiration: true });
+      return {
+        userId: result.userId,
+        deviceId: result.deviceId,
+        createdAt: result.createdAt
+      };
+    } catch (error) {
+      console.log()
       return null;
     };
   },
