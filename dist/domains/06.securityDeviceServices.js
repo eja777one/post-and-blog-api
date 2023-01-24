@@ -50,7 +50,7 @@ exports.securityDeviceServices = {
             if (getSession.userId !== payload.userId)
                 return '403';
             const deleteThisSessions = yield _06_tokensDBRepository_1.tokensMetaRepository
-                .deleteThisSessions(payload.userId, payload.deviceId);
+                .deleteThisSessions(payload.userId, deviceId);
             return deleteThisSessions === 1 ? '204' : '404';
         });
     },

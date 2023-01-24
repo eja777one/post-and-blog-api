@@ -46,7 +46,7 @@ export const securityDeviceServices = {
     if (getSession.userId !== payload.userId) return '403';
 
     const deleteThisSessions = await tokensMetaRepository
-      .deleteThisSessions(payload.userId, payload.deviceId);
+      .deleteThisSessions(payload.userId, deviceId);
 
     return deleteThisSessions === 1 ? '204' : '404';
   },
