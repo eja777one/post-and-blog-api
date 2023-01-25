@@ -40,7 +40,9 @@ export const checkUsersRequest = async (
 
     const seconds = Math.floor(diff / 1000 % 60);
 
-    if (seconds < 10) res.sendStatus(HTTP.TOO_MANY_REQUESTS_429);
-    else next();
+    if (seconds < 10) {
+      res.sendStatus(HTTP.TOO_MANY_REQUESTS_429)
+      return;
+    } else next();
   }
 };
