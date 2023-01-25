@@ -29,6 +29,8 @@ export const checkUsersRequest = async (
   const usersRequests =
     await usersRequestRepository.getLogs(userLog);
 
+  console.log('seconds');
+
   if (usersRequests.length < 6) next();
   else {
     const timeStampArr0 =
@@ -40,8 +42,11 @@ export const checkUsersRequest = async (
 
     const seconds = Math.floor(diff / 1000 % 60);
 
-    if (seconds < 10) {
+    console.log(seconds);
+
+    if (seconds < 10 && usersRequests.length > 5) {
       res.sendStatus(HTTP.TOO_MANY_REQUESTS_429)
+      await usersRequestRepository.deleteLogs(userLog);
       return;
     } else next();
   }

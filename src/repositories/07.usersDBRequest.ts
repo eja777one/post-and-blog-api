@@ -10,7 +10,7 @@ export const usersRequestRepository = {
 
     let result: any;
 
-    if (usersLogs.length < 5) {
+    if (usersLogs.length < 6) {
       result = await usersRequestCollection.insertOne(userLog);
     } else {
       await usersRequestCollection.deleteOne({
@@ -27,6 +27,13 @@ export const usersRequestRepository = {
       .find({ ip: userLog.ip, url: userLog.url })
       .sort({ 'createdAt': -1 })
       .toArray();
+
+    return result;
+  },
+
+  async deleteLogs(userLog: usersRequestDBModel) {
+    const result = await usersRequestCollection
+      .deleteMany({ ip: userLog.ip, url: userLog.url })
 
     return result;
   },

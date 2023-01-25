@@ -19,7 +19,7 @@ exports.usersRequestRepository = {
                 .sort({ 'createdAt': -1 })
                 .toArray();
             let result;
-            if (usersLogs.length < 5) {
+            if (usersLogs.length < 6) {
                 result = yield _00_db_1.usersRequestCollection.insertOne(userLog);
             }
             else {
@@ -38,6 +38,13 @@ exports.usersRequestRepository = {
                 .find({ ip: userLog.ip, url: userLog.url })
                 .sort({ 'createdAt': -1 })
                 .toArray();
+            return result;
+        });
+    },
+    deleteLogs(userLog) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _00_db_1.usersRequestCollection
+                .deleteMany({ ip: userLog.ip, url: userLog.url });
             return result;
         });
     },

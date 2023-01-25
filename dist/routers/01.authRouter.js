@@ -47,7 +47,7 @@ const dotenv = __importStar(require("dotenv"));
 const add_1 = __importDefault(require("date-fns/add"));
 dotenv.config();
 exports.authRouter = (0, express_1.Router)({});
-exports.authRouter.post('/login', checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, checkUsersRequest_1.checkUsersRequest, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.authRouter.post('/login', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const ip = req.headers['x-forwarded-for']
         || req.socket.remoteAddress
@@ -83,14 +83,14 @@ exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, (req, 
     else
         res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
 }));
-exports.authRouter.post('/registration-confirmation', checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, checkUsersRequest_1.checkUsersRequest, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.authRouter.post('/registration-confirmation', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield _01_authServices_1.authServices.confirmEmail(req.body.code);
     if (result)
         res.sendStatus(models_1.HTTP.NO_CONTENT_204);
     else
         res.status(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect code', field: 'code' }] });
 }));
-exports.authRouter.post('/registration', checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, checkUsersRequest_1.checkUsersRequest, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.authRouter.post('/registration', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newUserId = yield _01_authServices_1.authServices
         .createUser(req.body, req.socket.remoteAddress);
     if (typeof newUserId === 'object') {
@@ -99,7 +99,7 @@ exports.authRouter.post('/registration', checkReqBodyMware_1.testAddUserReqBody,
     else
         res.sendStatus(models_1.HTTP.NO_CONTENT_204);
 }));
-exports.authRouter.post('/registration-email-resending', checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, checkUsersRequest_1.checkUsersRequest, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.authRouter.post('/registration-email-resending', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield _01_authServices_1.authServices
         .resendConfirmation(req.body.email);
     if (result)

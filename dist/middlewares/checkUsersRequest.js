@@ -27,6 +27,7 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     };
     const addLog = yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
     const usersRequests = yield _07_usersDBRequest_1.usersRequestRepository.getLogs(userLog);
+    console.log('seconds');
     if (usersRequests.length < 6)
         next();
     else {
@@ -34,8 +35,12 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const timeStampArr4 = new Date(usersRequests[4].createdAt).getTime();
         const diff = timeStampArr0 - timeStampArr4;
         const seconds = Math.floor(diff / 1000 % 60);
-        if (seconds < 10)
+        console.log(seconds);
+        if (seconds < 10 && usersRequests.length > 5) {
             res.sendStatus(models_1.HTTP.TOO_MANY_REQUESTS_429);
+            yield _07_usersDBRequest_1.usersRequestRepository.deleteLogs(userLog);
+            return;
+        }
         else
             next();
     }

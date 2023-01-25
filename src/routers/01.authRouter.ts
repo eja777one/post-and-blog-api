@@ -13,9 +13,9 @@ dotenv.config()
 export const authRouter = Router({});
 
 authRouter.post('/login',
+  checkUsersRequest,
   testLoginPassReqBody,
   checkReqBodyMware,
-  checkUsersRequest,
   async (req: Request<LoginInputModel>,
     res: Response<LoginSuccessViewModel>) => {
 
@@ -60,9 +60,9 @@ authRouter.post('/refresh-token',
   });
 
 authRouter.post('/registration-confirmation',
+  checkUsersRequest,
   testCodeReqBody,
   checkReqBodyMware,
-  checkUsersRequest,
   async (req: Request<RegistrationConfirmationCodeModel>,
     res: Response) => {
 
@@ -75,9 +75,9 @@ authRouter.post('/registration-confirmation',
   });
 
 authRouter.post('/registration',
+  checkUsersRequest,
   testAddUserReqBody,
   checkReqBodyMware,
-  checkUsersRequest,
   async (req: Request<UserInputModel>,
     res: Response) => {
 
@@ -90,9 +90,9 @@ authRouter.post('/registration',
   });
 
 authRouter.post('/registration-email-resending',
+  checkUsersRequest,
   testEmailReqBody,
   checkReqBodyMware,
-  checkUsersRequest,
   async (req: Request<RegistrationEmailResending>,
     res: Response) => {
 
