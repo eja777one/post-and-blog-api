@@ -33,10 +33,10 @@ app.use(allowedMethods);
 app.use(cookieParser('cookie'));
 app.use(useragent.express());
 
-app.use('/hometask_09/api/auth', authRouter);
-app.use('/hometask_09/api/blogs', blogsRouter);
-app.use('/hometask_09/api/comments', commentsRouter);
-app.use('/hometask_09/api/posts', postsRouter);
-app.use('/hometask_09/api/users', usersRouter);
-app.use('/hometask_09/api/security/devices', securityDeviceRouter);
-app.use('/hometask_09/api/testing/all-data', testsRouter);
+app.use('/hometask_10/api/auth', authRouter);
+app.use('/hometask_10/api/blogs', blogsRouter);
+app.use('/hometask_10/api/comments', commentsRouter);
+app.use('/hometask_10/api/posts', postsRouter);
+app.use('/hometask_10/api/users', usersRouter);
+app.use('/hometask_10/api/security/devices', securityDeviceRouter);
+app.use('/hometask_10/api/testing/all-data', testsRouter);
