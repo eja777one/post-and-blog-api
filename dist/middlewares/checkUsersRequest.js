@@ -27,7 +27,6 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     };
     const addLog = yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
     const usersRequests = yield _07_usersDBRequest_1.usersRequestRepository.getLogs(userLog);
-    console.log('seconds');
     if (usersRequests.length < 6)
         next();
     else {

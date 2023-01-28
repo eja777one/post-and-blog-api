@@ -1,3 +1,4 @@
+import { passwordRecoveryRepository } from './../repositories/08.passwordsRecoveryDBRepositury';
 import { tokensQueryMetaRepository } from './../repositories/06.tokensQueryRepository';
 import { tokensMetaRepository } from '../repositories/06.tokensDBRepository';
 import { emailManager } from '../managers/email-manager';
@@ -184,6 +185,47 @@ export const authServices = {
       console.error(error);
       return false;
     };
+  },
+
+  async sendPasswordRecoveryCode(email: string) {
+    const user = await usersQueryRepository.getUser(email);
+    if (!user) return null;
+    const passwordRecoveryCode = await jwtService
+      .createPasswordRecoveryJwt(user._id.toString());
+
+    try {
+      await emailManager.sendRecoveryPasswordCode(
+        user.accountData.email,
+        passwordRecoveryCode
+      );
+      await passwordRecoveryRepository
+        .addCode(passwordRecoveryCode);
+      return true;
+    } catch (error) {
+      return false;
+    };
+  },
+
+  async updatePassword(newPassword: string, code: string) {
+    const deleteCode = await
+      passwordRecoveryRepository.deleteCode(code);
+
+    if (!deleteCode) return false;
+
+    const userId = await jwtService
+      .getPayloadPasswordRecovery(code);
+
+    if (!userId) return false;
+
+    const passwordSalt = await bcrypt.genSalt(10);
+    const passwordHash = await this
+      ._generateHash(newPassword, passwordSalt);
+
+    const setNewPassword = await usersRepository
+      .updatePassword(new ObjectID(userId), passwordHash, passwordSalt);
+
+    if (!setNewPassword) return false;
+    else return true;
   },
 
   async _generateHash(password: string, salt: string) {

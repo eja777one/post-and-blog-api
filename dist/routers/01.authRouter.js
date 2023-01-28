@@ -68,6 +68,21 @@ exports.authRouter.post('/login', checkUsersRequest_1.checkUsersRequest, checkRe
     else
         res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #4.13
 }));
+exports.authRouter.post('/password-recovery', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield _01_authServices_1.authServices
+        .sendPasswordRecoveryCode(req.body.email);
+    res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+}));
+exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testReqRecoveryPass, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const updatePassword = yield _01_authServices_1.authServices.updatePassword(req.body.newPassword, req.body.recoveryCode);
+    if (updatePassword) {
+        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+        return;
+    }
+    else {
+        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
+    }
+}));
 exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const tokens = yield _01_authServices_1.authServices
         .getNewTokensPair(req.cookies.refreshToken);

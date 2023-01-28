@@ -1,8 +1,6 @@
 import { commentsQueryRepository } from '../repositories/03.commentsQueryRepository';
 import { commentsRepository } from '../repositories/03.commentsDbRepository';
-import { commentsCollection } from '../repositories/00.db';
 import { UserViewModel, CommentInputModel } from '../models';
-
 
 export const commentsServices = {
   async addComment(user: UserViewModel, postId: string, content: CommentInputModel) {

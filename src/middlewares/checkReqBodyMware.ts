@@ -141,7 +141,19 @@ export const testCommentBody = checkSchema({
       options: { min: 20, max: 300 }
     }
   }
-})
+});
+
+export const testReqRecoveryPass = checkSchema({
+  newPassword: {
+    isString: true,
+    isLength: {
+      options: { min: 6, max: 20 }
+    }
+  },
+  recoveryCode: {
+    isString: true,
+  }
+});
 
 export const checkReqBodyMware = (
   req: Request,

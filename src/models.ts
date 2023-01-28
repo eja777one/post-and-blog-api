@@ -143,14 +143,12 @@ export type UserDBModel = {
 		confirmationCode: string,
 		expirationDate: Date,
 		isConfirmed: boolean,
-		sentEmails: []
+		sentEmails: SentEmailType[]
 	}
 	registrationData: {
-		ip: string | undefined
+		ip: string
+		// ip: string | undefined
 	}
-	// loginData: {
-	// 	refreshToken: string
-	// }
 };
 
 export type SentEmailType = {

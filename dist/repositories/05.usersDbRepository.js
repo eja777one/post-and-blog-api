@@ -15,25 +15,27 @@ const _00_db_1 = require("./00.db");
 exports.usersRepository = {
     addUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.insertOne(user);
+            const result = yield _00_db_1.UserModel
+                .collection.insertOne(user);
             return result.insertedId.toString();
         });
     },
     deleteUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
+            const result = yield _00_db_1.UserModel
+                .deleteOne({ _id: new bson_1.ObjectID(id) });
             return result.deletedCount === 1;
         });
     },
     activateUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.updateOne({ _id: id }, { $set: { 'emailConfirmation.isConfirmed': true } });
+            const result = yield _00_db_1.UserModel.updateOne({ _id: id }, { $set: { 'emailConfirmation.isConfirmed': true } });
             return result.matchedCount;
         });
     },
     updateConfirmation(id, mail, code, date) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.updateOne({ _id: id }, {
+            const result = yield _00_db_1.UserModel.updateOne({ _id: id }, {
                 $push: { 'emailConfirmation.sentEmails': mail },
                 $set: {
                     'emailConfirmation.confirmationCode': code,
@@ -43,9 +45,20 @@ exports.usersRepository = {
             return result.matchedCount;
         });
     },
+    updatePassword(_id, passwordHash, passwordSalt) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _00_db_1.UserModel.updateOne({ _id }, {
+                $set: {
+                    'accountData.passwordHash': passwordHash,
+                    'accountData.passwordSalt': passwordSalt,
+                }
+            });
+            return result.matchedCount === 1;
+        });
+    },
     addConfirmMessage(id, mail) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.updateOne({ _id: id }, {
+            const result = yield _00_db_1.UserModel.updateOne({ _id: id }, {
                 $push: { 'emailConfirmation.sentEmails': mail }
             });
             return result.matchedCount;
@@ -53,7 +66,7 @@ exports.usersRepository = {
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersCollection.deleteMany({});
+            const result = yield _00_db_1.UserModel.deleteMany({});
             return result.deletedCount;
         });
     }

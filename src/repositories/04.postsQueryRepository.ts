@@ -1,5 +1,5 @@
 import { Paginator, PostViewModel } from '../models';
-import { postsCollection } from './00.db';
+import { PostModel } from './00.db';
 import { ObjectID } from 'bson';
 
 const preparePost = (input: any) => {
@@ -25,13 +25,13 @@ export const postsQueryRepository = {
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
 
-    const items = await postsCollection.find({})
+    const items = await PostModel.find({})
       .sort(sortObj)
       .limit(limit)
       .skip(skip)
-      .toArray();
+      .lean();
 
-    const postsCount = await postsCollection.countDocuments()
+    const postsCount = await PostModel.countDocuments()
 
     const pagesCount = Math.ceil(postsCount / limit);
 
@@ -45,7 +45,7 @@ export const postsQueryRepository = {
   },
 
   async getPostById(id: string) {
-    const post = await postsCollection
+    const post = await PostModel
       .findOne({ _id: new ObjectID(id) });
     if (post) return preparePost(post);
     else return null;
@@ -61,13 +61,13 @@ export const postsQueryRepository = {
     sortObj[sortBy] = sortDirection
     const findObj = { 'blogId': id };
 
-    const items = await postsCollection.find(findObj)
+    const items = await PostModel.find(findObj)
       .sort(sortObj)
       .limit(limit)
       .skip(skip)
-      .toArray();
+      .lean();
 
-    const postsCount = await postsCollection.countDocuments(findObj);
+    const postsCount = await PostModel.countDocuments(findObj);
 
     const pagesCount = Math.ceil(postsCount / limit);
 
@@ -81,10 +81,9 @@ export const postsQueryRepository = {
   },
 
   async getPostsIdByBlogId2(id: string) {
-    const items = await postsCollection
+    const items = await PostModel
       .find({ 'blogId': id })
-      .toArray();
-
+      .lean();
     return items;
   },
 };

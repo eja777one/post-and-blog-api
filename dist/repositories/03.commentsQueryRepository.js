@@ -25,7 +25,8 @@ const prepareComment = (input) => {
 exports.commentsQueryRepository = {
     getComment(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield _00_db_1.commentsCollection.findOne({ _id: new bson_1.ObjectID(id) });
+            const comment = yield _00_db_1.CommentModel
+                .findOne({ _id: new bson_1.ObjectID(id) });
             if (comment)
                 return prepareComment(comment);
             return null;
@@ -39,12 +40,13 @@ exports.commentsQueryRepository = {
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const items = yield _00_db_1.commentsCollection.find({ postId: postId })
+            const items = yield _00_db_1.CommentModel.find({ postId: postId })
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
-                .toArray();
-            const postsCommentsCount = yield _00_db_1.commentsCollection.countDocuments({ postId: postId });
+                .lean();
+            const postsCommentsCount = yield _00_db_1.CommentModel
+                .countDocuments({ postId: postId });
             const pagesCount = Math.ceil(postsCommentsCount / limit);
             return {
                 pagesCount,

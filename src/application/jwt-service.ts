@@ -12,6 +12,23 @@ export const jwtService = {
     );
   },
 
+  async createPasswordRecoveryJwt(userId: string) {
+    return jwt.sign(
+      { userId },
+      settings.PASS_REC_JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+  },
+
+  async getPayloadPasswordRecovery(token: string) {
+    try {
+      const result: any = jwt.verify(token, settings.PASS_REC_JWT_SECRET);
+      return result.userId;
+    } catch (error) {
+      return null;
+    };
+  },
+
   async createRefreshJwt(userId: string, deviceId: string, createdAt: string) {
     return jwt.sign(
       { userId, deviceId, createdAt },

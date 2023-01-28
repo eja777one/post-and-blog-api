@@ -1,18 +1,17 @@
-import { tokensMetaCollection } from './00.db';
-import { DeviceViewModel, TokensMetaDBModel } from "../models";
+import { tokensMetaModel } from './00.db';
+import { TokensMetaDBModel } from "../models";
 
 export const tokensMetaRepository = {
-  async addSession(sessionData: TokensMetaDBModel) {
 
-    const result = await tokensMetaCollection
-      .insertOne(sessionData);
+  async addSession(sessionData: TokensMetaDBModel) {
+    const result = await tokensMetaModel
+      .collection.insertOne(sessionData);
 
     return result.insertedId.toString();
   },
 
   async updateSession(previousCreatedAt: string, createdAt: string, expiredAt: string) {
-
-    const result = await tokensMetaCollection.updateOne(
+    const result = await tokensMetaModel.updateOne(
       { createdAt: previousCreatedAt },
       { $set: { createdAt, expiredAt } }
     );
@@ -24,8 +23,7 @@ export const tokensMetaRepository = {
     ip: string | string[] | null,
     deviceName: string,
     userId: string) {
-
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .deleteOne({ userId, ip, deviceName });
 
     return result.deletedCount;
@@ -35,15 +33,15 @@ export const tokensMetaRepository = {
     userId: string,
     deviceId: string
   ) {
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .deleteOne({ userId, deviceId });
 
     return result.deletedCount;
   },
 
   async getUsersSessions(userId: string) {
-    const result = await tokensMetaCollection
-      .find({ userId }).toArray();
+    const result = await tokensMetaModel
+      .find({ userId }).lean();
 
     let answer: any = [];
 
@@ -61,28 +59,28 @@ export const tokensMetaRepository = {
   },
 
   async deleteOtherSessions(userId: string, deviceId: string) {
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .deleteMany({ userId, deviceId: { $ne: deviceId } });
 
     return result.deletedCount;
   },
 
   async deleteThisSessions(userId: string, deviceId: string) {
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .deleteOne({ userId, deviceId });
 
     return result.deletedCount;
   },
 
   async getSessionByDeviceId(deviceId: string) {
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .findOne({ deviceId });
 
     return result;
   },
 
   async deleteAll() {
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .deleteMany({});
 
     return result.deletedCount;

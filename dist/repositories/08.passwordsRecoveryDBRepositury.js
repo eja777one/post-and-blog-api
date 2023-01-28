@@ -9,41 +9,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.commentsRepository = void 0;
-const bson_1 = require("bson");
+exports.passwordRecoveryRepository = void 0;
 const _00_db_1 = require("./00.db");
-exports.commentsRepository = {
-    addComment(comment) {
+exports.passwordRecoveryRepository = {
+    addCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.CommentModel
-                .collection.insertOne(comment);
-            return result.insertedId.toString();
+            const result = yield _00_db_1.PasswordsRecoveryModel.collection.insertOne({ code });
+            return true;
         });
     },
-    updateComment(id, comment) {
+    getCode() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.CommentModel.updateOne({ _id: new bson_1.ObjectID(id) }, {
-                $set: {
-                    content: comment.content,
-                    userId: comment.userId,
-                    userLogin: comment.userLogin,
-                    createdAt: comment.createdAt
-                }
-            });
-            return result.modifiedCount;
+            const result = yield _00_db_1.PasswordsRecoveryModel.find({});
+            return result[0];
         });
     },
-    deleteComment(id) {
+    deleteCode(code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.CommentModel
-                .deleteOne({ _id: new bson_1.ObjectID(id) });
-            return result.deletedCount;
+            const result = yield _00_db_1.PasswordsRecoveryModel.deleteOne({ code });
+            return result.deletedCount === 1;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.CommentModel.deleteMany({});
-            return result.deletedCount;
+            const result = yield _00_db_1.PasswordsRecoveryModel.deleteMany({});
+            return true;
         });
     }
 };

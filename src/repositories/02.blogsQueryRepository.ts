@@ -1,5 +1,5 @@
 import { BlogViewModel, Paginator } from '../models';
-import { blogsCollection } from './00.db';
+import { BlogModel } from './00.db';
 import { ObjectID } from 'bson';
 
 const prepareBlog = (input: any) => {
@@ -22,15 +22,16 @@ export const blogsQueryRepository = {
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
-    const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
+    const findObj = query.searchNameTerm ?
+      { name: new RegExp(query.searchNameTerm, 'i') } : {};
 
-    const items = await blogsCollection.find(findObj)
+    const items = await BlogModel.find(findObj)
       .sort(sortObj)
       .limit(limit)
       .skip(skip)
-      .toArray();
+      .lean();
 
-    const searchBlogsCount = await blogsCollection.countDocuments(findObj);
+    const searchBlogsCount = await BlogModel.countDocuments(findObj);
 
     const pagesCount = Math.ceil(searchBlogsCount / limit);
 
@@ -44,7 +45,9 @@ export const blogsQueryRepository = {
   },
 
   async getBlogById(id: string) {
-    const blog = await blogsCollection.findOne({ _id: new ObjectID(id) });
+    const blog = await BlogModel.
+      findOne({ _id: new ObjectID(id) });
+
     if (blog) return prepareBlog(blog);
     else return null;
   },

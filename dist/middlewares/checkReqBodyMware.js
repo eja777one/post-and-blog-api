@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkReqBodyMware = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
 const _02_blogsQueryRepository_1 = require("../repositories/02.blogsQueryRepository");
 const express_validator_1 = require("express-validator");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
@@ -145,6 +145,17 @@ exports.testCommentBody = (0, express_validator_1.checkSchema)({
         isLength: {
             options: { min: 20, max: 300 }
         }
+    }
+});
+exports.testReqRecoveryPass = (0, express_validator_1.checkSchema)({
+    newPassword: {
+        isString: true,
+        isLength: {
+            options: { min: 6, max: 20 }
+        }
+    },
+    recoveryCode: {
+        isString: true,
     }
 });
 const checkReqBodyMware = (req, res, next) => {

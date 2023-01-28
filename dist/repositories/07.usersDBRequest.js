@@ -14,43 +14,43 @@ const _00_db_1 = require("./00.db");
 exports.usersRequestRepository = {
     addLog(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
-            const usersLogs = yield _00_db_1.usersRequestCollection
+            const usersLogs = yield _00_db_1.UsersRequestModel
                 .find({ ip: userLog.ip, url: userLog.url })
                 .sort({ 'createdAt': -1 })
-                .toArray();
+                .lean();
             let result;
             if (usersLogs.length < 6) {
-                result = yield _00_db_1.usersRequestCollection.insertOne(userLog);
+                result = yield _00_db_1.UsersRequestModel.collection.insertOne(userLog);
             }
             else {
-                yield _00_db_1.usersRequestCollection.deleteOne({
+                yield _00_db_1.UsersRequestModel.deleteOne({
                     ip: userLog.ip,
                     createdAt: usersLogs[4].createdAt
                 });
-                result = yield _00_db_1.usersRequestCollection.insertOne(userLog);
+                result = yield _00_db_1.UsersRequestModel.collection.insertOne(userLog);
             }
             return result.insertedId;
         });
     },
     getLogs(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersRequestCollection
+            const result = yield _00_db_1.UsersRequestModel
                 .find({ ip: userLog.ip, url: userLog.url })
                 .sort({ 'createdAt': -1 })
-                .toArray();
+                .lean();
             return result;
         });
     },
     deleteLogs(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersRequestCollection
+            const result = yield _00_db_1.UsersRequestModel
                 .deleteMany({ ip: userLog.ip, url: userLog.url });
             return result;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.usersRequestCollection.deleteMany({});
+            const result = yield _00_db_1.UsersRequestModel.deleteMany({});
             return result.deletedCount;
         });
     }

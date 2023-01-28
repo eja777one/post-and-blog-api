@@ -2,7 +2,7 @@ import { checkUsersRequest } from './../middlewares/checkUsersRequest';
 import { checkCookie } from './../middlewares/checkCookieMware';
 import { Router, Request, Response } from "express";
 import { authServices } from '../domains/01.authServices';
-import { checkReqBodyMware, testAddUserReqBody, testCodeReqBody, testEmailReqBody, testLoginPassReqBody } from '../middlewares/checkReqBodyMware';
+import { checkReqBodyMware, testAddUserReqBody, testCodeReqBody, testEmailReqBody, testLoginPassReqBody, testReqRecoveryPass } from '../middlewares/checkReqBodyMware';
 import { authMware } from '../middlewares/authMware';
 import { LoginSuccessViewModel, MeViewModel, LoginInputModel, HTTP, RegistrationConfirmationCodeModel, UserInputModel, RegistrationEmailResending } from '../models';
 import * as dotenv from 'dotenv';
@@ -40,6 +40,35 @@ authRouter.post('/login',
         })
         .json({ accessToken: tokens.accessToken }); // TEST #4.11
     } else res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #4.13
+  });
+
+authRouter.post('/password-recovery',
+  checkUsersRequest,
+  testEmailReqBody,
+  checkReqBodyMware,
+  async (req: Request, res: Response) => {
+
+    await authServices
+      .sendPasswordRecoveryCode(req.body.email);
+
+    res.sendStatus(HTTP.NO_CONTENT_204);
+  });
+
+authRouter.post('/new-password',
+  checkUsersRequest,
+  testReqRecoveryPass,
+  checkReqBodyMware,
+  async (req: Request, res: Response) => {
+
+    const updatePassword = await authServices.updatePassword
+      (req.body.newPassword, req.body.recoveryCode);
+
+    if (updatePassword) {
+      res.sendStatus(HTTP.NO_CONTENT_204);
+      return;
+    } else {
+      res.sendStatus(HTTP.BAD_REQUEST_400);
+    }
   });
 
 authRouter.post('/refresh-token',

@@ -22,6 +22,23 @@ exports.jwtService = {
             return jsonwebtoken_1.default.sign({ userId }, settings_1.settings.ACCESS_JWT_SECRET, { expiresIn: '10s' });
         });
     },
+    createPasswordRecoveryJwt(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return jsonwebtoken_1.default.sign({ userId }, settings_1.settings.PASS_REC_JWT_SECRET, { expiresIn: '15m' });
+        });
+    },
+    getPayloadPasswordRecovery(token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = jsonwebtoken_1.default.verify(token, settings_1.settings.PASS_REC_JWT_SECRET);
+                return result.userId;
+            }
+            catch (error) {
+                return null;
+            }
+            ;
+        });
+    },
     createRefreshJwt(userId, deviceId, createdAt) {
         return __awaiter(this, void 0, void 0, function* () {
             return jsonwebtoken_1.default.sign({ userId, deviceId, createdAt }, settings_1.settings.REFRESH_JWT_SECRET, { expiresIn: '20s' });

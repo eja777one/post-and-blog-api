@@ -31,13 +31,14 @@ exports.blogsQueryRepository = {
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const findObj = query.searchNameTerm ? { name: new RegExp(query.searchNameTerm, 'i') } : {};
-            const items = yield _00_db_1.blogsCollection.find(findObj)
+            const findObj = query.searchNameTerm ?
+                { name: new RegExp(query.searchNameTerm, 'i') } : {};
+            const items = yield _00_db_1.BlogModel.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
-                .toArray();
-            const searchBlogsCount = yield _00_db_1.blogsCollection.countDocuments(findObj);
+                .lean();
+            const searchBlogsCount = yield _00_db_1.BlogModel.countDocuments(findObj);
             const pagesCount = Math.ceil(searchBlogsCount / limit);
             return {
                 pagesCount,
@@ -50,7 +51,8 @@ exports.blogsQueryRepository = {
     },
     getBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield _00_db_1.blogsCollection.findOne({ _id: new bson_1.ObjectID(id) });
+            const blog = yield _00_db_1.BlogModel.
+                findOne({ _id: new bson_1.ObjectID(id) });
             if (blog)
                 return prepareBlog(blog);
             else

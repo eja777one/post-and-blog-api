@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authServices = void 0;
+const _08_passwordsRecoveryDBRepositury_1 = require("./../repositories/08.passwordsRecoveryDBRepositury");
 const _06_tokensQueryRepository_1 = require("./../repositories/06.tokensQueryRepository");
 const _06_tokensDBRepository_1 = require("../repositories/06.tokensDBRepository");
 const email_manager_1 = require("../managers/email-manager");
@@ -174,6 +175,45 @@ exports.authServices = {
                 return false;
             }
             ;
+        });
+    },
+    sendPasswordRecoveryCode(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(email);
+            if (!user)
+                return null;
+            const passwordRecoveryCode = yield jwt_service_1.jwtService
+                .createPasswordRecoveryJwt(user._id.toString());
+            try {
+                yield email_manager_1.emailManager.sendRecoveryPasswordCode(user.accountData.email, passwordRecoveryCode);
+                yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository
+                    .addCode(passwordRecoveryCode);
+                return true;
+            }
+            catch (error) {
+                return false;
+            }
+            ;
+        });
+    },
+    updatePassword(newPassword, code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deleteCode = yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository.deleteCode(code);
+            if (!deleteCode)
+                return false;
+            const userId = yield jwt_service_1.jwtService
+                .getPayloadPasswordRecovery(code);
+            if (!userId)
+                return false;
+            const passwordSalt = yield bcrypt_1.default.genSalt(10);
+            const passwordHash = yield this
+                ._generateHash(newPassword, passwordSalt);
+            const setNewPassword = yield _05_usersDbRepository_1.usersRepository
+                .updatePassword(new bson_1.ObjectID(userId), passwordHash, passwordSalt);
+            if (!setNewPassword)
+                return false;
+            else
+                return true;
         });
     },
     _generateHash(password, salt) {

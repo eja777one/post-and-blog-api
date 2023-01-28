@@ -33,12 +33,12 @@ exports.postsQueryRepository = {
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
-            const items = yield _00_db_1.postsCollection.find({})
+            const items = yield _00_db_1.PostModel.find({})
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
-                .toArray();
-            const postsCount = yield _00_db_1.postsCollection.countDocuments();
+                .lean();
+            const postsCount = yield _00_db_1.PostModel.countDocuments();
             const pagesCount = Math.ceil(postsCount / limit);
             return {
                 pagesCount,
@@ -51,7 +51,7 @@ exports.postsQueryRepository = {
     },
     getPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield _00_db_1.postsCollection
+            const post = yield _00_db_1.PostModel
                 .findOne({ _id: new bson_1.ObjectID(id) });
             if (post)
                 return preparePost(post);
@@ -68,12 +68,12 @@ exports.postsQueryRepository = {
             const sortObj = {};
             sortObj[sortBy] = sortDirection;
             const findObj = { 'blogId': id };
-            const items = yield _00_db_1.postsCollection.find(findObj)
+            const items = yield _00_db_1.PostModel.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
-                .toArray();
-            const postsCount = yield _00_db_1.postsCollection.countDocuments(findObj);
+                .lean();
+            const postsCount = yield _00_db_1.PostModel.countDocuments(findObj);
             const pagesCount = Math.ceil(postsCount / limit);
             return {
                 pagesCount,
@@ -86,9 +86,9 @@ exports.postsQueryRepository = {
     },
     getPostsIdByBlogId2(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const items = yield _00_db_1.postsCollection
+            const items = yield _00_db_1.PostModel
                 .find({ 'blogId': id })
-                .toArray();
+                .lean();
             return items;
         });
     },

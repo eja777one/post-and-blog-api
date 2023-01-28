@@ -1,6 +1,6 @@
 import { ObjectID } from 'bson';
 import { Paginator, CommentViewModel, CommentDBModel } from '../models';
-import { commentsCollection } from './00.db';
+import { CommentModel } from './00.db';
 
 const prepareComment = (input: CommentDBModel) => {
   const obj: CommentViewModel = {
@@ -14,13 +14,17 @@ const prepareComment = (input: CommentDBModel) => {
 };
 
 export const commentsQueryRepository = {
+
   async getComment(id: string) {
-    const comment = await commentsCollection.findOne({ _id: new ObjectID(id) });
+    const comment = await CommentModel
+      .findOne({ _id: new ObjectID(id) });
+
     if (comment) return prepareComment(comment);
     return null;
   },
-  async getCommentByQuery(query: any, postId: string)
-    : Promise<Paginator<CommentViewModel>> {
+
+  async getCommentByQuery(query: any, postId: string) {
+
     const skip = (query.pageNumber - 1) * query.pageSize;
     const limit = query.pageSize;
     const sortBy = query.sortBy;
@@ -28,13 +32,14 @@ export const commentsQueryRepository = {
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
 
-    const items = await commentsCollection.find({ postId: postId })
+    const items = await CommentModel.find({ postId: postId })
       .sort(sortObj)
       .limit(limit)
       .skip(skip)
-      .toArray();
+      .lean();
 
-    const postsCommentsCount = await commentsCollection.countDocuments({ postId: postId })
+    const postsCommentsCount = await CommentModel
+      .countDocuments({ postId: postId })
 
     const pagesCount = Math.ceil(postsCommentsCount / limit);
 

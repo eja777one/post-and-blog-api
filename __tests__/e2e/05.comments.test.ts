@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+import { mongoUri } from "../../src/repositories/00.db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
@@ -30,6 +32,7 @@ let comment_01 = { ...comment1 };
 
 describe(`${URL}/comments`, () => {
   beforeAll(async () => {
+    await mongoose.connect(mongoUri, { dbName: 'test' })
     await request(app).delete(`${URL}/testing/all-data`);
   }); // blogs = []; posts = []; users = []; comments = [];
 

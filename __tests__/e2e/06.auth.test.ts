@@ -1,3 +1,6 @@
+import { passwordRecoveryRepository } from './../../src/repositories/08.passwordsRecoveryDBRepositury';
+import mongoose from "mongoose";
+import { mongoUri } from "../../src/repositories/00.db";
 import { usersQueryRepository }
   from '../../src/repositories/05.usersQueryRepository';
 import request from "supertest";
@@ -24,6 +27,7 @@ let cookie: string[];
 
 describe(`${URL}/auth`, () => {
   beforeAll(async () => {
+    await mongoose.connect(mongoUri, { dbName: 'test' })
     await request(app).delete(`${URL}/testing/all-data`);
   });
 
@@ -290,5 +294,79 @@ describe(`${URL}/auth`, () => {
       .post(`${URL}/auth/refresh-token`)
       .set('Cookie', cookie)
       .expect(HTTP.UNAUTHORIZED_401);
+  });
+
+  // TEST #6.23
+  it('Send recovery password code to User_01. Status 400', async () => {
+    await request(app)
+      .post(`${URL}/auth/password-recovery`)
+      .send({ email: "string" })
+      .expect(HTTP.BAD_REQUEST_400);
+  });
+
+  // TEST #6.24
+  it('Send recovery password code to User_01. Status 204', async () => {
+    await request(app)
+      .post(`${URL}/auth/password-recovery`)
+      .send({ email: "eja777one@gmail.com" })
+      .expect(HTTP.NO_CONTENT_204);
+  });
+
+  // TEST #6.25
+  it('Send recovery password code to email, which is unexist in base. Status 204', async () => {
+    await request(app)
+      .post(`${URL}/auth/password-recovery`)
+      .send({ email: "pgs111213@yandex.ru" })
+      .expect(HTTP.NO_CONTENT_204);
+  });
+
+  // TEST #6.26
+  it('Reset password to User_01. Status 400', async () => {
+    await request(app)
+      .post(`${URL}/auth/new-password`)
+      .send({
+        newPassword: "string123",
+        recoveryCode: "string"
+      })
+      .expect(HTTP.BAD_REQUEST_400);
+  });
+
+  // TEST #6.27
+  it('Reset password to User_01. Status 204', async () => {
+
+    const code = await passwordRecoveryRepository.getCode();
+
+    // console.log(code.code)
+
+    await request(app)
+      .post(`${URL}/auth/new-password`)
+      .send({
+        newPassword: "string123",
+        recoveryCode: code.code
+      })
+      .expect(HTTP.NO_CONTENT_204);
+  });
+
+  // TEST #6.28
+  it('LOGIN User_01. Status 200', async () => {
+    const response = await request(app)
+      .post(`${URL}/auth/login`)
+      .send({
+        loginOrEmail: 'eja777one@gmail.com',
+        password: "string123"
+      })
+
+    const accessToken = response.body;
+
+    cookie = response.get('Set-Cookie');
+    // cookie = response.get('Set-Cookie')[0].split('; ')[0].split('=')[1];
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.OK_200);
+    expect(accessToken).toStrictEqual({
+      accessToken: expect.any(String),
+    });
+
+    token_01 = { ...accessToken };
   });
 });

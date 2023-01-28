@@ -14,6 +14,7 @@
     "@types/cookie-parser": "^1.4.3",
     "@types/date-fns": "^2.6.0",
     "@types/express-useragent": "^1.0.2",
+    "@types/mongoose": "^5.11.97",
     "@types/nodemailer": "^6.4.7",
     "@types/supertest": "^2.0.12",
     "@types/uuid": "^9.0.0",
@@ -27,6 +28,7 @@
     "express-validator": "^6.14.2",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^4.12.1",
+    "mongoose": "^6.9.0",
     "nodemailer": "^6.9.0",
     "uuid": "^9.0.0"
   },

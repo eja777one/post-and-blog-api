@@ -1,9 +1,9 @@
-import { tokensMetaCollection } from "./00.db";
+import { tokensMetaModel } from "./00.db";
 
 export const tokensQueryMetaRepository = {
 
   async getTokenMeta(userId: string, deviceId: string) {
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .findOne({ userId, deviceId });
 
     return result?.createdAt;
@@ -13,8 +13,7 @@ export const tokensQueryMetaRepository = {
     ip: string | string[] | null,
     deviceName: string,
     userId: string) {
-
-    const result = await tokensMetaCollection
+    const result = await tokensMetaModel
       .findOne({ userId, ip, deviceName });
 
     return result;

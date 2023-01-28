@@ -1,3 +1,4 @@
+import { passwordRecoveryRepository } from './../repositories/08.passwordsRecoveryDBRepositury';
 import { commentsServices } from '../domains/03.commentsServices';
 import { Request, Response, Router } from 'express';
 import { usersServices } from '../domains/05.usersServices';
@@ -16,5 +17,6 @@ testsRouter.delete('/', async (req: Request, res: Response) => {
   await commentsServices.deleteAll();
   await usersRequestRepository.deleteAll();
   await tokensMetaRepository.deleteAll();
+  await passwordRecoveryRepository.deleteAll();
   res.sendStatus(HTTP.NO_CONTENT_204); // TEST #1.1
 });

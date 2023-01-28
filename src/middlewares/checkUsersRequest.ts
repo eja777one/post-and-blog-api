@@ -29,8 +29,6 @@ export const checkUsersRequest = async (
   const usersRequests =
     await usersRequestRepository.getLogs(userLog);
 
-  console.log('seconds');
-
   if (usersRequests.length < 6) next();
   else {
     const timeStampArr0 =

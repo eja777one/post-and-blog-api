@@ -15,13 +15,13 @@ const bson_1 = require("bson");
 exports.postsRepository = {
     createPost(post) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.postsCollection.insertOne(post);
+            const result = yield _00_db_1.PostModel.collection.insertOne(post);
             return result.insertedId.toString();
         });
     },
     updatePost(id, body, blogName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.postsCollection.updateOne({ _id: new bson_1.ObjectID(id) }, {
+            const result = yield _00_db_1.PostModel.updateOne({ _id: new bson_1.ObjectID(id) }, {
                 $set: {
                     title: body.title,
                     shortDescription: body.shortDescription,
@@ -35,13 +35,13 @@ exports.postsRepository = {
     },
     deletePostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.postsCollection.deleteOne({ _id: new bson_1.ObjectID(id) });
+            const result = yield _00_db_1.PostModel.deleteOne({ _id: new bson_1.ObjectID(id) });
             return result.deletedCount === 1;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.postsCollection.deleteMany({});
+            const result = yield _00_db_1.PostModel.deleteMany({});
             return result.deletedCount;
         });
     }

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testsRouter = void 0;
+const _08_passwordsRecoveryDBRepositury_1 = require("./../repositories/08.passwordsRecoveryDBRepositury");
 const _03_commentsServices_1 = require("../domains/03.commentsServices");
 const express_1 = require("express");
 const _05_usersServices_1 = require("../domains/05.usersServices");
@@ -26,5 +27,6 @@ exports.testsRouter.delete('/', (req, res) => __awaiter(void 0, void 0, void 0, 
     yield _03_commentsServices_1.commentsServices.deleteAll();
     yield _07_usersDBRequest_1.usersRequestRepository.deleteAll();
     yield _06_tokensDBRepository_1.tokensMetaRepository.deleteAll();
+    yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository.deleteAll();
     res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
 }));

@@ -41,12 +41,12 @@ exports.usersQueryRepository = {
             ;
             if (findObj.$or.length === 0)
                 findObj = {};
-            const items = yield _00_db_1.usersCollection.find(findObj)
+            const items = yield _00_db_1.UserModel.find(findObj)
                 .sort(sortObj)
                 .limit(limit)
                 .skip(skip)
-                .toArray();
-            const usersCount = yield _00_db_1.usersCollection.countDocuments(findObj);
+                .lean();
+            const usersCount = yield _00_db_1.UserModel.countDocuments(findObj);
             const pagesCount = Math.ceil(usersCount / limit);
             return {
                 pagesCount,
@@ -59,7 +59,7 @@ exports.usersQueryRepository = {
     },
     getUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({ _id: new bson_1.ObjectID(id) });
+            const user = yield _00_db_1.UserModel.findOne({ _id: new bson_1.ObjectID(id) });
             if (user)
                 return prepareUser(user);
             else
@@ -68,7 +68,7 @@ exports.usersQueryRepository = {
     },
     getDbUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({ _id: new bson_1.ObjectID(id) });
+            const user = yield _00_db_1.UserModel.findOne({ _id: new bson_1.ObjectID(id) });
             if (user)
                 return user;
             else
@@ -77,7 +77,7 @@ exports.usersQueryRepository = {
     },
     getDbUser(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({ 'accountData.email': email });
+            const user = yield _00_db_1.UserModel.findOne({ 'accountData.email': email });
             const formatUser = {
                 _id: user === null || user === void 0 ? void 0 : user._id,
                 login: user === null || user === void 0 ? void 0 : user.accountData.login,
@@ -98,11 +98,11 @@ exports.usersQueryRepository = {
         return __awaiter(this, void 0, void 0, function* () {
             let user;
             if (loginOrEmail.indexOf('@') !== -1) {
-                user = yield _00_db_1.usersCollection.
+                user = yield _00_db_1.UserModel.
                     findOne({ 'accountData.email': loginOrEmail });
             }
             else {
-                user = yield _00_db_1.usersCollection
+                user = yield _00_db_1.UserModel
                     .findOne({ 'accountData.login': loginOrEmail });
             }
             ;
@@ -111,7 +111,7 @@ exports.usersQueryRepository = {
     },
     getUserByConfirm(code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({
+            const user = yield _00_db_1.UserModel.findOne({
                 'emailConfirmation.confirmationCode': code
             });
             return user;
@@ -119,7 +119,7 @@ exports.usersQueryRepository = {
     },
     getUserByRefreshToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield _00_db_1.usersCollection.findOne({
+            const user = yield _00_db_1.UserModel.findOne({
                 'loginData.refreshToken': refreshToken
             });
             return user;

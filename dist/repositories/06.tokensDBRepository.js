@@ -14,35 +14,35 @@ const _00_db_1 = require("./00.db");
 exports.tokensMetaRepository = {
     addSession(sessionData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
-                .insertOne(sessionData);
+            const result = yield _00_db_1.tokensMetaModel
+                .collection.insertOne(sessionData);
             return result.insertedId.toString();
         });
     },
     updateSession(previousCreatedAt, createdAt, expiredAt) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection.updateOne({ createdAt: previousCreatedAt }, { $set: { createdAt, expiredAt } });
+            const result = yield _00_db_1.tokensMetaModel.updateOne({ createdAt: previousCreatedAt }, { $set: { createdAt, expiredAt } });
             return result.matchedCount;
         });
     },
     deleteSessionBeforeLogin(ip, deviceName, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .deleteOne({ userId, ip, deviceName });
             return result.deletedCount;
         });
     },
     deleteSessionBeforeLogout(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .deleteOne({ userId, deviceId });
             return result.deletedCount;
         });
     },
     getUsersSessions(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
-                .find({ userId }).toArray();
+            const result = yield _00_db_1.tokensMetaModel
+                .find({ userId }).lean();
             let answer = [];
             if (result) {
                 result.map(session => {
@@ -61,28 +61,28 @@ exports.tokensMetaRepository = {
     },
     deleteOtherSessions(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .deleteMany({ userId, deviceId: { $ne: deviceId } });
             return result.deletedCount;
         });
     },
     deleteThisSessions(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .deleteOne({ userId, deviceId });
             return result.deletedCount;
         });
     },
     getSessionByDeviceId(deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .findOne({ deviceId });
             return result;
         });
     },
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .deleteMany({});
             return result.deletedCount;
         });

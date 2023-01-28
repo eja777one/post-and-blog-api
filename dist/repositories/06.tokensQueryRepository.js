@@ -14,14 +14,14 @@ const _00_db_1 = require("./00.db");
 exports.tokensQueryMetaRepository = {
     getTokenMeta(userId, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .findOne({ userId, deviceId });
             return result === null || result === void 0 ? void 0 : result.createdAt;
         });
     },
     checkSession(ip, deviceName, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.tokensMetaCollection
+            const result = yield _00_db_1.tokensMetaModel
                 .findOne({ userId, ip, deviceName });
             return result;
         });
