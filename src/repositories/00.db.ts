@@ -7,7 +7,7 @@ import {
   UserDBModel,
   usersRequestDBModel
 } from '../models';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 
@@ -95,10 +95,10 @@ const commentSchema = new mongoose.Schema<CommentDBModel>({
 
 export const CommentModel = mongoose.model('comments', commentSchema);
 
-const usersRequestSchema = new mongoose.Schema<usersRequestDBModel>({
+export const usersRequestSchema = new mongoose.Schema<usersRequestDBModel>({
   ip: { type: String, required: true },
   url: { type: String, required: true },
-  createdAt: { type: String, required: true }
+  createdAt: { type: Date, required: true }
 });
 
 export const UsersRequestModel = mongoose

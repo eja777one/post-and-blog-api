@@ -15,29 +15,23 @@ exports.usersRequestRepository = {
     addLog(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
             const usersLogs = yield _00_db_1.UsersRequestModel
-                .find({ ip: userLog.ip, url: userLog.url })
-                .sort({ 'createdAt': -1 })
-                .lean();
-            let result;
-            if (usersLogs.length < 6) {
-                result = yield _00_db_1.UsersRequestModel.collection.insertOne(userLog);
-            }
-            else {
-                yield _00_db_1.UsersRequestModel.deleteOne({
-                    ip: userLog.ip,
-                    createdAt: usersLogs[4].createdAt
-                });
-                result = yield _00_db_1.UsersRequestModel.collection.insertOne(userLog);
-            }
-            return result.insertedId;
+                .create({
+                _id: userLog._id,
+                ip: userLog.ip,
+                url: userLog.url,
+                createdAt: userLog.createdAt
+            });
+            return usersLogs;
         });
     },
     getLogs(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.UsersRequestModel
-                .find({ ip: userLog.ip, url: userLog.url })
-                .sort({ 'createdAt': -1 })
-                .lean();
+            const isoDate = userLog.createdAt.toISOString();
+            const result = yield _00_db_1.UsersRequestModel.countDocuments({
+                ip: { $regex: userLog.ip },
+                url: { $regex: userLog.url },
+                createdAt: { $gt: isoDate }
+            });
             return result;
         });
     },

@@ -5,31 +5,23 @@ export const usersRequestRepository = {
 
   async addLog(userLog: usersRequestDBModel) {
     const usersLogs = await UsersRequestModel
-      .find({ ip: userLog.ip, url: userLog.url })
-      .sort({ 'createdAt': -1 })
-      .lean();
-
-    let result: any;
-
-    if (usersLogs.length < 6) {
-      result = await UsersRequestModel.collection.insertOne(userLog);
-    } else {
-      await UsersRequestModel.deleteOne({
+      .create({
+        _id: userLog._id,
         ip: userLog.ip,
-        createdAt: usersLogs[4].createdAt
-      });
-      result = await UsersRequestModel.collection.insertOne(userLog);
-    }
-    return result.insertedId;
+        url: userLog.url,
+        createdAt: userLog.createdAt
+      })
+      return usersLogs
   },
 
-  async getLogs(userLog: usersRequestDBModel) {
-    const result = await UsersRequestModel
-      .find({ ip: userLog.ip, url: userLog.url })
-      .sort({ 'createdAt': -1 })
-      .lean();
-
-    return result;
+  async getLogs(userLog: usersRequestDBModel) {    
+    const isoDate = userLog.createdAt.toISOString()
+        const result = await UsersRequestModel.countDocuments({
+      ip: {$regex: userLog.ip},
+      url: {$regex: userLog.url},
+      createdAt: {$gt: isoDate}
+    })
+    return result
   },
 
   async deleteLogs(userLog: usersRequestDBModel) {

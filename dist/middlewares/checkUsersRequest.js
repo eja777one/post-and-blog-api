@@ -10,39 +10,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkUsersRequest = void 0;
-const bson_1 = require("bson");
-const models_1 = require("./../models");
+const mongodb_1 = require("mongodb");
 const _07_usersDBRequest_1 = require("../repositories/07.usersDBRequest");
 const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const url = req.protocol + '://' + req.get('host') + req.originalUrl;
-    const ip = req.headers['x-forwarded-for']
-        || req.socket.remoteAddress
-        || null;
-    const createdAt = new Date().toISOString();
+    const attemtsInterval = 10 * 1000;
+    const url = req.url;
+    const ip = req.ip;
+    const currentTime = new Date();
+    console.log(currentTime, 'current');
+    const attemptTime = new Date(currentTime.getTime() - attemtsInterval);
+    console.log(attemptTime, 'attempt');
     const userLog = {
-        _id: new bson_1.ObjectID(),
+        _id: new mongodb_1.ObjectId(),
         url,
         ip,
-        createdAt
+        createdAt: attemptTime
     };
-    const addLog = yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
     const usersRequests = yield _07_usersDBRequest_1.usersRequestRepository.getLogs(userLog);
-    if (usersRequests.length < 6)
+    console.log(usersRequests);
+    yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
+    if (usersRequests < 5) {
         next();
+    }
     else {
-        const timeStampArr0 = new Date(usersRequests[0].createdAt).getTime();
-        const timeStampArr4 = new Date(usersRequests[5].createdAt).getTime();
-        const diff = timeStampArr0 - timeStampArr4;
-        const seconds = Math.floor(diff / 1000 % 60);
-        console.log(seconds);
-        if (seconds < 10 && usersRequests.length > 5) {
-            res.sendStatus(models_1.HTTP.TOO_MANY_REQUESTS_429);
-            return;
-        }
-        else {
-            // await usersRequestRepository.deleteLogs(userLog);
-            next();
-        }
+        res.sendStatus(429);
     }
 });
 exports.checkUsersRequest = checkUsersRequest;
