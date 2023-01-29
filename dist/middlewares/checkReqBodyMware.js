@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
-const jwt_service_1 = require("./../application/jwt-service");
 const _02_blogsQueryRepository_1 = require("../repositories/02.blogsQueryRepository");
 const express_validator_1 = require("express-validator");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
@@ -157,16 +156,6 @@ exports.testReqRecoveryPass = (0, express_validator_1.checkSchema)({
     },
     recoveryCode: {
         isString: true,
-        custom: {
-            options: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                const userId = yield jwt_service_1.jwtService
-                    .getPayloadPasswordRecovery(value);
-                if (!userId)
-                    throw new Error('Incorrect recovery code');
-                else
-                    return true;
-            })
-        }
     }
 });
 const checkReqBodyMware = (req, res, next) => {

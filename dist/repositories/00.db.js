@@ -36,6 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.runDb = exports.PasswordsRecoveryModel = exports.UsersRequestModel = exports.CommentModel = exports.tokensMetaModel = exports.UserModel = exports.BlogModel = exports.PostModel = exports.mongoUri = void 0;
+const bson_1 = require("bson");
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -115,7 +116,10 @@ const usersRequestSchema = new mongoose_1.default.Schema({
 exports.UsersRequestModel = mongoose_1.default
     .model('usersRequest', usersRequestSchema);
 const passwordsRecoverySchema = new mongoose_1.default.Schema({
-    code: String
+    userId: { type: bson_1.ObjectID, required: true },
+    passwordRecoveryCode: { type: String, required: true },
+    createdAt: { type: String, required: true },
+    expiredAt: { type: String, required: true },
 });
 exports.PasswordsRecoveryModel = mongoose_1.default
     .model('passwordsRecovery', passwordsRecoverySchema);

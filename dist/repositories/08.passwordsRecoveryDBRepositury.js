@@ -12,10 +12,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.passwordRecoveryRepository = void 0;
 const _00_db_1 = require("./00.db");
 exports.passwordRecoveryRepository = {
-    addCode(code) {
+    addData(passwordData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.PasswordsRecoveryModel.collection.insertOne({ code });
+            const result = yield _00_db_1.PasswordsRecoveryModel
+                .collection.insertOne(passwordData);
             return true;
+        });
+    },
+    getData(code) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _00_db_1.PasswordsRecoveryModel.collection
+                .findOne({ passwordRecoveryCode: code });
+            return result;
         });
     },
     getCode() {
@@ -24,10 +32,11 @@ exports.passwordRecoveryRepository = {
             return result[0];
         });
     },
-    deleteCode(code) {
+    deletePasswordData(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.PasswordsRecoveryModel.deleteOne({ code });
-            return result.deletedCount === 1;
+            const result = yield _00_db_1.PasswordsRecoveryModel
+                .deleteOne({ userId });
+            return true;
         });
     },
     deleteAll() {

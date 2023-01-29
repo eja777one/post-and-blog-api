@@ -190,16 +190,24 @@ export const authServices = {
   async sendPasswordRecoveryCode(email: string) {
     const user = await usersQueryRepository.getUser(email);
     if (!user) return null;
-    const passwordRecoveryCode = await jwtService
-      .createPasswordRecoveryJwt(user._id.toString());
+
+    await passwordRecoveryRepository
+      .deletePasswordData(user._id);
+
+    const passwordData = {
+      userId: user._id,
+      passwordRecoveryCode: uuidv4(),
+      createdAt: new Date().toISOString(),
+      expiredAt: add(new Date(), { minutes: 10 }).toISOString(),
+    };
 
     try {
       await emailManager.sendRecoveryPasswordCode(
         user.accountData.email,
-        passwordRecoveryCode
+        passwordData.passwordRecoveryCode
       );
       await passwordRecoveryRepository
-        .addCode(passwordRecoveryCode);
+        .addData(passwordData);
       return true;
     } catch (error) {
       return false;
@@ -207,22 +215,29 @@ export const authServices = {
   },
 
   async updatePassword(newPassword: string, code: string) {
-    const deleteCode = await
-      passwordRecoveryRepository.deleteCode(code);
+    const passwordData = await
+      passwordRecoveryRepository.getData(code);
+    console.log(passwordData)
+    if (!passwordData) return false;
 
-    if (!deleteCode) return false;
+    if (new Date(passwordData.expiredAt) < new Date()) {
+      await passwordRecoveryRepository
+        .deletePasswordData(passwordData.userId);
 
-    const userId = await jwtService
-      .getPayloadPasswordRecovery(code);
+      return false;
+    };
 
-    if (!userId) return false;
+    const userIsExist = await usersQueryRepository
+      .getUserById(passwordData.userId.toString());
+
+    if (!userIsExist) return false;
 
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this
       ._generateHash(newPassword, passwordSalt);
 
     const setNewPassword = await usersRepository
-      .updatePassword(new ObjectID(userId), passwordHash, passwordSalt);
+      .updatePassword(passwordData.userId, passwordHash, passwordSalt);
 
     if (!setNewPassword) return false;
     else return true;

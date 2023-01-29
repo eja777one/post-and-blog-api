@@ -153,14 +153,6 @@ export const testReqRecoveryPass = checkSchema({
   },
   recoveryCode: {
     isString: true,
-    custom: {
-      options: async (value) => {
-        const userId = await jwtService
-          .getPayloadPasswordRecovery(value);
-        if (!userId) throw new Error('Incorrect recovery code');
-        else return true;
-      }
-    }
   }
 });
 

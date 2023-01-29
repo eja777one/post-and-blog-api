@@ -1,19 +1,29 @@
+import { ObjectID } from 'bson';
 import { PasswordsRecoveryModel } from './00.db';
 
 export const passwordRecoveryRepository = {
-  async addCode(code: string) {
-    const result = await PasswordsRecoveryModel.collection.insertOne({ code });
+  async addData(passwordData: any) {
+    const result = await PasswordsRecoveryModel
+      .collection.insertOne(passwordData);
     return true;
   },
 
-  async getCode() {
-    const result = await PasswordsRecoveryModel.find({});
-    return result[0];
+  async getData(code: string) {
+    const result = await PasswordsRecoveryModel.collection
+      .findOne({ passwordRecoveryCode: code });
+    return result;
   },
 
-  async deleteCode(code: string) {
-    const result = await PasswordsRecoveryModel.deleteOne({ code });
-    return result.deletedCount === 1;
+  async getCode(userId: ObjectID) {
+    const result = await PasswordsRecoveryModel.
+      collection.findOne({ userId });
+    return result;
+  },
+
+  async deletePasswordData(userId: ObjectID) {
+    const result = await PasswordsRecoveryModel
+      .deleteOne({ userId });
+    return true;
   },
 
   async deleteAll() {

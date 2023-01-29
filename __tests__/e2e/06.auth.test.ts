@@ -334,15 +334,16 @@ describe(`${URL}/auth`, () => {
   // TEST #6.27
   it('Reset password to User_01. Status 204', async () => {
 
-    const code = await passwordRecoveryRepository.getCode();
+    const code = await passwordRecoveryRepository
+      .getCode(user_01._id);
 
-    // console.log(code.code)
+    console.log(code?.passwordRecoveryCode)
 
     await request(app)
       .post(`${URL}/auth/new-password`)
       .send({
         newPassword: "string123",
-        recoveryCode: code.code
+        recoveryCode: code?.passwordRecoveryCode
       })
       .expect(HTTP.NO_CONTENT_204);
   });

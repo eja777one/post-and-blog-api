@@ -182,12 +182,18 @@ exports.authServices = {
             const user = yield _05_usersQueryRepository_1.usersQueryRepository.getUser(email);
             if (!user)
                 return null;
-            const passwordRecoveryCode = yield jwt_service_1.jwtService
-                .createPasswordRecoveryJwt(user._id.toString());
+            yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository
+                .deletePasswordData(user._id);
+            const passwordData = {
+                userId: user._id,
+                passwordRecoveryCode: (0, uuid_1.v4)(),
+                createdAt: new Date().toISOString(),
+                expiredAt: (0, add_1.default)(new Date(), { minutes: 10 }).toISOString(),
+            };
             try {
-                yield email_manager_1.emailManager.sendRecoveryPasswordCode(user.accountData.email, passwordRecoveryCode);
+                yield email_manager_1.emailManager.sendRecoveryPasswordCode(user.accountData.email, passwordData.passwordRecoveryCode);
                 yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository
-                    .addCode(passwordRecoveryCode);
+                    .addData(passwordData);
                 return true;
             }
             catch (error) {
@@ -198,18 +204,25 @@ exports.authServices = {
     },
     updatePassword(newPassword, code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const deleteCode = yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository.deleteCode(code);
-            if (!deleteCode)
+            const passwordData = yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository.getData(code);
+            console.log(passwordData);
+            if (!passwordData)
                 return false;
-            const userId = yield jwt_service_1.jwtService
-                .getPayloadPasswordRecovery(code);
-            if (!userId)
+            if (new Date(passwordData.expiredAt) < new Date()) {
+                yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository
+                    .deletePasswordData(passwordData.userId);
+                return false;
+            }
+            ;
+            const userIsExist = yield _05_usersQueryRepository_1.usersQueryRepository
+                .getUserById(passwordData.userId.toString());
+            if (!userIsExist)
                 return false;
             const passwordSalt = yield bcrypt_1.default.genSalt(10);
             const passwordHash = yield this
                 ._generateHash(newPassword, passwordSalt);
             const setNewPassword = yield _05_usersDbRepository_1.usersRepository
-                .updatePassword(new bson_1.ObjectID(userId), passwordHash, passwordSalt);
+                .updatePassword(passwordData.userId, passwordHash, passwordSalt);
             if (!setNewPassword)
                 return false;
             else

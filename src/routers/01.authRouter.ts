@@ -67,7 +67,12 @@ authRouter.post('/new-password',
       res.sendStatus(HTTP.NO_CONTENT_204);
       return;
     } else {
-      res.sendStatus(HTTP.BAD_REQUEST_400);
+      res.status(HTTP.BAD_REQUEST_400).json({
+        errorsMessages: {
+          message: 'incorrect recoveryCode',
+          field: 'recoveryCode'
+        }
+      });
     }
   });
 

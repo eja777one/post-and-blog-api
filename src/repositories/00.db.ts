@@ -1,3 +1,4 @@
+import { ObjectID } from 'bson';
 import {
   BlogDBModel,
   CommentDBModel,
@@ -104,7 +105,10 @@ export const UsersRequestModel = mongoose
   .model('usersRequest', usersRequestSchema);
 
 const passwordsRecoverySchema = new mongoose.Schema({
-  code: String
+  userId: { type: ObjectID, required: true },
+  passwordRecoveryCode: { type: String, required: true },
+  createdAt: { type: String, required: true },
+  expiredAt: { type: String, required: true },
 });
 
 export const PasswordsRecoveryModel = mongoose

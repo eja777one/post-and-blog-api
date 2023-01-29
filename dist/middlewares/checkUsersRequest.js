@@ -40,7 +40,7 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             return;
         }
         else {
-            yield _07_usersDBRequest_1.usersRequestRepository.deleteLogs(userLog);
+            // await usersRequestRepository.deleteLogs(userLog);
             next();
         }
     }
