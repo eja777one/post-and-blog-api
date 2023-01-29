@@ -1,3 +1,4 @@
+import { jwtService } from './../application/jwt-service';
 import { blogsQueryRepository } from '../repositories/02.blogsQueryRepository';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
@@ -152,6 +153,14 @@ export const testReqRecoveryPass = checkSchema({
   },
   recoveryCode: {
     isString: true,
+    custom: {
+      options: async (value) => {
+        const userId = await jwtService
+          .getPayloadPasswordRecovery(value);
+        if (!userId) throw new Error('Incorrect recovery code');
+        else return true;
+      }
+    }
   }
 });
 
