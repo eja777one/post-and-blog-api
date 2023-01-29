@@ -31,7 +31,7 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         next();
     else {
         const timeStampArr0 = new Date(usersRequests[0].createdAt).getTime();
-        const timeStampArr4 = new Date(usersRequests[4].createdAt).getTime();
+        const timeStampArr4 = new Date(usersRequests[5].createdAt).getTime();
         const diff = timeStampArr0 - timeStampArr4;
         const seconds = Math.floor(diff / 1000 % 60);
         console.log(seconds);

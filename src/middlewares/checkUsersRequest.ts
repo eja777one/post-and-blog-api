@@ -33,10 +33,10 @@ export const checkUsersRequest = async (
   else {
     const timeStampArr0 =
       new Date(usersRequests[0].createdAt).getTime();
-    const timeStampArr4 =
-      new Date(usersRequests[4].createdAt).getTime();
+    const timeStampArr5 =
+      new Date(usersRequests[5].createdAt).getTime();
 
-    const diff = timeStampArr0 - timeStampArr4;
+    const diff = timeStampArr0 - timeStampArr5;
 
     const seconds = Math.floor(diff / 1000 % 60);
 

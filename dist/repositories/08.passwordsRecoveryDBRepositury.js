@@ -26,10 +26,11 @@ exports.passwordRecoveryRepository = {
             return result;
         });
     },
-    getCode() {
+    getCode(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.PasswordsRecoveryModel.find({});
-            return result[0];
+            const result = yield _00_db_1.PasswordsRecoveryModel.
+                collection.findOne({ userId });
+            return result;
         });
     },
     deletePasswordData(userId) {

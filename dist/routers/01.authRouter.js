@@ -80,7 +80,12 @@ exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, 
         return;
     }
     else {
-        res.sendStatus(models_1.HTTP.BAD_REQUEST_400);
+        res.status(models_1.HTTP.BAD_REQUEST_400).json({
+            errorsMessages: [{
+                    message: 'incorrect recoveryCode',
+                    field: 'recoveryCode'
+                }]
+        });
     }
 }));
 exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
