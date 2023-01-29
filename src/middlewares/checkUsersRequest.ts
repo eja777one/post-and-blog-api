@@ -44,8 +44,10 @@ export const checkUsersRequest = async (
 
     if (seconds < 10 && usersRequests.length > 5) {
       res.sendStatus(HTTP.TOO_MANY_REQUESTS_429)
-      await usersRequestRepository.deleteLogs(userLog);
       return;
-    } else next();
+    } else {
+      await usersRequestRepository.deleteLogs(userLog);
+      next();
+    }
   }
 };

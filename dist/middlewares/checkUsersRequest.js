@@ -37,11 +37,12 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         console.log(seconds);
         if (seconds < 10 && usersRequests.length > 5) {
             res.sendStatus(models_1.HTTP.TOO_MANY_REQUESTS_429);
-            yield _07_usersDBRequest_1.usersRequestRepository.deleteLogs(userLog);
             return;
         }
-        else
+        else {
+            yield _07_usersDBRequest_1.usersRequestRepository.deleteLogs(userLog);
             next();
+        }
     }
 });
 exports.checkUsersRequest = checkUsersRequest;
