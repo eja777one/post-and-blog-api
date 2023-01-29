@@ -46,7 +46,7 @@ export const checkUsersRequest = async (
       res.sendStatus(HTTP.TOO_MANY_REQUESTS_429)
       return;
     } else {
-      await usersRequestRepository.deleteLogs(userLog);
+      // await usersRequestRepository.deleteLogs(userLog);
       next();
     }
   }
