@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { ObjectID } from "bson";
 
 export type APIErrorResult = {
@@ -145,9 +146,8 @@ export type UserDBModel = {
 		isConfirmed: boolean,
 		sentEmails: SentEmailType[]
 	}
-	registrationData: {
+	registrationDataType: {
 		ip: string
-		// ip: string | undefined
 	}
 };
 
@@ -199,27 +199,23 @@ export type TokensMetaDBModel = {
 	createdAt: string
 	expiredAt: string
 	deviceId: string
-	ip: string | string[] | null
+	ip: string
 	deviceName: string
 	userId: string
 };
 
 export type usersRequestDBModel = {
-	_id: ObjectID
-	ip: string | string[] | null
+	_id: ObjectId
+	ip: string
 	url: string
-<<<<<<< HEAD
 	createdAt: Date
 	// createdAt: Number
-=======
-	createdAt: string
->>>>>>> parent of 1308791 (fix 429 response)
 };
 
 export type DeviceViewModel = {
-	ip: string
-	title: string
-	lastActiveDate: string
+	ip: string,
+	title: string,
+	lastActiveDate: string,
 	deviceId: string
 };
 

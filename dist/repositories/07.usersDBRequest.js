@@ -15,56 +15,41 @@ exports.usersRequestRepository = {
     addLog(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
             const usersLogs = yield _00_db_1.UsersRequestModel
-                .find({ ip: userLog.ip, url: userLog.url })
-                .sort({ 'createdAt': -1 })
-                .lean();
-            let result;
-            if (usersLogs.length < 6) {
-                result = yield _00_db_1.UsersRequestModel.collection.insertOne(userLog);
-            }
-            else {
-                yield _00_db_1.UsersRequestModel.deleteOne({
-                    ip: userLog.ip,
-                    createdAt: usersLogs[4].createdAt
-                });
-                result = yield _00_db_1.UsersRequestModel.collection.insertOne(userLog);
-            }
-            return result.insertedId;
+                .create({
+                _id: userLog._id,
+                ip: userLog.ip,
+                url: userLog.url,
+                createdAt: userLog.createdAt
+            });
+            return usersLogs;
         });
     },
-    getLogs(userLog) {
+    getLogs(userLog, attemmptTime) {
         return __awaiter(this, void 0, void 0, function* () {
-<<<<<<< HEAD
-            const isoDate = userLog.createdAt.toISOString();
+            // const isoDate = userLog.createdAt.toISOString();
+            const isoDate = attemmptTime.toISOString();
             console.log(userLog.createdAt, 'isoDate');
-            // const result = await UsersRequestModel.countDocuments({
+            const result = yield _00_db_1.UsersRequestModel.countDocuments({
+                ip: { $regex: userLog.ip },
+                url: { $regex: userLog.url },
+                createdAt: { $gt: isoDate }
+                // createdAt: { $gt: userLog.createdAt }
+            });
+            // const result = await UsersRequestModel.find({
             //   ip: { $regex: userLog.ip },
             //   url: { $regex: userLog.url },
             //   // createdAt: { $gt: isoDate }
             //   // createdAt: { $gt: userLog.createdAt }
-            // })
-            const result = yield _00_db_1.UsersRequestModel.find({
-                ip: { $regex: userLog.ip },
-                url: { $regex: userLog.url },
-                // createdAt: { $gt: isoDate }
-                // createdAt: { $gt: userLog.createdAt }
-            });
-            // console.log(result)
+            // });
+            // const len = result.filter(el => el.createdAt.getTime() < userLog.createdAt.getTime());
+            // console.log(len.length)
             console.log(result);
-            const len = result.filter(el => el.createdAt > userLog.createdAt).length;
-            console.log(len);
             return result;
         });
     },
     getData() {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield _00_db_1.UsersRequestModel.find({}).lean();
-=======
-            const result = yield _00_db_1.UsersRequestModel
-                .find({ ip: userLog.ip, url: userLog.url })
-                .sort({ 'createdAt': -1 })
-                .lean();
->>>>>>> parent of 1308791 (fix 429 response)
             return result;
         });
     },

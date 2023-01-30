@@ -1,8 +1,7 @@
-import { UserDBModel } from './../models';
-import { Paginator, UserViewModel } from '../models';
-import { UserModel } from './00.db';
-import { Query } from '../models';
 import { ObjectID } from 'bson';
+import { UserModel } from './00.db';
+import { Paginator, UserViewModel, Query, UserDBModel }
+  from '../models';
 
 const prepareUser = (input: UserDBModel) => {
   const obj = {
@@ -15,14 +14,16 @@ const prepareUser = (input: UserDBModel) => {
 };
 
 export const usersQueryRepository = {
+
   async getUsersByQuery(query: Query)
     : Promise<Paginator<UserViewModel>> {
-    const skip = (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
+
     const sortBy = query.sortBy;
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
+
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection;
+
     let findObj: any = { $or: [] };
 
     if (query.searchLoginTerm) {
@@ -36,13 +37,13 @@ export const usersQueryRepository = {
 
     const items = await UserModel.find(findObj)
       .sort(sortObj)
-      .limit(limit)
-      .skip(skip)
+      .limit(query.pageSize)
+      .skip((query.pageNumber - 1) * query.pageSize)
       .lean();
 
     const usersCount = await UserModel.countDocuments(findObj);
 
-    const pagesCount = Math.ceil(usersCount / limit);
+    const pagesCount = Math.ceil(usersCount / query.pageSize);
 
     return {
       pagesCount,
@@ -53,18 +54,25 @@ export const usersQueryRepository = {
     }
   },
 
-  async getUserById(id: any) {
-    const user = await UserModel.findOne({ _id: new ObjectID(id) });
+  async getUserById(id: string) {
+    const user = await UserModel
+      .findOne({ _id: new ObjectID(id) });
 
-    if (user) return prepareUser(user);
-    else return null;
+    return user ? user : null;
+  },
+
+  async getViewUserById(id: string) {
+    const user = await UserModel
+      .findOne({ _id: new ObjectID(id) });
+
+    return user ? prepareUser(user) : null;
   },
 
   async getDbUserById(id: string) {
-    const user = await UserModel.findOne({ _id: new ObjectID(id) });
+    const user = await UserModel
+      .findOne({ _id: new ObjectID(id) });
 
-    if (user) return user;
-    else return null;
+    return user ? user : null;
   },
 
   async getDbUser(email: string) {
@@ -86,17 +94,27 @@ export const usersQueryRepository = {
   },
 
   async getUser(loginOrEmail: string) {
-    let user: UserDBModel | null;
-
     if (loginOrEmail.indexOf('@') !== -1) {
-      user = await UserModel.
+      const user = await UserModel.
         findOne({ 'accountData.email': loginOrEmail });
+      return user ? user : null;
     } else {
-      user = await UserModel
+      const user = await UserModel
         .findOne({ 'accountData.login': loginOrEmail });
+      return user ? user : null;
     };
+  },
 
-    return user;
+  async findUser(loginOrEmail: string) {
+    if (loginOrEmail.indexOf('@') !== -1) {
+      const user = await UserModel.
+        findOne({ 'accountData.email': loginOrEmail });
+      return user ? 'emailIsExist' : null;
+    } else {
+      const user = await UserModel
+        .findOne({ 'accountData.login': loginOrEmail });
+      return user ? 'loginIsExist' : null;
+    };
   },
 
   async getUserByConfirm(code: string) {

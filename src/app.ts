@@ -19,7 +19,7 @@ export const port = process.env.PORT || 3003;
 declare global {
   namespace Express {
     interface Request {
-      user: UserViewModel | null
+      user: UserViewModel | undefined
     }
   }
 };

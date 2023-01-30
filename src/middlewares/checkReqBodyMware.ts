@@ -1,4 +1,3 @@
-import { jwtService } from './../application/jwt-service';
 import { blogsQueryRepository } from '../repositories/02.blogsQueryRepository';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
@@ -153,6 +152,9 @@ export const testReqRecoveryPass = checkSchema({
   },
   recoveryCode: {
     isString: true,
+    matches: {
+      options: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    },
   }
 });
 

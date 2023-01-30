@@ -1,14 +1,19 @@
-import { passwordRecoveryRepository } from './../repositories/08.passwordsRecoveryDBRepositury';
-import { tokensQueryMetaRepository } from './../repositories/06.tokensQueryRepository';
-import { tokensMetaRepository } from '../repositories/06.tokensDBRepository';
-import { emailManager } from '../managers/email-manager';
-import { usersRepository } from '../repositories/05.usersDbRepository';
-import { usersQueryRepository } from '../repositories/05.usersQueryRepository';
-import { ObjectID } from 'bson';
-import { TokensMetaDBModel, UserInputModel } from "../models";
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
+import { ObjectID } from 'bson';
+import { emailManager } from '../managers/email-manager';
+import { usersRepository }
+  from '../repositories/05.usersDbRepository';
+import { usersQueryRepository }
+  from '../repositories/05.usersQueryRepository';
+import { tokensQueryMetaRepository }
+  from './../repositories/06.tokensQueryRepository';
+import { tokensMetaRepository }
+  from '../repositories/06.tokensDBRepository';
+import { passwordRecoveryRepository }
+  from './../repositories/08.passwordsRecoveryDBRepositury';
+import { TokensMetaDBModel, UserInputModel } from "../models";
 import { jwtService } from '../application/jwt-service';
 
 export const authServices = {
@@ -16,7 +21,7 @@ export const authServices = {
   async checkAuth(
     loginOrEmail: string,
     password: string,
-    ip: string | string[] | null,
+    ip: string,
     deviceName: string) {
 
     const user = await usersQueryRepository.getUser(loginOrEmail);
@@ -48,7 +53,7 @@ export const authServices = {
 
     const sessionData: TokensMetaDBModel = {
       ip,
-      deviceId,
+      deviceId: uuidv4(),
       deviceName,
       _id: new ObjectID(),
       userId: user._id.toString(),
@@ -103,22 +108,20 @@ export const authServices = {
 
   async confirmEmail(code: string) {
     let user = await usersQueryRepository.getUserByConfirm(code);
-    if (!user) return null;
-    if (user.emailConfirmation.isConfirmed) return null;
-    if (user.emailConfirmation.expirationDate < new Date()) return null;
+    if (!user) return false;
+    if (user.emailConfirmation.isConfirmed) return false;
+    if (user.emailConfirmation.expirationDate < new Date()) return false;
     let updatedId = await usersRepository.activateUser(user._id);
-    return updatedId;
+    return true;
   },
 
-  async createUser(body: UserInputModel, ip: string | undefined) {
-    const isEmailExist = await usersQueryRepository.getUser(body.email);
-    const isLoginExist = await usersQueryRepository.getUser(body.login);
+  async createUser(body: UserInputModel, ip: string) {
+    const loginOrEmail = body.email ? body.email : body.login;
 
-    const errorEmail = { errorsMessages: [{ message: 'incorrect email', field: 'email' }] };
-    const errorLogin = { errorsMessages: [{ message: 'incorrect login', field: 'login' }] };
+    const isLoginOrEmailExist =
+      await usersQueryRepository.findUser(loginOrEmail);
 
-    if (isEmailExist) return errorEmail;
-    if (isLoginExist) return errorLogin;
+    if (isLoginOrEmailExist) return isLoginOrEmailExist;
 
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this
@@ -139,9 +142,7 @@ export const authServices = {
         isConfirmed: false,
         sentEmails: []
       },
-      registrationDataType: {
-        ip,
-      }
+      registrationDataType: { ip }
     };
 
     const newUserId = await usersRepository.addUser(user);
@@ -154,9 +155,9 @@ export const authServices = {
     } catch (error) {
       console.error(error);
       await usersRepository.deleteUserById(user._id.toString());
-      return errorEmail;
+      return false;
     };
-    return newUserId;
+    return true;
   },
 
   async resendConfirmation(email: string) {
@@ -209,35 +210,27 @@ export const authServices = {
       await passwordRecoveryRepository
         .addData(passwordData);
       return true;
-    } catch (error) {
-      return false;
-    };
+    } catch (error) { return false };
   },
 
   async updatePassword(newPassword: string, code: string) {
-    const errorMessage = {
-      errorsMessages: [{
-        message: 'incorrect recoveryCode',
-        field: 'recoveryCode'
-      }]
-    };
+
 
     const passwordData = await
       passwordRecoveryRepository.getData(code);
-    console.log(passwordData)
-    if (!passwordData) return errorMessage;
+
+    if (!passwordData) return false;
 
     if (new Date(passwordData.expiredAt) < new Date()) {
       await passwordRecoveryRepository
         .deletePasswordData(passwordData.userId);
-
-      return errorMessage;
+      return false;
     };
 
     const userIsExist = await usersQueryRepository
       .getUserById(passwordData.userId.toString());
 
-    if (!userIsExist) return errorMessage;
+    if (!userIsExist) return false;
 
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this
@@ -246,7 +239,7 @@ export const authServices = {
     const setNewPassword = await usersRepository
       .updatePassword(passwordData.userId, passwordHash, passwordSalt);
 
-    if (!setNewPassword) return errorMessage;
+    if (!setNewPassword) return false;
     else return true;
   },
 

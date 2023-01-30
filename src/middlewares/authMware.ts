@@ -1,21 +1,29 @@
-import { HTTP } from '../models';
-import { usersQueryRepository } from '../repositories/05.usersQueryRepository';
-import { jwtService } from '../application/jwt-service';
 import { NextFunction, Request, Response } from "express";
+import { jwtService } from '../application/jwt-service';
+import { HTTP } from '../models';
+import { usersQueryRepository }
+  from '../repositories/05.usersQueryRepository';
 
-export const authMware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction) => {
+
   if (!req.headers.authorization) {
-    res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #3.17
-    return;
+    return res.sendStatus(HTTP.UNAUTHORIZED_401);
   };
 
   const token = req.headers.authorization.split(' ')[1];
+
   const userId = await jwtService.getUserIdByToken(token);
-  if (userId) {
-    req.user = await usersQueryRepository.getUserById(userId.toString());
-    next();
-  } else {
-    res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #5.3, #5.10
-    return;
-  };
+
+  if (!userId) return res.sendStatus(HTTP.UNAUTHORIZED_401);
+
+  const user = await usersQueryRepository
+    .getViewUserById(userId.toString());
+
+  if (!user) return res.sendStatus(HTTP.UNAUTHORIZED_401);
+
+  req.user = user;
+  next();
 };

@@ -10,7 +10,7 @@ export const tokensQueryMetaRepository = {
   },
 
   async checkSession(
-    ip: string | string[] | null,
+    ip: string,
     deviceName: string,
     userId: string) {
     const result = await tokensMetaModel
@@ -18,5 +18,4 @@ export const tokensQueryMetaRepository = {
 
     return result;
   }
-
 };

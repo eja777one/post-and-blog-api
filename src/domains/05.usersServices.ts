@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import add from 'date-fns/add';
 
 export const usersServices = {
-  async createUser(body: UserInputModel, ip: string | undefined) {
+  async createUser(body: UserInputModel, ip: string) {
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this
       ._generateHash(body.password, passwordSalt);

@@ -1,9 +1,10 @@
 import { ObjectID } from 'bson';
 import MimeNode from 'nodemailer/lib/mime-node';
+import { UserDBModel } from '../models';
 import { UserModel } from './00.db';
 
 export const usersRepository = {
-  async addUser(user: any) {
+  async addUser(user: UserDBModel) {
     const result = await UserModel
       .collection.insertOne(user);
 

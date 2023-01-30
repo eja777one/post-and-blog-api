@@ -18,13 +18,16 @@ postsRouter.get('/:postId/comments',
     req: Request,
     res: Response<Paginator<CommentViewModel>>
   ) => {
+
     const post = await postsQueryRepository.getPostById(req.params.postId);
-    if (!post) {
-      res.sendStatus(HTTP.NOT_FOUND_404); // TEST #3.12
-      return;
-    };
+
+    if (!post) return res.sendStatus(HTTP.NOT_FOUND_404); // TEST #3.12
+
     const query = prepareQueries(req.query);
-    const comments = await commentsQueryRepository.getCommentByQuery(query, req.params.postId);
+
+    const comments = await commentsQueryRepository
+      .getCommentByQuery(query, req.params.postId);
+
     res.status(HTTP.OK_200).json(comments); // TEST #3.13, #3.20
   });
 
@@ -37,17 +40,22 @@ postsRouter.post('/:postId/comments',
     req: Request<{ postId: string }, CommentInputModel>,
     res: Response<CommentViewModel>
   ) => {
+
     if (!req.user) {
-      res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #3.17
-      return;
+      return res.sendStatus(HTTP.UNAUTHORIZED_401); // TEST #3.17
     };
+
     const post = await postsQueryRepository.getPostById(req.params.postId);
+
     if (!post) {
-      res.sendStatus(HTTP.NOT_FOUND_404);
-      return;
+      return res.sendStatus(HTTP.NOT_FOUND_404);
     };
-    const commentId = await commentsServices.addComment(req.user!, req.params.postId, req.body);
+
+    const commentId = await commentsServices
+      .addComment(req.user!, req.params.postId, req.body);
+
     const comment = await commentsQueryRepository.getComment(commentId);
+
     if (comment) res.status(HTTP.CREATED_201).json(comment); // TEST #3.19
   });
 
@@ -69,10 +77,8 @@ postsRouter.post('/',
     res: Response<PostViewModel>
   ) => {
     const postId = await postsServices.createPost(req.body);
-    if (postId) {
-      const post = await postsQueryRepository.getPostById(postId);
-      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4, #3.4
-    };
+    const post = await postsQueryRepository.getPostById(postId);
+    if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.4, #3.4
   });
 
 postsRouter.get('/:id',
@@ -104,7 +110,7 @@ postsRouter.delete('/:id',
   checkAuthMware,
   checkIsObjectId,
   async (req: Request<{ id: string }>, res: Response) => {
-    const post = await postsServices.deletePostById(req.params.id);
-    if (post) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.23
+    const deleted = await postsServices.deletePostById(req.params.id);
+    if (deleted) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #3.23
     else res.sendStatus(HTTP.NOT_FOUND_404);
   });

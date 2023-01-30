@@ -3,6 +3,7 @@ import { PostInputModel } from '../models';
 import { ObjectID } from 'bson';
 
 export const postsRepository = {
+
   async createPost(post: any) {
     const result = await PostModel.collection.insertOne(post);
     return result.insertedId.toString();
@@ -22,8 +23,18 @@ export const postsRepository = {
     return result.matchedCount === 1;
   },
 
+  async updatePostsBlogName(id: string, blogName: string) {
+    const result = await PostModel.updateOne(
+      { _id: new ObjectID(id) },
+      { $set: { blogName } }
+    );
+    return result.matchedCount === 1;
+  },
+
   async deletePostById(id: string) {
-    const result = await PostModel.deleteOne({ _id: new ObjectID(id) });
+    const result = await PostModel
+      .deleteOne({ _id: new ObjectID(id) });
+
     return result.deletedCount === 1;
   },
 

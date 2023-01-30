@@ -4,22 +4,26 @@ import { UserViewModel, CommentInputModel } from '../models';
 
 export const commentsServices = {
   async addComment(user: UserViewModel, postId: string, content: CommentInputModel) {
-    const createdAt = new Date().toISOString();
+
     const comment = {
       content: content.content,
       userId: user.id,
       userLogin: user.login,
       postId,
-      createdAt
+      createdAt: new Date().toISOString()
     };
+
     const commentId = await commentsRepository.addComment(comment);
+
     return commentId;
   },
 
   async updateComment(id: string, user: UserViewModel, content: CommentInputModel) {
+
     const comment = await commentsQueryRepository.getComment(id);
-    if (!comment) return '404';
-    else if (comment.userId !== user.id) return '403';
+
+    if (!comment) return 'NOT_FOUND_404';
+    if (comment.userId !== user.id) return 'FORBIDDEN_403';
 
     const modComment = {
       content: content.content,
@@ -28,20 +32,24 @@ export const commentsServices = {
       createdAt: comment.createdAt
     }
 
-    const result = await commentsRepository.updateComment(id, modComment);
-    return (result >= 0) ? '204' : '404';
+    const updated = await commentsRepository.updateComment(id, modComment);
+    return updated ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
   },
 
   async deleteComment(id: string, user: UserViewModel) {
-    const comment = await commentsQueryRepository.getComment(id);
-    if (!comment) return '404';
-    else if (comment.userId !== user.id) return '403';
 
-    const result = await commentsRepository.deleteComment(id);
-    return (result > 0) ? '204' : '404';
+    const comment = await commentsQueryRepository.getComment(id);
+
+    if (!comment) return 'NOT_FOUND_404';
+    if (comment.userId !== user.id) return 'FORBIDDEN_403';
+
+    const deleted = await commentsRepository.deleteComment(id);
+
+    return deleted ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
   },
 
   async deleteAll() {
-    return await commentsRepository.deleteAll();
+    const result = await commentsRepository.deleteAll();
+    return result;
   }
 };

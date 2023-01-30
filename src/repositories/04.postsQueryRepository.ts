@@ -1,4 +1,4 @@
-import { Paginator, PostViewModel } from '../models';
+import { Paginator, PostViewModel, Query } from '../models';
 import { PostModel } from './00.db';
 import { ObjectID } from 'bson';
 
@@ -16,24 +16,25 @@ const preparePost = (input: any) => {
 };
 
 export const postsQueryRepository = {
-  async getPostsByQuery(query: any)
+
+  async getPostsByQuery(query: Query)
     : Promise<Paginator<PostViewModel>> {
-    const skip = (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
+
     const sortBy = query.sortBy;
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
+
     const sortObj: any = {};
     sortObj[sortBy] = sortDirection
 
     const items = await PostModel.find({})
       .sort(sortObj)
-      .limit(limit)
-      .skip(skip)
+      .limit(query.pageSize)
+      .skip((query.pageNumber - 1) * query.pageSize)
       .lean();
 
     const postsCount = await PostModel.countDocuments()
 
-    const pagesCount = Math.ceil(postsCount / limit);
+    const pagesCount = Math.ceil(postsCount / query.pageSize);
 
     return {
       pagesCount,
@@ -47,29 +48,29 @@ export const postsQueryRepository = {
   async getPostById(id: string) {
     const post = await PostModel
       .findOne({ _id: new ObjectID(id) });
-    if (post) return preparePost(post);
-    else return null;
+
+    return post ? preparePost(post) : null;
   },
 
-  async getPostsByBlogId(id: string, query: any)
+  async getPostsByBlogId(id: string, query: Query)
     : Promise<Paginator<PostViewModel>> {
-    const skip = (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
+
     const sortBy = query.sortBy;
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
-    const sortObj: any = {};
-    sortObj[sortBy] = sortDirection
-    const findObj = { 'blogId': id };
 
-    const items = await PostModel.find(findObj)
+    const sortObj: any = {};
+    sortObj[sortBy] = sortDirection;
+
+    const items = await PostModel.find({ 'blogId': id })
       .sort(sortObj)
-      .limit(limit)
-      .skip(skip)
+      .limit(query.pageSize)
+      .skip((query.pageNumber - 1) * query.pageSize)
       .lean();
 
-    const postsCount = await PostModel.countDocuments(findObj);
+    const postsCount = await PostModel
+      .countDocuments({ 'blogId': id });
 
-    const pagesCount = Math.ceil(postsCount / limit);
+    const pagesCount = Math.ceil(postsCount / query.pageSize);
 
     return {
       pagesCount,
@@ -80,10 +81,9 @@ export const postsQueryRepository = {
     };
   },
 
-  async getPostsIdByBlogId2(id: string) {
+  async getRawPostsByBlogId(id: string) {
     const items = await PostModel
-      .find({ 'blogId': id })
-      .lean();
+      .find({ 'blogId': id }).lean();
     return items;
   },
 };

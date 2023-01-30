@@ -29,8 +29,8 @@ usersRouter.post('/',
     req: Request<UserInputModel>,
     res: Response<UserViewModel>
   ) => {
-    const newUserId = await usersServices.createUser(req.body, req.socket.remoteAddress);
-    const user = await usersQueryRepository.getUserById(newUserId);
+    const newUserId = await usersServices.createUser(req.body, req.ip);
+    const user = await usersQueryRepository.getViewUserById(newUserId);
     if (user) res.status(HTTP.CREATED_201).json(user); // TEST #4.5, #4.6
   });
 
@@ -38,9 +38,7 @@ usersRouter.delete('/:id',
   checkAuthMware,
   checkIsObjectId,
   async (req: Request, res: Response) => {
-    const result = await usersServices.deleteUserById(req.params.id);
-    if (result)
-      res.sendStatus(HTTP.NO_CONTENT_204); // TEST #4.
-    else
-      res.sendStatus(HTTP.NOT_FOUND_404);
+    const deleted = await usersServices.deleteUserById(req.params.id);
+    if (deleted) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #4.
+    else res.sendStatus(HTTP.NOT_FOUND_404);
   });

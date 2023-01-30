@@ -1,50 +1,44 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkUsersRequest = void 0;
-<<<<<<< HEAD
-const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-exports.checkUsersRequest = (0, express_rate_limit_1.default)({
-    windowMs: 10 * 1000,
-    max: 6,
-    standardHeaders: false,
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-=======
-const bson_1 = require("bson");
-const models_1 = require("./../models");
+const mongodb_1 = require("mongodb");
 const _07_usersDBRequest_1 = require("../repositories/07.usersDBRequest");
 const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const url = req.protocol + '://' + req.get('host') + req.originalUrl;
-    const ip = req.headers['x-forwarded-for']
-        || req.socket.remoteAddress
-        || null;
-    const createdAt = new Date().toISOString();
+    const attemtsInterval = 10 * 1000; // 10 sec
+    const currentTime = new Date(); // текущая дата и время
+    console.log(currentTime, 'current');
+    const attemptTime = new Date(currentTime.getTime() - attemtsInterval); // дата и время за 10 сек до текущей
+    console.log(attemptTime, 'attempt');
+    console.log(attemptTime.getTime(), 'attempt');
+    // const userLog = {
+    //   _id: new ObjectId(),
+    //   url: req.url,
+    //   ip: req.ip,
+    //   createdAt: attemptTime
+    // };
     const userLog = {
-        _id: new bson_1.ObjectID(),
-        url,
-        ip,
-        createdAt
+        _id: new mongodb_1.ObjectId(),
+        url: req.url,
+        ip: req.ip,
+        createdAt: currentTime
     };
-    const addLog = yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
-    const usersRequests = yield _07_usersDBRequest_1.usersRequestRepository.getLogs(userLog);
-    if (usersRequests.length < 6)
+    const usersRequests = yield _07_usersDBRequest_1.usersRequestRepository.getLogs(userLog, attemptTime);
+    yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
+    // console.log(usersRequests)
+    if (usersRequests < 5) {
         next();
-    else {
-        const timeStampArr0 = new Date(usersRequests[0].createdAt).getTime();
-        const timeStampArr4 = new Date(usersRequests[5].createdAt).getTime();
-        const diff = timeStampArr0 - timeStampArr4;
-        const seconds = Math.floor(diff / 1000 % 60);
-        console.log(seconds);
-        if (seconds < 10 && usersRequests.length > 5) {
-            res.sendStatus(models_1.HTTP.TOO_MANY_REQUESTS_429);
-            return;
-        }
-        else {
-            // await usersRequestRepository.deleteLogs(userLog);
-            next();
-        }
     }
->>>>>>> parent of 1308791 (fix 429 response)
+    else {
+        res.sendStatus(429);
+    }
 });
+exports.checkUsersRequest = checkUsersRequest;

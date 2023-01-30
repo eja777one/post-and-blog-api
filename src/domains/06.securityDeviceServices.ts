@@ -36,18 +36,18 @@ export const securityDeviceServices = {
     const payload = await jwtService.
       getPayloadRefToken(refreshToken);
 
-    if (!payload) return '401';
+    if (!payload) return 'UNAUTHORIZED_401';
 
     const getSession = await tokensMetaRepository
       .getSessionByDeviceId(deviceId);
 
-    if (!getSession) return '404';
+    if (!getSession) return 'NOT_FOUND_404';
 
-    if (getSession.userId !== payload.userId) return '403';
+    if (getSession.userId !== payload.userId) return 'FORBIDDEN_403';
 
     const deleteThisSessions = await tokensMetaRepository
       .deleteThisSessions(payload.userId, deviceId);
 
-    return deleteThisSessions === 1 ? '204' : '404';
+    return deleteThisSessions ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
   },
 };

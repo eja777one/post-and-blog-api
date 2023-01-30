@@ -20,4 +20,4 @@ export const emailAdapter = {
 
     return info;
   }
-}
+};

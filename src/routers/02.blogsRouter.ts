@@ -1,12 +1,26 @@
 import { Router, Request, Response } from "express";
-import { postsQueryRepository } from '../repositories/04.postsQueryRepository';
-import { blogsQueryRepository } from '../repositories/02.blogsQueryRepository';
-import { testBlogsReqBody, checkReqBodyMware, testPostsReqBodyNoBlogId } from '../middlewares/checkReqBodyMware';
+import { blogServices } from '../domains/02.blogsServices';
+import { prepareQueries } from '../application/prepareQuery';
 import { checkIsObjectId } from '../middlewares/checkParamMware';
 import { checkAuthMware } from '../middlewares/checkAuthMware';
-import { blogServices } from '../domains/02.blogsServices';
-import { BlogInputModel, HTTP, Paginator, BlogViewModel, PostViewModel, PostInputModelNoId } from '../models';
-import { prepareQueries } from '../application/prepareQuery'
+import { postsQueryRepository }
+  from '../repositories/04.postsQueryRepository';
+import { blogsQueryRepository }
+  from '../repositories/02.blogsQueryRepository';
+import {
+  testBlogsReqBody,
+  checkReqBodyMware,
+  testPostsReqBodyNoBlogId
+} from '../middlewares/checkReqBodyMware';
+import {
+  BlogInputModel,
+  HTTP,
+  Paginator,
+  BlogViewModel,
+  PostViewModel,
+  PostInputModelNoId
+} from '../models';
+
 
 export const blogsRouter = Router({});
 
@@ -46,7 +60,8 @@ blogsRouter.get('/:id',
 blogsRouter.put('/:id',
   checkAuthMware,
   checkIsObjectId,
-  testBlogsReqBody, checkReqBodyMware,
+  testBlogsReqBody,
+  checkReqBodyMware,
   async (
     req: Request<{ id: string }, BlogInputModel>,
     res: Response
@@ -61,6 +76,7 @@ blogsRouter.delete('/:id',
   checkIsObjectId,
   async (req: Request<{ id: string }>, res: Response) => {
     const deleted = await blogServices.deleteBlogById(req.params.id);
+
     if (deleted) res.sendStatus(HTTP.NO_CONTENT_204); // TEST #2.21
     else res.sendStatus(HTTP.NOT_FOUND_404);
   });
@@ -72,8 +88,10 @@ blogsRouter.get('/:blogId/posts',
     res: Response<Paginator<PostViewModel>>
   ) => {
     const blog = await blogsQueryRepository.getBlogById(req.params.blogId);
-    if (!blog) res.sendStatus(HTTP.NOT_FOUND_404);
-    else {
+
+    if (!blog) {
+      return res.sendStatus(HTTP.NOT_FOUND_404);
+    } else {
       const query = prepareQueries(req.query);
       const posts = await postsQueryRepository
         .getPostsByBlogId(req.params.blogId, query);
@@ -90,11 +108,13 @@ blogsRouter.post('/:blogId/posts',
     req: Request<{ blogId: string }, PostInputModelNoId>,
     res: Response<PostViewModel>
   ) => {
+
     const postId = await blogServices
       .createPostsByBlogId(req.params.blogId, req.body);
-    if (!postId) res.sendStatus(HTTP.NOT_FOUND_404);
-    else {
-      const post = await postsQueryRepository.getPostById(postId);
-      if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.17
-    };
+
+    if (!postId) return res.sendStatus(HTTP.NOT_FOUND_404);
+
+    const post = await postsQueryRepository.getPostById(postId);
+
+    if (post) res.status(HTTP.CREATED_201).json(post); // TEST #2.17
   });

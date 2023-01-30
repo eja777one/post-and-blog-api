@@ -204,33 +204,27 @@ exports.authServices = {
     },
     updatePassword(newPassword, code) {
         return __awaiter(this, void 0, void 0, function* () {
-            const errorMessage = {
-                errorsMessages: [{
-                        message: 'incorrect recoveryCode',
-                        field: 'recoveryCode'
-                    }]
-            };
             const passwordData = yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository.getData(code);
             console.log(passwordData);
             if (!passwordData)
-                return errorMessage;
+                return false;
             if (new Date(passwordData.expiredAt) < new Date()) {
                 yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository
                     .deletePasswordData(passwordData.userId);
-                return errorMessage;
+                return false;
             }
             ;
             const userIsExist = yield _05_usersQueryRepository_1.usersQueryRepository
                 .getUserById(passwordData.userId.toString());
             if (!userIsExist)
-                return errorMessage;
+                return false;
             const passwordSalt = yield bcrypt_1.default.genSalt(10);
             const passwordHash = yield this
                 ._generateHash(newPassword, passwordSalt);
             const setNewPassword = yield _05_usersDbRepository_1.usersRepository
                 .updatePassword(passwordData.userId, passwordHash, passwordSalt);
             if (!setNewPassword)
-                return errorMessage;
+                return false;
             else
                 return true;
         });

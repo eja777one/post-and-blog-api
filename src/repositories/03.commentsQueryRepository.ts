@@ -1,5 +1,5 @@
 import { ObjectID } from 'bson';
-import { Paginator, CommentViewModel, CommentDBModel } from '../models';
+import { Paginator, CommentViewModel, CommentDBModel, Query } from '../models';
 import { CommentModel } from './00.db';
 
 const prepareComment = (input: CommentDBModel) => {
@@ -19,29 +19,27 @@ export const commentsQueryRepository = {
     const comment = await CommentModel
       .findOne({ _id: new ObjectID(id) });
 
-    if (comment) return prepareComment(comment);
-    return null;
+    return comment ? prepareComment(comment) : null;
   },
 
-  async getCommentByQuery(query: any, postId: string) {
+  async getCommentByQuery(query: Query, postId: string) {
 
-    const skip = (query.pageNumber - 1) * query.pageSize;
-    const limit = query.pageSize;
     const sortBy = query.sortBy;
     const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
+
     const sortObj: any = {};
-    sortObj[sortBy] = sortDirection
+    sortObj[sortBy] = sortDirection;
 
     const items = await CommentModel.find({ postId: postId })
       .sort(sortObj)
-      .limit(limit)
-      .skip(skip)
+      .limit(query.pageSize)
+      .skip((query.pageNumber - 1) * query.pageSize)
       .lean();
 
     const postsCommentsCount = await CommentModel
       .countDocuments({ postId: postId })
 
-    const pagesCount = Math.ceil(postsCommentsCount / limit);
+    const pagesCount = Math.ceil(postsCommentsCount / query.pageSize);
 
     return {
       pagesCount,

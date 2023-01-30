@@ -75,12 +75,17 @@ exports.authRouter.post('/password-recovery', checkUsersRequest_1.checkUsersRequ
 }));
 exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testReqRecoveryPass, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const updatePassword = yield _01_authServices_1.authServices.updatePassword(req.body.newPassword, req.body.recoveryCode);
-    if (updatePassword === true) {
+    if (updatePassword) {
         res.sendStatus(models_1.HTTP.NO_CONTENT_204);
         return;
     }
     else {
-        res.status(models_1.HTTP.BAD_REQUEST_400).json(updatePassword);
+        res.status(models_1.HTTP.BAD_REQUEST_400).json({
+            errorsMessages: [{
+                    message: 'incorrect recoveryCode',
+                    field: 'recoveryCode'
+                }]
+        });
     }
 }));
 exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {

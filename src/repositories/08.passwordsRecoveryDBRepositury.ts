@@ -2,6 +2,7 @@ import { ObjectID } from 'bson';
 import { PasswordsRecoveryModel } from './00.db';
 
 export const passwordRecoveryRepository = {
+  
   async addData(passwordData: any) {
     const result = await PasswordsRecoveryModel
       .collection.insertOne(passwordData);

@@ -1,5 +1,5 @@
 import { tokensMetaModel } from './00.db';
-import { TokensMetaDBModel } from "../models";
+import { DeviceViewModel, TokensMetaDBModel } from "../models";
 
 export const tokensMetaRepository = {
 
@@ -16,11 +16,11 @@ export const tokensMetaRepository = {
       { $set: { createdAt, expiredAt } }
     );
 
-    return result.matchedCount
+    return result.matchedCount === 1;
   },
 
   async deleteSessionBeforeLogin(
-    ip: string | string[] | null,
+    ip: string,
     deviceName: string,
     userId: string) {
     const result = await tokensMetaModel
@@ -43,19 +43,20 @@ export const tokensMetaRepository = {
     const result = await tokensMetaModel
       .find({ userId }).lean();
 
-    let answer: any = [];
+    if (!result) return null;
 
-    if (result) {
-      result.map(session => {
-        answer.push({
-          ip: session.ip,
-          title: session.deviceName,
-          lastActiveDate: session.createdAt,
-          deviceId: session.deviceId
-        });
+    let answer: DeviceViewModel[] = [];
+
+    for (let el of result) {
+      answer.push({
+        ip: el.ip,
+        title: el.deviceName,
+        lastActiveDate: el.createdAt,
+        deviceId: el.deviceId
       });
-      return answer;
-    } else return null;
+    };
+
+    return answer;
   },
 
   async deleteOtherSessions(userId: string, deviceId: string) {
@@ -69,7 +70,7 @@ export const tokensMetaRepository = {
     const result = await tokensMetaModel
       .deleteOne({ userId, deviceId });
 
-    return result.deletedCount;
+    return result.deletedCount === 1;
   },
 
   async getSessionByDeviceId(deviceId: string) {

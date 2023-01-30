@@ -22,14 +22,14 @@ export const commentsRepository = {
         }
       });
 
-    return result.modifiedCount;
+    return result.matchedCount === 1;
   },
 
   async deleteComment(id: string) {
     const result = await CommentModel
       .deleteOne({ _id: new ObjectID(id) });
 
-    return result.deletedCount;
+    return result.deletedCount === 1;
   },
 
   async deleteAll() {

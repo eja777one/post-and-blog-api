@@ -1,32 +1,38 @@
-import { postsQueryRepository } from '../repositories/04.postsQueryRepository';
-import { commentsQueryRepository } from '../repositories/03.commentsQueryRepository';
 import { blogsQueryRepository } from '../repositories/02.blogsQueryRepository';
-import { PostInputModel } from '../models';
 import { postsRepository } from '../repositories/04.postsDbRepository';
+import { PostInputModel } from '../models';
 
 export const postsServices = {
-    async createPost(body: PostInputModel) {
-        const blogName = await blogsQueryRepository.getBlogById(body.blogId)
-            .then(value => value ? value.name : '');
-        if (!blogName) return null;
-        const createdAt = new Date().toISOString();
-        const post = { blogName, createdAt, ...body };
 
-        return await postsRepository.createPost(post);
-    },
+	async createPost(body: PostInputModel) {
 
-    async updatePost(id: string, body: PostInputModel) {
-        const blogName = await blogsQueryRepository.getBlogById(body.blogId)
-            .then(value => value ? value.name : '');
-        return await postsRepository.updatePost(id, body, blogName);
-    },
+		const post = {
+			blogName: body.blogId,
+			createdAt: new Date().toISOString(),
+			title: body.title,
+			shortDescription: body.shortDescription,
+			content: body.content,
+			blogId: body.blogId
+		};
 
-    async deletePostById(id: string) {
-        const deletedPost = await postsRepository.deletePostById(id);
-        return deletedPost;
-    },
+		const postId = await postsRepository.createPost(post);
 
-    async deleteAll() {
-        return await postsRepository.deleteAll();
-    }
+		return postId;
+	},
+
+	async updatePost(id: string, body: PostInputModel) {
+		const blogName = await blogsQueryRepository.getBlogById(body.blogId)
+			.then(value => value ? value.name : '');
+		return await postsRepository.updatePost(id, body, blogName);
+	},
+
+	async deletePostById(id: string) {
+		const deletedPost = await postsRepository.deletePostById(id);
+		return deletedPost;
+	},
+
+	async deleteAll() {
+		const result = await postsRepository.deleteAll();
+		return result;
+	}
 };
