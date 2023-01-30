@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb';
 import { ObjectID } from "bson";
 
 export type APIErrorResult = {
@@ -206,11 +205,15 @@ export type TokensMetaDBModel = {
 };
 
 export type usersRequestDBModel = {
-	_id: ObjectId
-	ip: string
+	_id: ObjectID
+	ip: string | string[] | null
 	url: string
+<<<<<<< HEAD
 	createdAt: Date
 	// createdAt: Number
+=======
+	createdAt: string
+>>>>>>> parent of 1308791 (fix 429 response)
 };
 
 export type DeviceViewModel = {

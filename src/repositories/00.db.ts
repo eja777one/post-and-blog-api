@@ -7,7 +7,7 @@ import {
   UserDBModel,
   usersRequestDBModel
 } from '../models';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 
@@ -95,11 +95,15 @@ const commentSchema = new mongoose.Schema<CommentDBModel>({
 
 export const CommentModel = mongoose.model('comments', commentSchema);
 
-export const usersRequestSchema = new mongoose.Schema<usersRequestDBModel>({
+const usersRequestSchema = new mongoose.Schema<usersRequestDBModel>({
   ip: { type: String, required: true },
   url: { type: String, required: true },
+<<<<<<< HEAD
   createdAt: { type: Date, required: true }
   // createdAt: { type: Number, required: true }
+=======
+  createdAt: { type: String, required: true }
+>>>>>>> parent of 1308791 (fix 429 response)
 });
 
 export const UsersRequestModel = mongoose

@@ -5,9 +5,18 @@ export const usersRequestRepository = {
 
   async addLog(userLog: usersRequestDBModel) {
     const usersLogs = await UsersRequestModel
-      .create({
-        _id: userLog._id,
+      .find({ ip: userLog.ip, url: userLog.url })
+      .sort({ 'createdAt': -1 })
+      .lean();
+
+    let result: any;
+
+    if (usersLogs.length < 6) {
+      result = await UsersRequestModel.collection.insertOne(userLog);
+    } else {
+      await UsersRequestModel.deleteOne({
         ip: userLog.ip,
+<<<<<<< HEAD
         url: userLog.url,
         createdAt: userLog.createdAt
       })
@@ -42,6 +51,22 @@ export const usersRequestRepository = {
   async getData() {
     const result = await UsersRequestModel.find({}).lean()
     return result;
+=======
+        createdAt: usersLogs[4].createdAt
+      });
+      result = await UsersRequestModel.collection.insertOne(userLog);
+    }
+    return result.insertedId;
+  },
+
+  async getLogs(userLog: usersRequestDBModel) {
+    const result = await UsersRequestModel
+      .find({ ip: userLog.ip, url: userLog.url })
+      .sort({ 'createdAt': -1 })
+      .lean();
+
+    return result;
+>>>>>>> parent of 1308791 (fix 429 response)
   },
 
   async deleteLogs(userLog: usersRequestDBModel) {

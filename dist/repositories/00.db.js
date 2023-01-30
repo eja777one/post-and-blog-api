@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runDb = exports.PasswordsRecoveryModel = exports.UsersRequestModel = exports.usersRequestSchema = exports.CommentModel = exports.tokensMetaModel = exports.UserModel = exports.BlogModel = exports.PostModel = exports.mongoUri = void 0;
+exports.runDb = exports.PasswordsRecoveryModel = exports.UsersRequestModel = exports.CommentModel = exports.tokensMetaModel = exports.UserModel = exports.BlogModel = exports.PostModel = exports.mongoUri = void 0;
 const bson_1 = require("bson");
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv = __importStar(require("dotenv"));
@@ -108,14 +108,18 @@ const commentSchema = new mongoose_1.default.Schema({
     postId: { type: String, required: true }
 });
 exports.CommentModel = mongoose_1.default.model('comments', commentSchema);
-exports.usersRequestSchema = new mongoose_1.default.Schema({
+const usersRequestSchema = new mongoose_1.default.Schema({
     ip: { type: String, required: true },
     url: { type: String, required: true },
+<<<<<<< HEAD
     createdAt: { type: Date, required: true }
     // createdAt: { type: Number, required: true }
+=======
+    createdAt: { type: String, required: true }
+>>>>>>> parent of 1308791 (fix 429 response)
 });
 exports.UsersRequestModel = mongoose_1.default
-    .model('usersRequest', exports.usersRequestSchema);
+    .model('usersRequest', usersRequestSchema);
 const passwordsRecoverySchema = new mongoose_1.default.Schema({
     userId: { type: bson_1.ObjectID, required: true },
     passwordRecoveryCode: { type: String, required: true },
