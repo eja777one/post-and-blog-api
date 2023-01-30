@@ -1,36 +1,8 @@
-import { ObjectId } from 'mongodb';
-import { NextFunction, Request, Response } from "express";
-import { usersRequestRepository } from '../repositories/07.usersDBRequest';
+import rateLimit from 'express-rate-limit';
 
-export const checkUsersRequest = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-
-  const attemtsInterval = 10 * 1000
-  const url = req.url
-  const ip = req.ip
-  const currentTime = new Date()
-  // console.log(currentTime, 'current');
-  const attemptTime = new Date(currentTime.getTime() - attemtsInterval)
-  // console.log(attemptTime, 'attempt');
-
-
-  const userLog = {
-    _id: new ObjectId(),
-    url,
-    ip,
-    createdAt: attemptTime
-  };
-  const usersRequests =
-    await usersRequestRepository.getLogs(userLog);
-  // console.log(usersRequests);
-
-  await usersRequestRepository.addLog(userLog);
-  if (usersRequests < 5) {
-    next()
-  } else {
-    res.sendStatus(429)
-  }
-};
+export const checkUsersRequest = rateLimit({
+  windowMs: 10 * 1000, // 10 seconds
+  max: 6, // Limit each IP to 6 requests per `window` (here, per 10 sec)
+  standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})

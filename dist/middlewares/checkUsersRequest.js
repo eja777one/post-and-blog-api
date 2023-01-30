@@ -1,39 +1,13 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkUsersRequest = void 0;
-const mongodb_1 = require("mongodb");
-const _07_usersDBRequest_1 = require("../repositories/07.usersDBRequest");
-const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const attemtsInterval = 10 * 1000;
-    const url = req.url;
-    const ip = req.ip;
-    const currentTime = new Date();
-    console.log(currentTime, 'current');
-    const attemptTime = new Date(currentTime.getTime() - attemtsInterval);
-    console.log(attemptTime, 'attempt');
-    const userLog = {
-        _id: new mongodb_1.ObjectId(),
-        url,
-        ip,
-        createdAt: attemptTime
-    };
-    const usersRequests = yield _07_usersDBRequest_1.usersRequestRepository.getLogs(userLog);
-    console.log(usersRequests);
-    yield _07_usersDBRequest_1.usersRequestRepository.addLog(userLog);
-    if (usersRequests < 5) {
-        next();
-    }
-    else {
-        res.sendStatus(429);
-    }
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+exports.checkUsersRequest = (0, express_rate_limit_1.default)({
+    windowMs: 10 * 1000,
+    max: 6,
+    standardHeaders: false,
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
-exports.checkUsersRequest = checkUsersRequest;

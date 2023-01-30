@@ -27,11 +27,29 @@ exports.usersRequestRepository = {
     getLogs(userLog) {
         return __awaiter(this, void 0, void 0, function* () {
             const isoDate = userLog.createdAt.toISOString();
-            const result = yield _00_db_1.UsersRequestModel.countDocuments({
+            console.log(userLog.createdAt, 'isoDate');
+            // const result = await UsersRequestModel.countDocuments({
+            //   ip: { $regex: userLog.ip },
+            //   url: { $regex: userLog.url },
+            //   // createdAt: { $gt: isoDate }
+            //   // createdAt: { $gt: userLog.createdAt }
+            // })
+            const result = yield _00_db_1.UsersRequestModel.find({
                 ip: { $regex: userLog.ip },
                 url: { $regex: userLog.url },
-                createdAt: { $gt: isoDate }
+                // createdAt: { $gt: isoDate }
+                // createdAt: { $gt: userLog.createdAt }
             });
+            // console.log(result)
+            console.log(result);
+            const len = result.filter(el => el.createdAt > userLog.createdAt).length;
+            console.log(len);
+            return result;
+        });
+    },
+    getData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _00_db_1.UsersRequestModel.find({}).lean();
             return result;
         });
     },

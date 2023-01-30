@@ -210,11 +210,21 @@ export type usersRequestDBModel = {
 	ip: string
 	url: string
 	createdAt: Date
+	// createdAt: Number
 };
 
 export type DeviceViewModel = {
-	ip: string,
-	title: string,
-	lastActiveDate: string,
+	ip: string
+	title: string
+	lastActiveDate: string
 	deviceId: string
+};
+
+export type NewPasswordRecoveryInputModel = {
+	newPassword: string
+	recoveryCode: string
+};
+
+export type PasswordRecoveryInputModel = {
+	email: string
 };

@@ -215,22 +215,29 @@ export const authServices = {
   },
 
   async updatePassword(newPassword: string, code: string) {
+    const errorMessage = {
+      errorsMessages: [{
+        message: 'incorrect recoveryCode',
+        field: 'recoveryCode'
+      }]
+    };
+
     const passwordData = await
       passwordRecoveryRepository.getData(code);
     console.log(passwordData)
-    if (!passwordData) return false;
+    if (!passwordData) return errorMessage;
 
     if (new Date(passwordData.expiredAt) < new Date()) {
       await passwordRecoveryRepository
         .deletePasswordData(passwordData.userId);
 
-      return false;
+      return errorMessage;
     };
 
     const userIsExist = await usersQueryRepository
       .getUserById(passwordData.userId.toString());
 
-    if (!userIsExist) return false;
+    if (!userIsExist) return errorMessage;
 
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this
@@ -239,7 +246,7 @@ export const authServices = {
     const setNewPassword = await usersRepository
       .updatePassword(passwordData.userId, passwordHash, passwordSalt);
 
-    if (!setNewPassword) return false;
+    if (!setNewPassword) return errorMessage;
     else return true;
   },
 

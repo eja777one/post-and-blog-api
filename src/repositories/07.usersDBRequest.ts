@@ -11,17 +11,37 @@ export const usersRequestRepository = {
         url: userLog.url,
         createdAt: userLog.createdAt
       })
-      return usersLogs
+    return usersLogs
   },
 
-  async getLogs(userLog: usersRequestDBModel) {    
-    const isoDate = userLog.createdAt.toISOString()
-        const result = await UsersRequestModel.countDocuments({
-      ip: {$regex: userLog.ip},
-      url: {$regex: userLog.url},
-      createdAt: {$gt: isoDate}
+  async getLogs(userLog: usersRequestDBModel) {
+    const isoDate = userLog.createdAt.toISOString();
+    console.log(userLog.createdAt, 'isoDate')
+    // const result = await UsersRequestModel.countDocuments({
+    //   ip: { $regex: userLog.ip },
+    //   url: { $regex: userLog.url },
+    //   // createdAt: { $gt: isoDate }
+    //   // createdAt: { $gt: userLog.createdAt }
+    // })
+    const result = await UsersRequestModel.find({
+      ip: { $regex: userLog.ip },
+      url: { $regex: userLog.url },
+      // createdAt: { $gt: isoDate }
+      // createdAt: { $gt: userLog.createdAt }
     })
-    return result
+
+    // console.log(result)
+    console.log(result)
+
+    const len = result.filter(el => el.createdAt > userLog.createdAt).length
+    console.log(len)
+
+    return result;
+  },
+
+  async getData() {
+    const result = await UsersRequestModel.find({}).lean()
+    return result;
   },
 
   async deleteLogs(userLog: usersRequestDBModel) {

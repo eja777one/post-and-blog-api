@@ -1,3 +1,4 @@
+import { NewPasswordRecoveryInputModel, PasswordRecoveryInputModel } from './../models';
 import { checkUsersRequest } from './../middlewares/checkUsersRequest';
 import { checkCookie } from './../middlewares/checkCookieMware';
 import { Router, Request, Response } from "express";
@@ -46,7 +47,9 @@ authRouter.post('/password-recovery',
   checkUsersRequest,
   testEmailReqBody,
   checkReqBodyMware,
-  async (req: Request, res: Response) => {
+  async (
+    req: Request<PasswordRecoveryInputModel>,
+    res: Response) => {
 
     await authServices
       .sendPasswordRecoveryCode(req.body.email);
@@ -58,21 +61,18 @@ authRouter.post('/new-password',
   checkUsersRequest,
   testReqRecoveryPass,
   checkReqBodyMware,
-  async (req: Request, res: Response) => {
+  async (
+    req: Request<NewPasswordRecoveryInputModel>,
+    res: Response) => {
 
     const updatePassword = await authServices.updatePassword
       (req.body.newPassword, req.body.recoveryCode);
 
-    if (updatePassword) {
+    if (updatePassword === true) {
       res.sendStatus(HTTP.NO_CONTENT_204);
       return;
     } else {
-      res.status(HTTP.BAD_REQUEST_400).json({
-        errorsMessages: [{
-          message: 'incorrect recoveryCode',
-          field: 'recoveryCode'
-        }]
-      });
+      res.status(HTTP.BAD_REQUEST_400).json(updatePassword);
     }
   });
 
