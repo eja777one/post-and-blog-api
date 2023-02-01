@@ -35,14 +35,14 @@ export const jwtService = {
 
   async getPayloadRefToken(token: string) {
     try {
-      const result: any = jwt
-        .verify(token, settings.REFRESH_JWT_SECRET);
+      const result: any = jwt.verify(token, settings.REFRESH_JWT_SECRET);
 
       return {
         userId: result.userId,
         deviceId: result.deviceId,
         createdAt: result.createdAt
       };
+
     } catch (error) { return null };
   },
 

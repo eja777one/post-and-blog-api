@@ -36,115 +36,141 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authRouter = void 0;
+const express_1 = require("express");
+const _01_authService_1 = require("../domains/01.authService");
 const checkUsersRequest_1 = require("./../middlewares/checkUsersRequest");
 const checkCookieMware_1 = require("./../middlewares/checkCookieMware");
-const express_1 = require("express");
-const _01_authServices_1 = require("../domains/01.authServices");
-const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const authMware_1 = require("../middlewares/authMware");
+const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const models_1 = require("../models");
 const dotenv = __importStar(require("dotenv"));
 const add_1 = __importDefault(require("date-fns/add"));
 dotenv.config();
 exports.authRouter = (0, express_1.Router)({});
-exports.authRouter.post('/login', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const ip = req.headers['x-forwarded-for']
-        || req.socket.remoteAddress
-        || null;
-    const { loginOrEmail, password } = req.body;
-    const deviceName = `${(_a = req.useragent) === null || _a === void 0 ? void 0 : _a.browser} ${(_b = req.useragent) === null || _b === void 0 ? void 0 : _b.version}`;
-    const tokens = yield _01_authServices_1.authServices
-        .checkAuth(loginOrEmail, password, ip, deviceName);
-    if (tokens) {
-        res.status(models_1.HTTP.OK_200)
-            .cookie('refreshToken', tokens.refreshToken, {
-            secure: process.env.NODE_ENV !== "cookie",
-            httpOnly: true,
-            expires: (0, add_1.default)(new Date(), { seconds: 20 }),
-        })
-            .json({ accessToken: tokens.accessToken }); // TEST #4.11
-    }
-    else
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #4.13
-}));
-exports.authRouter.post('/password-recovery', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield _01_authServices_1.authServices
-        .sendPasswordRecoveryCode(req.body.email);
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-}));
-exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testReqRecoveryPass, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const updatePassword = yield _01_authServices_1.authServices.updatePassword(req.body.newPassword, req.body.recoveryCode);
-    if (updatePassword) {
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-        return;
-    }
-    else {
-        res.status(models_1.HTTP.BAD_REQUEST_400).json({
-            errorsMessages: [{
-                    message: 'incorrect recoveryCode',
-                    field: 'recoveryCode'
-                }]
+const recoveryCodeError = {
+    errorsMessages: [{ message: 'incorrect recoveryCode', field: 'recoveryCode' }]
+};
+const confirmCodeError = {
+    errorsMessages: [{ message: 'incorrect code', field: 'code' }]
+};
+const emailError = {
+    errorsMessages: [{ message: 'incorrect email', field: 'email' }]
+};
+const loginIsExistError = {
+    errorsMessages: [{ message: 'incorrect login', field: 'login' }]
+};
+class AuthController {
+    login(req, res) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const ip = req.ip;
+            const { loginOrEmail, password } = req.body;
+            const deviceName = `${(_a = req.useragent) === null || _a === void 0 ? void 0 : _a.browser} ${(_b = req.useragent) === null || _b === void 0 ? void 0 : _b.version}`;
+            const tokens = yield _01_authService_1.authService
+                .checkAuth(loginOrEmail, password, ip, deviceName);
+            if (!tokens)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+            res.status(models_1.HTTP.OK_200)
+                .cookie('refreshToken', tokens.refreshToken, {
+                secure: process.env.NODE_ENV !== "cookie",
+                httpOnly: true,
+                expires: (0, add_1.default)(new Date(), { seconds: 20 }),
+            })
+                .json({ accessToken: tokens.accessToken });
         });
     }
-}));
-exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const tokens = yield _01_authServices_1.authServices
-        .getNewTokensPair(req.cookies.refreshToken);
-    if (tokens) {
-        res.status(models_1.HTTP.OK_200)
-            .cookie('refreshToken', tokens.newRefreshToken, {
-            secure: process.env.NODE_ENV !== "cookie",
-            httpOnly: true,
-            expires: (0, add_1.default)(new Date(), { seconds: 20 }),
-        })
-            .json({ accessToken: tokens.newAccessToken });
+    sendPassRecoveryCode(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield _01_authService_1.authService.sendPasswordRecoveryCode(req.body.email);
+            res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+        });
     }
-    else
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-}));
-exports.authRouter.post('/registration-confirmation', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield _01_authServices_1.authServices.confirmEmail(req.body.code);
-    if (result)
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-    else
-        res.status(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect code', field: 'code' }] });
-}));
-exports.authRouter.post('/registration', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newUserId = yield _01_authServices_1.authServices
-        .createUser(req.body, req.socket.remoteAddress);
-    if (typeof newUserId === 'object') {
-        res.status(models_1.HTTP.BAD_REQUEST_400).json(newUserId);
+    setNewPassword(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _01_authService_1.authService.updatePassword(req.body.newPassword, req.body.recoveryCode);
+            if (result)
+                return res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+            else
+                res.status(models_1.HTTP.BAD_REQUEST_400).json(recoveryCodeError);
+        });
     }
-    else
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-}));
-exports.authRouter.post('/registration-email-resending', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield _01_authServices_1.authServices
-        .resendConfirmation(req.body.email);
-    if (result)
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-    else
-        res.status(models_1.HTTP.BAD_REQUEST_400).json({ errorsMessages: [{ message: 'incorrect email', field: 'email' }] });
-}));
-exports.authRouter.post('/logout', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const refreshTokenWasRevoke = yield _01_authServices_1.authServices
-        .deleteRefreshToken(req.cookies.refreshToken);
-    if (refreshTokenWasRevoke)
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-    else
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-}));
-exports.authRouter.get('/me', authMware_1.authMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d, _e;
-    if (!req.user) {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-        return;
+    refreshTokens(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tokens = yield _01_authService_1.authService
+                .getNewTokensPair(req.cookies.refreshToken);
+            if (!tokens)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+            res.status(models_1.HTTP.OK_200)
+                .cookie('refreshToken', tokens.newRefreshToken, {
+                secure: process.env.NODE_ENV !== "cookie",
+                httpOnly: true,
+                expires: (0, add_1.default)(new Date(), { seconds: 20 }),
+            })
+                .json({ accessToken: tokens.newAccessToken });
+        });
     }
-    const user = {
-        email: (_c = req.user) === null || _c === void 0 ? void 0 : _c.email,
-        login: (_d = req.user) === null || _d === void 0 ? void 0 : _d.login,
-        userId: (_e = req.user) === null || _e === void 0 ? void 0 : _e.id
-    };
-    res.status(models_1.HTTP.OK_200).json(user);
-}));
+    confirmEmail(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _01_authService_1.authService.confirmEmail(req.body.code);
+            if (result)
+                res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+            else
+                res.status(models_1.HTTP.BAD_REQUEST_400).json(confirmCodeError);
+        });
+    }
+    registration(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userWasAdded = yield _01_authService_1.authService.createUser(req.body, req.ip);
+            if (!userWasAdded || userWasAdded === 'emailIsExist') {
+                return res.status(models_1.HTTP.BAD_REQUEST_400).json(emailError);
+            }
+            ;
+            if (userWasAdded === 'loginIsExist') {
+                return res.status(models_1.HTTP.BAD_REQUEST_400).json(loginIsExistError);
+            }
+            ;
+            return res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+        });
+    }
+    resendEmailConfirm(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _01_authService_1.authService.resendConfirmation(req.body.email);
+            if (result)
+                res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+            else
+                res.status(models_1.HTTP.BAD_REQUEST_400).json(emailError);
+        });
+    }
+    logout(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const refreshTokenWasRevoke = yield _01_authService_1.authService
+                .deleteRefreshToken(req.cookies.refreshToken);
+            if (refreshTokenWasRevoke)
+                return res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+            res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+        });
+    }
+    getMyInfo(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.user)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+            const user = {
+                email: req.user.email,
+                login: req.user.login,
+                userId: req.user.id
+            };
+            res.status(models_1.HTTP.OK_200).json(user);
+        });
+    }
+}
+;
+const authController = new AuthController();
+exports.authRouter.post('/login', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.login);
+exports.authRouter.post('/password-recovery', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.sendPassRecoveryCode);
+exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testReqRecoveryPass, checkReqBodyMware_1.checkReqBodyMware, authController.setNewPassword);
+exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, authController.refreshTokens);
+exports.authRouter.post('/registration-confirmation', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.confirmEmail);
+exports.authRouter.post('/registration', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.registration);
+exports.authRouter.post('/registration-email-resending', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.resendEmailConfirm);
+exports.authRouter.post('/logout', checkCookieMware_1.checkCookie, authController.logout);
+exports.authRouter.get('/me', authMware_1.authMware, authController.getMyInfo);

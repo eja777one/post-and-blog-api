@@ -3,7 +3,7 @@ import { mongoUri } from "../../src/repositories/00.db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
-import { usersQueryRepository } from "../../src/repositories/05.usersQueryRepository";
+import { usersQueryRepository } from "../../src/repositories/05.usersQRepo";
 import { loginInput1, token1, userInput1, URL, token2, userInput2, loginInput2 } from "./00.dataForTests";
 import { ObjectID } from 'bson';
 
@@ -29,7 +29,7 @@ describe(`${URL}/auth`, () => {
       .send(userInput1);
 
     const user = await usersQueryRepository
-      .getDbUser(userInput1.email);
+      .getUserForTests(userInput1.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -53,7 +53,7 @@ describe(`${URL}/auth`, () => {
       .post(`${URL}/auth/registration-confirmation`)
       .send({ code: user_01.confirmationCode })
 
-    const user = await usersQueryRepository.getDbUser(userInput1.email);
+    const user = await usersQueryRepository.getUserForTests(userInput1.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -149,7 +149,7 @@ describe(`${URL}/auth`, () => {
       .send(userInput2);
 
     const user = await usersQueryRepository
-      .getDbUser(userInput2.email);
+      .getUserForTests(userInput2.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -173,7 +173,7 @@ describe(`${URL}/auth`, () => {
       .post(`${URL}/auth/registration-confirmation`)
       .send({ code: user_02.confirmationCode })
 
-    const user = await usersQueryRepository.getDbUser(userInput2.email);
+    const user = await usersQueryRepository.getUserForTests(userInput2.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);

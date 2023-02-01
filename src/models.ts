@@ -30,11 +30,13 @@ export type BlogPostInputModel = {
 	content: string
 };
 
-export type PostInputModel = {
-	title: string
-	shortDescription: string
-	content: string
-	blogId: string
+export class PostInputModel {
+	constructor(
+		public title: string,
+		public shortDescription: string,
+		public content: string,
+		public blogId: string
+	) { }
 };
 
 export type BlogViewModel = {
@@ -72,12 +74,14 @@ export enum HTTP {
 	'TOO_MANY_REQUESTS_429' = 429
 };
 
-export type BlogDBModel = {
-	_id: ObjectID
-	name: string
-	description: string
-	websiteUrl: string
-	createdAt: string
+export class BlogDBModel {
+	constructor(
+		public _id: ObjectID,
+		public name: string,
+		public description: string,
+		public websiteUrl: string,
+		public createdAt: string
+	) { }
 };
 
 export type BlogDBInputModel = {
@@ -87,14 +91,16 @@ export type BlogDBInputModel = {
 	createdAt: string
 };
 
-export type PostDBModel = {
-	_id: ObjectID
-	title: string
-	shortDescription: string
-	content: string
-	blogId: string
-	blogName: string
-	createdAt: string
+export class PostDBModel {
+	constructor(
+		public _id: ObjectID,
+		public title: string,
+		public shortDescription: string,
+		public content: string,
+		public blogId: string,
+		public blogName: string,
+		public createdAt: string
+	) { }
 };
 
 export type PostInputModelNoId = {
@@ -131,24 +137,26 @@ export type UserViewModel = {
 	createdAt: string
 };
 
-export type UserDBModel = {
-	_id: ObjectID,
-	accountData: {
-		login: string,
-		email: string,
-		passwordHash: string,
-		passwordSalt: string,
-		createdAt: string
-	}
-	emailConfirmation: {
-		confirmationCode: string,
-		expirationDate: Date,
-		isConfirmed: boolean,
-		sentEmails: SentEmailType[]
-	}
-	registrationDataType: {
-		ip: string
-	}
+export class UserDBModel {
+	constructor(
+		public _id: ObjectID,
+		public accountData: {
+			login: string,
+			email: string,
+			passwordHash: string,
+			passwordSalt: string,
+			createdAt: string
+		},
+		public emailConfirmation: {
+			confirmationCode: string,
+			expirationDate: Date,
+			isConfirmed: boolean,
+			sentEmails: SentEmailType[]
+		},
+		public registrationDataType: {
+			ip: string
+		}
+	) { }
 };
 
 export type SentEmailType = {
@@ -167,13 +175,15 @@ export type CommentViewModel = {
 	createdAt: string
 };
 
-export type CommentDBModel = {
-	_id: ObjectID
-	content: string
-	userId: string
-	userLogin: string
-	createdAt: string
-	postId: string
+export class CommentDBModel {
+	constructor(
+		public _id: ObjectID,
+		public content: string,
+		public userId: string,
+		public userLogin: string,
+		public createdAt: string,
+		public postId: string,
+	) { }
 };
 
 export type LoginSuccessViewModel = {
@@ -194,14 +204,16 @@ export type RegistrationEmailResending = {
 	email: string
 };
 
-export type TokensMetaDBModel = {
-	_id: ObjectID
-	createdAt: string
-	expiredAt: string
-	deviceId: string
-	ip: string
-	deviceName: string
-	userId: string
+export class TokensMetaDBModel {
+	constructor(
+		public _id: ObjectID,
+		public createdAt: string,
+		public expiredAt: string,
+		public deviceId: string,
+		public ip: string,
+		public deviceName: string,
+		public userId: string
+	) { }
 };
 
 export type usersRequestDBModel = {
@@ -209,7 +221,6 @@ export type usersRequestDBModel = {
 	ip: string
 	url: string
 	createdAt: Date
-	// createdAt: Number
 };
 
 export type DeviceViewModel = {
@@ -226,4 +237,14 @@ export type NewPasswordRecoveryInputModel = {
 
 export type PasswordRecoveryInputModel = {
 	email: string
+};
+
+export class PasswordDataDBModel {
+	constructor(
+		public _id: ObjectID,
+		public userId: ObjectID,
+		public passwordRecoveryCode: string,
+		public createdAt: string,
+		public expiredAt: string
+	) { }
 };

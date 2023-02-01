@@ -1,8 +1,8 @@
-import { passwordRecoveryRepository } from './../../src/repositories/08.passwordsRecoveryDBRepositury';
+import { passwordRecoveryRepository }
+  from './../../src/repositories/08.passwordsRecDBRepo';
 import mongoose from "mongoose";
 import { mongoUri } from "../../src/repositories/00.db";
-import { usersQueryRepository }
-  from '../../src/repositories/05.usersQueryRepository';
+import { usersQueryRepository } from '../../src/repositories/05.usersQRepo';
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
@@ -76,7 +76,7 @@ describe(`${URL}/auth`, () => {
       .send(userInput1);
 
     const user = await usersQueryRepository
-      .getDbUser(userInput1.email);
+      .getUserForTests(userInput1.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -125,7 +125,7 @@ describe(`${URL}/auth`, () => {
       .post(`${URL}/auth/registration-email-resending`)
       .send({ email: userInput1.email })
 
-    const user = await usersQueryRepository.getDbUser(userInput1.email);
+    const user = await usersQueryRepository.getUserForTests(userInput1.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -168,7 +168,7 @@ describe(`${URL}/auth`, () => {
       .post(`${URL}/auth/registration-confirmation`)
       .send({ code: user_01.confirmationCode })
 
-    const user = await usersQueryRepository.getDbUser(userInput1.email);
+    const user = await usersQueryRepository.getUserForTests(userInput1.email);
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.NO_CONTENT_204);
@@ -337,7 +337,7 @@ describe(`${URL}/auth`, () => {
     const code = await passwordRecoveryRepository
       .getCode(user_01._id);
 
-    console.log(code?.passwordRecoveryCode)
+    // console.log(code?.passwordRecoveryCode)
 
     await request(app)
       .post(`${URL}/auth/new-password`)

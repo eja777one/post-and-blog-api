@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { jwtService } from '../application/jwt-service';
 import { HTTP } from '../models';
 import { usersQueryRepository }
-  from '../repositories/05.usersQueryRepository';
+  from '../repositories/05.usersQRepo';
 
 export const authMware = async (
   req: Request,
@@ -20,7 +20,7 @@ export const authMware = async (
   if (!userId) return res.sendStatus(HTTP.UNAUTHORIZED_401);
 
   const user = await usersQueryRepository
-    .getViewUserById(userId.toString());
+    .getUser(userId.toString());
 
   if (!user) return res.sendStatus(HTTP.UNAUTHORIZED_401);
 

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
-const _02_blogsQueryRepository_1 = require("../repositories/02.blogsQueryRepository");
+const _02_blogsQRepo_1 = require("../repositories/02.blogsQRepo");
 const express_validator_1 = require("express-validator");
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
     name: {
@@ -64,7 +64,7 @@ exports.testPostsReqBody = (0, express_validator_1.checkSchema)({
         trim: { options: [' '] },
         custom: {
             options: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                const blog = yield _02_blogsQueryRepository_1.blogsQueryRepository.getBlogById(value);
+                const blog = yield _02_blogsQRepo_1.blogsQueryRepository.getBlog(value);
                 if (!blog)
                     throw new Error('Blog id is unexist');
                 else
@@ -156,6 +156,9 @@ exports.testReqRecoveryPass = (0, express_validator_1.checkSchema)({
     },
     recoveryCode: {
         isString: true,
+        matches: {
+            options: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+        },
     }
 });
 const checkReqBodyMware = (req, res, next) => {

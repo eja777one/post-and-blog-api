@@ -10,25 +10,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMware = void 0;
-const models_1 = require("../models");
-const _05_usersQueryRepository_1 = require("../repositories/05.usersQueryRepository");
 const jwt_service_1 = require("../application/jwt-service");
+const models_1 = require("../models");
+const _05_usersQRepo_1 = require("../repositories/05.usersQRepo");
 const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.headers.authorization) {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #3.17
-        return;
+        return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
     }
     ;
     const token = req.headers.authorization.split(' ')[1];
     const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
-    if (userId) {
-        req.user = yield _05_usersQueryRepository_1.usersQueryRepository.getUserById(userId.toString());
-        next();
-    }
-    else {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #5.3, #5.10
-        return;
-    }
-    ;
+    if (!userId)
+        return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+    const user = yield _05_usersQRepo_1.usersQueryRepository
+        .getUser(userId.toString());
+    if (!user)
+        return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+    req.user = user;
+    next();
 });
 exports.authMware = authMware;

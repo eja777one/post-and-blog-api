@@ -9,48 +9,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.securityDeviceRouter = void 0;
-const _06_securityDeviceServices_1 = require("./../domains/06.securityDeviceServices");
-const checkCookieMware_1 = require("./../middlewares/checkCookieMware");
+exports.securityDevicesRouter = void 0;
 const express_1 = require("express");
+const _06_securityDevicesService_1 = require("../domains/06.securityDevicesService");
+const checkCookieMware_1 = require("./../middlewares/checkCookieMware");
 const models_1 = require("../models");
-exports.securityDeviceRouter = (0, express_1.Router)({});
-exports.securityDeviceRouter.get('/', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const usersSessions = yield _06_securityDeviceServices_1.securityDeviceServices
-        .getUsersSessions(req.cookies.refreshToken);
-    if (usersSessions) {
-        res.status(models_1.HTTP.OK_200).json(usersSessions);
+exports.securityDevicesRouter = (0, express_1.Router)({});
+class SecurityDevicesController {
+    getDevices(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const usersSessions = yield _06_securityDevicesService_1.securityDevicesService
+                .getUsersSessions(req.cookies.refreshToken);
+            if (!usersSessions)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+            res.status(models_1.HTTP.OK_200).json(usersSessions);
+        });
     }
-    else {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+    deleteNonCurrentDevices(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deleteOtherSessions = yield _06_securityDevicesService_1.securityDevicesService
+                .deleteOtherSessions(req.cookies.refreshToken);
+            if (!deleteOtherSessions)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+            res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+        });
     }
-    ;
-}));
-exports.securityDeviceRouter.delete('/', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const deleteOtherSessions = yield _06_securityDeviceServices_1.securityDeviceServices
-        .deleteOtherSessions(req.cookies.refreshToken);
-    if (deleteOtherSessions) {
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+    deleteDevice(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deleteThisSession = yield _06_securityDevicesService_1.securityDevicesService
+                .deleteThisSession(req.cookies.refreshToken, req.params.deviceId);
+            res.sendStatus(models_1.HTTP[deleteThisSession]);
+        });
     }
-    else {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-    }
-    ;
-}));
-exports.securityDeviceRouter.delete('/:deviceId', checkCookieMware_1.checkCookie, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const deleteThisSession = yield _06_securityDeviceServices_1.securityDeviceServices
-        .deleteThisSession(req.cookies.refreshToken, req.params.deviceId);
-    if (deleteThisSession === '204') {
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204);
-    }
-    else if (deleteThisSession === '401') {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-    }
-    else if (deleteThisSession === '403') {
-        res.sendStatus(models_1.HTTP.FORBIDDEN_403);
-    }
-    else {
-        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-    }
-    ;
-}));
+}
+;
+const securityDevicesController = new SecurityDevicesController();
+exports.securityDevicesRouter.get('/', checkCookieMware_1.checkCookie, securityDevicesController.getDevices);
+exports.securityDevicesRouter.delete('/', checkCookieMware_1.checkCookie, securityDevicesController.deleteNonCurrentDevices);
+exports.securityDevicesRouter.delete('/:deviceId', checkCookieMware_1.checkCookie, securityDevicesController.deleteDevice);

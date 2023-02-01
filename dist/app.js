@@ -54,5 +54,5 @@ exports.app.use('/hometask_10/api/blogs', _02_blogsRouter_1.blogsRouter);
 exports.app.use('/hometask_10/api/comments', _03_commentsRouter_1.commentsRouter);
 exports.app.use('/hometask_10/api/posts', _04_postsRouter_1.postsRouter);
 exports.app.use('/hometask_10/api/users', _05_usersRouter_1.usersRouter);
-exports.app.use('/hometask_10/api/security/devices', _07_securityDevicesRouter_1.securityDeviceRouter);
+exports.app.use('/hometask_10/api/security/devices', _07_securityDevicesRouter_1.securityDevicesRouter);
 exports.app.use('/hometask_10/api/testing/all-data', _06_testsRouter_1.testsRouter);

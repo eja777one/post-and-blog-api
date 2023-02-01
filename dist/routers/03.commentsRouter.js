@@ -11,45 +11,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.commentsRouter = void 0;
 const express_1 = require("express");
-const _03_commentsQueryRepository_1 = require("../repositories/03.commentsQueryRepository");
-const _03_commentsServices_1 = require("../domains/03.commentsServices");
-const models_1 = require("../models");
 const checkParamMware_1 = require("../middlewares/checkParamMware");
 const authMware_1 = require("../middlewares/authMware");
 const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
+const _03_commentsQRepo_1 = require("../repositories/03.commentsQRepo");
+const _03_commentsService_1 = require("../domains/03.commentsService");
+const models_1 = require("../models");
 exports.commentsRouter = (0, express_1.Router)({});
-exports.commentsRouter.put('/:commentId', authMware_1.authMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testCommentBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.user) {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #5.3
-        return;
+class CommentsController {
+    updateComment(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.user)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #5.3
+            const modifiedStatus = yield _03_commentsService_1.commentsService
+                .updateComment(req.params.commentId, req.user, req.body);
+            res.sendStatus(models_1.HTTP[modifiedStatus]);
+        });
     }
-    ;
-    const modified = yield _03_commentsServices_1.commentsServices.updateComment(req.params.commentId, req.user, req.body);
-    if (modified === '404')
-        res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #5.1
-    if (modified === '403')
-        res.sendStatus(models_1.HTTP.FORBIDDEN_403); // TEST #5.2
-    if (modified === '204')
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #5.5
-}));
-exports.commentsRouter.delete('/:commentId', authMware_1.authMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!req.user) {
-        res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-        return;
+    deleteComment(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.user)
+                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
+            const deletedStatus = yield _03_commentsService_1.commentsService
+                .deleteComment(req.params.commentId, req.user);
+            res.sendStatus(models_1.HTTP[deletedStatus]);
+        });
     }
-    ;
-    const deleted = yield _03_commentsServices_1.commentsServices.deleteComment(req.params.commentId, req.user);
-    if (deleted === '404')
-        res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #5.8
-    if (deleted === '403')
-        res.sendStatus(models_1.HTTP.FORBIDDEN_403); // TEST #5.9
-    if (deleted === '204')
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #5.11
-}));
-exports.commentsRouter.get('/:commentId', checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const comment = yield _03_commentsQueryRepository_1.commentsQueryRepository.getComment(req.params.commentId);
-    if (comment)
-        res.status(models_1.HTTP.OK_200).json(comment); // TEST #5.6
-    else
-        res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #5.7, #5.12
-}));
+    getComment(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = yield _03_commentsQRepo_1.commentsQueryRepository
+                .getComment(req.params.commentId);
+            if (!comment)
+                return res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #5.7, #5.12
+            res.status(models_1.HTTP.OK_200).json(comment); // TEST #5.6
+        });
+    }
+}
+;
+const commentsController = new CommentsController();
+exports.commentsRouter.put('/:commentId', authMware_1.authMware, checkParamMware_1.checkIsObjectId, checkReqBodyMware_1.testCommentBody, checkReqBodyMware_1.checkReqBodyMware, commentsController.updateComment);
+exports.commentsRouter.delete('/:commentId', authMware_1.authMware, checkParamMware_1.checkIsObjectId, commentsController.deleteComment);
+exports.commentsRouter.get('/:commentId', checkParamMware_1.checkIsObjectId, commentsController.getComment);

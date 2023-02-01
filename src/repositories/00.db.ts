@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema<UserDBModel>({
       { sentDate: { type: Date, required: true } }
     ]
   },
-  registrationData: {
+  registrationDataType: {
     ip: { type: String }
   }
 });

@@ -12,29 +12,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersRouter = void 0;
 const express_1 = require("express");
 const checkAuthMware_1 = require("../middlewares/checkAuthMware");
-const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 const checkParamMware_1 = require("../middlewares/checkParamMware");
-const _05_usersQueryRepository_1 = require("../repositories/05.usersQueryRepository");
-const _05_usersServices_1 = require("../domains/05.usersServices");
+const _05_usersQRepo_1 = require("../repositories/05.usersQRepo");
+const _05_usersService_1 = require("../domains/05.usersService");
 const models_1 = require("../models");
 const prepareQuery_1 = require("../application/prepareQuery");
+const checkReqBodyMware_1 = require("../middlewares/checkReqBodyMware");
 exports.usersRouter = (0, express_1.Router)({});
-exports.usersRouter.get('/', checkAuthMware_1.checkAuthMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = (0, prepareQuery_1.prepareQueries)(req.query);
-    const users = yield _05_usersQueryRepository_1.usersQueryRepository
-        .getUsersByQuery(query);
-    res.status(models_1.HTTP.OK_200).json(users); // TEST #4.2, #4.7, #4.15
-}));
-exports.usersRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newUserId = yield _05_usersServices_1.usersServices.createUser(req.body, req.socket.remoteAddress);
-    const user = yield _05_usersQueryRepository_1.usersQueryRepository.getUserById(newUserId);
-    if (user)
-        res.status(models_1.HTTP.CREATED_201).json(user); // TEST #4.5, #4.6
-}));
-exports.usersRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield _05_usersServices_1.usersServices.deleteUserById(req.params.id);
-    if (result)
-        res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #4.
-    else
-        res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-}));
+class UsersController {
+    getUsers(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = (0, prepareQuery_1.prepareQueries)(req.query);
+            const users = yield _05_usersQRepo_1.usersQueryRepository.getUsers(query);
+            res.status(models_1.HTTP.OK_200).json(users); // TEST #4.2, #4.7, #4.15
+        });
+    }
+    createUser(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const newUserId = yield _05_usersService_1.usersService.createUser(req.body, req.ip);
+            const user = yield _05_usersQRepo_1.usersQueryRepository.getUser(newUserId);
+            if (!user)
+                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
+            res.status(models_1.HTTP.CREATED_201).json(user); // TEST #4.5, #4.6
+        });
+    }
+    deleteUser(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deleted = yield _05_usersService_1.usersService.deleteUser(req.params.id);
+            if (!deleted)
+                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
+            res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #4.
+        });
+    }
+}
+;
+const usersController = new UsersController();
+exports.usersRouter.get('/', checkAuthMware_1.checkAuthMware, usersController.getUsers);
+exports.usersRouter.post('/', checkAuthMware_1.checkAuthMware, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, usersController.createUser);
+exports.usersRouter.delete('/:id', checkAuthMware_1.checkAuthMware, checkParamMware_1.checkIsObjectId, usersController.getUsers);

@@ -10,23 +10,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testsRouter = void 0;
-const _08_passwordsRecoveryDBRepositury_1 = require("./../repositories/08.passwordsRecoveryDBRepositury");
-const _03_commentsServices_1 = require("../domains/03.commentsServices");
 const express_1 = require("express");
-const _05_usersServices_1 = require("../domains/05.usersServices");
-const _04_postsServices_1 = require("../domains/04.postsServices");
-const _02_blogsServices_1 = require("../domains/02.blogsServices");
+const _06_tokensDBRepo_1 = require("../repositories/06.tokensDBRepo");
+const _07_usersReqDBRepo_1 = require("../repositories/07.usersReqDBRepo");
+const _08_passwordsRecDBRepo_1 = require("../repositories/08.passwordsRecDBRepo");
+const _02_blogsService_1 = require("../domains/02.blogsService");
+const _03_commentsService_1 = require("../domains/03.commentsService");
+const _04_postsService_1 = require("../domains/04.postsService");
+const _05_usersService_1 = require("../domains/05.usersService");
 const models_1 = require("../models");
-const _07_usersDBRequest_1 = require("../repositories/07.usersDBRequest");
-const _06_tokensDBRepository_1 = require("../repositories/06.tokensDBRepository");
 exports.testsRouter = (0, express_1.Router)({});
-exports.testsRouter.delete('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield _02_blogsServices_1.blogServices.deleteAll();
-    yield _04_postsServices_1.postsServices.deleteAll();
-    yield _05_usersServices_1.usersServices.deleteAll();
-    yield _03_commentsServices_1.commentsServices.deleteAll();
-    yield _07_usersDBRequest_1.usersRequestRepository.deleteAll();
-    yield _06_tokensDBRepository_1.tokensMetaRepository.deleteAll();
-    yield _08_passwordsRecoveryDBRepositury_1.passwordRecoveryRepository.deleteAll();
-    res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
-}));
+class TestController {
+    deleteAllData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield _02_blogsService_1.blogService.deleteAll();
+            yield _04_postsService_1.postsService.deleteAll();
+            yield _05_usersService_1.usersService.deleteAll();
+            yield _03_commentsService_1.commentsService.deleteAll();
+            yield _07_usersReqDBRepo_1.usersRequestRepository.deleteAll();
+            yield _06_tokensDBRepo_1.tokensMetaRepository.deleteAll();
+            yield _08_passwordsRecDBRepo_1.passwordRecoveryRepository.deleteAll();
+            res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
+        });
+    }
+}
+;
+const testController = new TestController();
+exports.testsRouter.delete('/', testController.deleteAllData);
