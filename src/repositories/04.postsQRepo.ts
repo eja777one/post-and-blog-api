@@ -14,7 +14,7 @@ const preparePost = (input: PostDBModel): PostViewModel => {
   };
 };
 
-class PostsQueryRepository {
+export class PostsQueryRepository {
 
   async getPosts(query: Query, blogId?: string)
     : Promise<Paginator<PostViewModel>> {
@@ -56,5 +56,3 @@ class PostsQueryRepository {
     return items;
   }
 };
-
-export const postsQueryRepository = new PostsQueryRepository();

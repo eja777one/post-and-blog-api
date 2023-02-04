@@ -2,7 +2,7 @@ import { BlogModel } from './00.db';
 import { BlogInputModel } from "../models";
 import { ObjectID } from 'bson';
 
-class BlogsRepository {
+export class BlogsRepository {
 
   async createBlog(blog: any) {
     const result = await BlogModel.collection.insertOne(blog);
@@ -33,5 +33,3 @@ class BlogsRepository {
     return result.deletedCount;
   }
 };
-
-export const blogsRepository = new BlogsRepository();

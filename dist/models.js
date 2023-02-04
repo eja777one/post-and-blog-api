@@ -1,6 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HTTP = exports.sortDirection = void 0;
+exports.PasswordDataDBModel = exports.TokensMetaDBModel = exports.CommentDBModel = exports.UserDBModel = exports.PostDBModel = exports.BlogDBModel = exports.HTTP = exports.sortDirection = exports.PostInputModel = void 0;
+class PostInputModel {
+    constructor(title, shortDescription, content, blogId) {
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.content = content;
+        this.blogId = blogId;
+    }
+}
+exports.PostInputModel = PostInputModel;
+;
 var sortDirection;
 (function (sortDirection) {
     sortDirection["asc"] = "asc";
@@ -19,4 +29,74 @@ var HTTP;
     HTTP[HTTP["METHOD_NOT_ALLOWED_405"] = 405] = "METHOD_NOT_ALLOWED_405";
     HTTP[HTTP["TOO_MANY_REQUESTS_429"] = 429] = "TOO_MANY_REQUESTS_429";
 })(HTTP = exports.HTTP || (exports.HTTP = {}));
+;
+class BlogDBModel {
+    constructor(_id, name, description, websiteUrl, createdAt) {
+        this._id = _id;
+        this.name = name;
+        this.description = description;
+        this.websiteUrl = websiteUrl;
+        this.createdAt = createdAt;
+    }
+}
+exports.BlogDBModel = BlogDBModel;
+;
+class PostDBModel {
+    constructor(_id, title, shortDescription, content, blogId, blogName, createdAt) {
+        this._id = _id;
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.content = content;
+        this.blogId = blogId;
+        this.blogName = blogName;
+        this.createdAt = createdAt;
+    }
+}
+exports.PostDBModel = PostDBModel;
+;
+class UserDBModel {
+    constructor(_id, accountData, emailConfirmation, registrationDataType) {
+        this._id = _id;
+        this.accountData = accountData;
+        this.emailConfirmation = emailConfirmation;
+        this.registrationDataType = registrationDataType;
+    }
+}
+exports.UserDBModel = UserDBModel;
+;
+class CommentDBModel {
+    constructor(_id, content, userId, userLogin, createdAt, postId) {
+        this._id = _id;
+        this.content = content;
+        this.userId = userId;
+        this.userLogin = userLogin;
+        this.createdAt = createdAt;
+        this.postId = postId;
+    }
+}
+exports.CommentDBModel = CommentDBModel;
+;
+class TokensMetaDBModel {
+    constructor(_id, createdAt, expiredAt, deviceId, ip, deviceName, userId) {
+        this._id = _id;
+        this.createdAt = createdAt;
+        this.expiredAt = expiredAt;
+        this.deviceId = deviceId;
+        this.ip = ip;
+        this.deviceName = deviceName;
+        this.userId = userId;
+    }
+}
+exports.TokensMetaDBModel = TokensMetaDBModel;
+;
+class PasswordDataDBModel {
+    constructor(_id, userId, passwordRecoveryCode, createdAt, expiredAt) {
+        this._id = _id;
+        this.userId = userId;
+        this.passwordRecoveryCode = passwordRecoveryCode;
+        this.createdAt = createdAt;
+        this.expiredAt = expiredAt;
+    }
+}
+exports.PasswordDataDBModel = PasswordDataDBModel;
 ;

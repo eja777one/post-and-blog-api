@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersQueryRepository = void 0;
+exports.UsersQueryRepository = void 0;
 const bson_1 = require("bson");
 const mongodb_1 = require("mongodb");
 const _00_db_1 = require("./00.db");
@@ -118,5 +118,5 @@ class UsersQueryRepository {
         });
     }
 }
+exports.UsersQueryRepository = UsersQueryRepository;
 ;
-exports.usersQueryRepository = new UsersQueryRepository();

@@ -1,6 +1,8 @@
-import { blogsQueryRepository } from '../repositories/02.blogsQRepo';
+import { BlogsQueryRepository } from '../repositories/02.blogsQRepo';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
+
+const blogsQueryRepository = new BlogsQueryRepository();
 
 export const testBlogsReqBody = checkSchema({
   name: {

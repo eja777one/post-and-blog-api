@@ -12,46 +12,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersService = void 0;
-const _05_usersDBRepo_1 = require("../repositories/05.usersDBRepo");
+exports.UsersService = void 0;
+const _05_usersQRepo_1 = require("./../repositories/05.usersQRepo");
+const _05_usersDBRepo_1 = require("./../repositories/05.usersDBRepo");
+const models_1 = require("../models");
 const bson_1 = require("bson");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const add_1 = __importDefault(require("date-fns/add"));
 class UsersService {
+    constructor() {
+        this.usersRepository = new _05_usersDBRepo_1.UsersRepository();
+        this.usersQueryRepository = new _05_usersQRepo_1.UsersQueryRepository();
+    }
+    getUsers(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = yield this.usersQueryRepository.getUsers(query);
+            return users;
+        });
+    }
     createUser(body, ip) {
         return __awaiter(this, void 0, void 0, function* () {
             const passwordSalt = yield bcrypt_1.default.genSalt(10);
             const passwordHash = yield this._generateHash(body.password, passwordSalt);
-            const user = {
-                _id: new bson_1.ObjectID,
-                accountData: {
-                    login: body.login,
-                    email: body.email,
-                    passwordHash,
-                    passwordSalt,
-                    createdAt: new Date().toISOString(),
-                },
-                emailConfirmation: {
-                    confirmationCode: 'none',
-                    expirationDate: (0, add_1.default)(new Date(), { hours: 0 }),
-                    isConfirmed: true,
-                    sentEmails: []
-                },
-                registrationDataType: { ip }
-            };
-            const newUserId = yield _05_usersDBRepo_1.usersRepository.addUser(user);
-            return newUserId;
+            const userInput = new models_1.UserDBModel(new bson_1.ObjectID, {
+                login: body.login,
+                email: body.email,
+                passwordHash,
+                passwordSalt,
+                createdAt: new Date().toISOString(),
+            }, {
+                confirmationCode: 'none',
+                expirationDate: (0, add_1.default)(new Date(), { hours: 0 }),
+                isConfirmed: true,
+                sentEmails: []
+            }, { ip });
+            const newUserId = yield this.usersRepository.addUser(userInput);
+            const user = yield this.usersQueryRepository.getUser(newUserId);
+            return user;
         });
     }
     deleteUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const deleted = yield _05_usersDBRepo_1.usersRepository.deleteUser(id);
+            const deleted = yield this.usersRepository.deleteUser(id);
             return deleted;
         });
     }
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _05_usersDBRepo_1.usersRepository.deleteAll();
+            const result = yield this.usersRepository.deleteAll();
             return result;
         });
     }
@@ -62,5 +70,5 @@ class UsersService {
         });
     }
 }
+exports.UsersService = UsersService;
 ;
-exports.usersService = new UsersService();

@@ -13,7 +13,7 @@ const prepareUser = (input: UserDBModel): UserViewModel => {
   };
 };
 
-class UsersQueryRepository {
+export class UsersQueryRepository {
 
   async getUsers(query: Query): Promise<Paginator<UserViewModel>> {
 
@@ -109,5 +109,3 @@ class UsersQueryRepository {
     }
   }
 };
-
-export const usersQueryRepository = new UsersQueryRepository();

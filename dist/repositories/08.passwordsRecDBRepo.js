@@ -9,41 +9,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.passwordRecoveryRepository = void 0;
+exports.PasswordRecoveryRepository = void 0;
 const _00_db_1 = require("./00.db");
-exports.passwordRecoveryRepository = {
+class PasswordRecoveryRepository {
     addData(passwordData) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield _00_db_1.PasswordsRecoveryModel
                 .collection.insertOne(passwordData);
             return true;
         });
-    },
+    }
     getData(code) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield _00_db_1.PasswordsRecoveryModel.collection
                 .findOne({ passwordRecoveryCode: code });
             return result;
         });
-    },
+    }
     getCode(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.PasswordsRecoveryModel.
-                collection.findOne({ userId });
+            const result = yield _00_db_1.PasswordsRecoveryModel.collection.findOne({ userId });
             return result;
         });
-    },
+    }
     deletePasswordData(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.PasswordsRecoveryModel
-                .deleteOne({ userId });
+            const result = yield _00_db_1.PasswordsRecoveryModel.deleteOne({ userId });
             return true;
         });
-    },
+    }
     deleteAll() {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield _00_db_1.PasswordsRecoveryModel.deleteMany({});
             return true;
         });
     }
-};
+}
+exports.PasswordRecoveryRepository = PasswordRecoveryRepository;
+;

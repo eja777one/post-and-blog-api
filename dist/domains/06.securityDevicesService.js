@@ -9,17 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.securityDevicesService = void 0;
+exports.SecurityDevicesService = void 0;
 const _06_tokensDBRepo_1 = require("../repositories/06.tokensDBRepo");
 const _06_tokensQRepo_1 = require("../repositories/06.tokensQRepo");
 const jwt_service_1 = require("../application/jwt-service");
 class SecurityDevicesService {
+    constructor() {
+        this.tokensMetaRepository = new _06_tokensDBRepo_1.TokensMetaRepository();
+        this.tokensQueryMetaRepository = new _06_tokensQRepo_1.TokensQueryMetaRepository();
+    }
     getUsersSessions(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = yield jwt_service_1.jwtService.getPayloadRefToken(refreshToken);
             if (!payload)
                 return null;
-            const sessions = yield _06_tokensQRepo_1.tokensQueryMetaRepository
+            const sessions = yield this.tokensQueryMetaRepository
                 .getUsersSessions(payload.userId);
             if (!sessions)
                 return null;
@@ -31,7 +35,7 @@ class SecurityDevicesService {
             const payload = yield jwt_service_1.jwtService.getPayloadRefToken(refreshToken);
             if (!payload)
                 return false;
-            const deletedSessions = yield _06_tokensDBRepo_1.tokensMetaRepository
+            const deletedSessions = yield this.tokensMetaRepository
                 .deleteOtherSessions(payload.userId, payload.deviceId);
             return deletedSessions;
         });
@@ -41,17 +45,17 @@ class SecurityDevicesService {
             const payload = yield jwt_service_1.jwtService.getPayloadRefToken(refreshToken);
             if (!payload)
                 return 'UNAUTHORIZED_401';
-            const getSession = yield _06_tokensQRepo_1.tokensQueryMetaRepository
+            const getSession = yield this.tokensQueryMetaRepository
                 .getSessionByDeviceId(deviceId);
             if (!getSession)
                 return 'NOT_FOUND_404';
             if (getSession.userId !== payload.userId)
                 return 'FORBIDDEN_403';
-            const deleteThisSessions = yield _06_tokensDBRepo_1.tokensMetaRepository
+            const deleteThisSessions = yield this.tokensMetaRepository
                 .deleteThisSessions(payload.userId, deviceId);
             return deleteThisSessions ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
         });
     }
 }
+exports.SecurityDevicesService = SecurityDevicesService;
 ;
-exports.securityDevicesService = new SecurityDevicesService();

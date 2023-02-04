@@ -2,7 +2,7 @@ import { PostDBModel, PostInputModel } from '../models';
 import { PostModel } from './00.db';
 import { ObjectID } from 'bson';
 
-class PostsRepository {
+export class PostsRepository {
 
   async createPost(post: PostDBModel) {
     const result = await PostModel.collection.insertOne(post);
@@ -39,5 +39,3 @@ class PostsRepository {
     return result.deletedCount;
   }
 };
-
-export const postsRepository = new PostsRepository();

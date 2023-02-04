@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postsQueryRepository = void 0;
+exports.PostsQueryRepository = void 0;
 const _00_db_1 = require("./00.db");
 const bson_1 = require("bson");
 const preparePost = (input) => {
@@ -60,5 +60,5 @@ class PostsQueryRepository {
         });
     }
 }
+exports.PostsQueryRepository = PostsQueryRepository;
 ;
-exports.postsQueryRepository = new PostsQueryRepository();

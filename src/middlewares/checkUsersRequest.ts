@@ -1,6 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { NextFunction, Request, Response } from "express";
-import { usersRequestRepository } from '../repositories/07.usersReqDBRepo';
+import { UsersRequestRepository } from '../repositories/07.usersReqDBRepo';
+
+const usersRequestRepository = new UsersRequestRepository();
 
 export const checkUsersRequest = async (req: Request, res: Response,
   next: NextFunction) => {

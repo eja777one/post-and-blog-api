@@ -3,7 +3,7 @@ import MimeNode from 'nodemailer/lib/mime-node';
 import { UserDBModel } from '../models';
 import { UserModel } from './00.db';
 
-class UsersRepository {
+export class UsersRepository {
 
   async addUser(user: UserDBModel) {
     const result = await UserModel.collection.insertOne(user);
@@ -63,5 +63,3 @@ class UsersRepository {
     return result.deletedCount;
   }
 };
-
-export const usersRepository = new UsersRepository();

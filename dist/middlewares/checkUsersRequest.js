@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkUsersRequest = void 0;
 const mongodb_1 = require("mongodb");
 const _07_usersReqDBRepo_1 = require("../repositories/07.usersReqDBRepo");
+const usersRequestRepository = new _07_usersReqDBRepo_1.UsersRequestRepository();
 const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const attemtsInterval = 10 * 1000;
     const currentTime = new Date();
@@ -22,8 +23,8 @@ const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         ip: req.ip,
         createdAt: currentTime
     };
-    const usersRequests = yield _07_usersReqDBRepo_1.usersRequestRepository.getLogs(userLog, attemptTime);
-    yield _07_usersReqDBRepo_1.usersRequestRepository.addLog(userLog);
+    const usersRequests = yield usersRequestRepository.getLogs(userLog, attemptTime);
+    yield usersRequestRepository.addLog(userLog);
     if (usersRequests < 5)
         next();
     else

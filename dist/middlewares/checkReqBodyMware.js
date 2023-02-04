@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
 const _02_blogsQRepo_1 = require("../repositories/02.blogsQRepo");
 const express_validator_1 = require("express-validator");
+const blogsQueryRepository = new _02_blogsQRepo_1.BlogsQueryRepository();
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
     name: {
         isString: true,
@@ -64,7 +65,7 @@ exports.testPostsReqBody = (0, express_validator_1.checkSchema)({
         trim: { options: [' '] },
         custom: {
             options: (value) => __awaiter(void 0, void 0, void 0, function* () {
-                const blog = yield _02_blogsQRepo_1.blogsQueryRepository.getBlog(value);
+                const blog = yield blogsQueryRepository.getBlog(value);
                 if (!blog)
                     throw new Error('Blog id is unexist');
                 else

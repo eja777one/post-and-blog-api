@@ -3,9 +3,10 @@ import { mongoUri } from "../../src/repositories/00.db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
-import { usersQueryRepository } from "../../src/repositories/05.usersQRepo";
-import { loginInput1, token1, userInput1, URL, token2, userInput2, loginInput2 } from "./00.dataForTests";
+import { UsersQueryRepository } from "../../src/repositories/05.usersQRepo";
 import { ObjectID } from 'bson';
+import { loginInput1, token1, userInput1, URL, token2, userInput2, loginInput2 }
+  from "./00.dataForTests";
 
 let user_01: any;
 let user_02: any;
@@ -15,6 +16,8 @@ let cookieUser_01: string[];
 let cookieUser_02: string[];
 let deviceIdUser_01: string;
 let deviceIdUser_02: string;
+
+const usersQueryRepository = new UsersQueryRepository();
 
 describe(`${URL}/auth`, () => {
   beforeAll(async () => {

@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { jwtService } from '../application/jwt-service';
 import { HTTP } from '../models';
-import { usersQueryRepository }
-  from '../repositories/05.usersQRepo';
+import { UsersQueryRepository } from '../repositories/05.usersQRepo';
+
+const usersQueryRepository = new UsersQueryRepository();
 
 export const authMware = async (
   req: Request,

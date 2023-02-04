@@ -2,7 +2,7 @@ import { ObjectID } from 'bson';
 import { CommentDBModel } from '../models';
 import { CommentModel } from './00.db';
 
-class CommentsRepository {
+export class CommentsRepository {
 
   async addComment(comment: CommentDBModel) {
     const result = await CommentModel.collection.insertOne(comment);
@@ -26,5 +26,3 @@ class CommentsRepository {
     return result.deletedCount;
   }
 };
-
-export const commentsRepository = new CommentsRepository();

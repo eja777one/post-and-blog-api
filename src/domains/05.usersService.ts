@@ -1,16 +1,30 @@
-import { UserDBModel, UserInputModel } from '../models';
-import { usersRepository } from '../repositories/05.usersDBRepo';
+import { UsersQueryRepository } from './../repositories/05.usersQRepo';
+import { UsersRepository } from './../repositories/05.usersDBRepo';
+import { Query, UserDBModel, UserInputModel } from '../models';
 import { ObjectID } from 'bson';
 import bcrypt from 'bcrypt';
 import add from 'date-fns/add';
 
-class UsersService {
+export class UsersService {
+
+  usersRepository: UsersRepository;
+  usersQueryRepository: UsersQueryRepository;
+
+  constructor() {
+    this.usersRepository = new UsersRepository();
+    this.usersQueryRepository = new UsersQueryRepository();
+  }
+
+  async getUsers(query: Query) {
+    const users = await this.usersQueryRepository.getUsers(query);
+    return users;
+  }
 
   async createUser(body: UserInputModel, ip: string) {
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this._generateHash(body.password, passwordSalt);
 
-    const user = new UserDBModel(
+    const userInput = new UserDBModel(
       new ObjectID,
       {
         login: body.login,
@@ -28,17 +42,18 @@ class UsersService {
       { ip }
     );
 
-    const newUserId = await usersRepository.addUser(user);
-    return newUserId;
+    const newUserId = await this.usersRepository.addUser(userInput);
+    const user = await this.usersQueryRepository.getUser(newUserId)
+    return user;
   }
 
   async deleteUser(id: string) {
-    const deleted = await usersRepository.deleteUser(id);
+    const deleted = await this.usersRepository.deleteUser(id);
     return deleted;
   }
 
   async deleteAll() {
-    const result = await usersRepository.deleteAll();
+    const result = await this.usersRepository.deleteAll();
     return result;
   }
 
@@ -47,5 +62,3 @@ class UsersService {
     return hash;
   }
 };
-
-export const usersService = new UsersService();

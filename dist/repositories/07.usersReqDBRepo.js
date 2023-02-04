@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usersRequestRepository = void 0;
+exports.UsersRequestRepository = void 0;
 const _00_db_1 = require("./00.db");
 class UsersRequestRepository {
     addLog(userLog) {
@@ -42,5 +42,5 @@ class UsersRequestRepository {
         });
     }
 }
+exports.UsersRequestRepository = UsersRequestRepository;
 ;
-exports.usersRequestRepository = new UsersRequestRepository();

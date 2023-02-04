@@ -60,13 +60,16 @@ const loginIsExistError = {
     errorsMessages: [{ message: 'incorrect login', field: 'login' }]
 };
 class AuthController {
+    constructor() {
+        this.authService = new _01_authService_1.AuthService();
+    }
     login(req, res) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const ip = req.ip;
             const { loginOrEmail, password } = req.body;
             const deviceName = `${(_a = req.useragent) === null || _a === void 0 ? void 0 : _a.browser} ${(_b = req.useragent) === null || _b === void 0 ? void 0 : _b.version}`;
-            const tokens = yield _01_authService_1.authService
+            const tokens = yield this.authService
                 .checkAuth(loginOrEmail, password, ip, deviceName);
             if (!tokens)
                 return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
@@ -81,13 +84,13 @@ class AuthController {
     }
     sendPassRecoveryCode(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield _01_authService_1.authService.sendPasswordRecoveryCode(req.body.email);
+            yield this.authService.sendPasswordRecoveryCode(req.body.email);
             res.sendStatus(models_1.HTTP.NO_CONTENT_204);
         });
     }
     setNewPassword(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _01_authService_1.authService.updatePassword(req.body.newPassword, req.body.recoveryCode);
+            const result = yield this.authService.updatePassword(req.body.newPassword, req.body.recoveryCode);
             if (result)
                 return res.sendStatus(models_1.HTTP.NO_CONTENT_204);
             else
@@ -96,7 +99,7 @@ class AuthController {
     }
     refreshTokens(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tokens = yield _01_authService_1.authService
+            const tokens = yield this.authService
                 .getNewTokensPair(req.cookies.refreshToken);
             if (!tokens)
                 return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
@@ -111,7 +114,7 @@ class AuthController {
     }
     confirmEmail(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _01_authService_1.authService.confirmEmail(req.body.code);
+            const result = yield this.authService.confirmEmail(req.body.code);
             if (result)
                 res.sendStatus(models_1.HTTP.NO_CONTENT_204);
             else
@@ -120,7 +123,7 @@ class AuthController {
     }
     registration(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userWasAdded = yield _01_authService_1.authService.createUser(req.body, req.ip);
+            const userWasAdded = yield this.authService.createUser(req.body, req.ip);
             if (!userWasAdded || userWasAdded === 'emailIsExist') {
                 return res.status(models_1.HTTP.BAD_REQUEST_400).json(emailError);
             }
@@ -134,7 +137,7 @@ class AuthController {
     }
     resendEmailConfirm(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _01_authService_1.authService.resendConfirmation(req.body.email);
+            const result = yield this.authService.resendConfirmation(req.body.email);
             if (result)
                 res.sendStatus(models_1.HTTP.NO_CONTENT_204);
             else
@@ -143,7 +146,7 @@ class AuthController {
     }
     logout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const refreshTokenWasRevoke = yield _01_authService_1.authService
+            const refreshTokenWasRevoke = yield this.authService
                 .deleteRefreshToken(req.cookies.refreshToken);
             if (refreshTokenWasRevoke)
                 return res.sendStatus(models_1.HTTP.NO_CONTENT_204);
@@ -165,12 +168,12 @@ class AuthController {
 }
 ;
 const authController = new AuthController();
-exports.authRouter.post('/login', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.login);
-exports.authRouter.post('/password-recovery', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.sendPassRecoveryCode);
-exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testReqRecoveryPass, checkReqBodyMware_1.checkReqBodyMware, authController.setNewPassword);
-exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, authController.refreshTokens);
-exports.authRouter.post('/registration-confirmation', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.confirmEmail);
-exports.authRouter.post('/registration', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.registration);
-exports.authRouter.post('/registration-email-resending', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.resendEmailConfirm);
-exports.authRouter.post('/logout', checkCookieMware_1.checkCookie, authController.logout);
-exports.authRouter.get('/me', authMware_1.authMware, authController.getMyInfo);
+exports.authRouter.post('/login', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testLoginPassReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.login.bind(authController));
+exports.authRouter.post('/password-recovery', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.sendPassRecoveryCode.bind(authController));
+exports.authRouter.post('/new-password', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testReqRecoveryPass, checkReqBodyMware_1.checkReqBodyMware, authController.setNewPassword.bind(authController));
+exports.authRouter.post('/refresh-token', checkCookieMware_1.checkCookie, authController.refreshTokens.bind(authController));
+exports.authRouter.post('/registration-confirmation', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testCodeReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.confirmEmail.bind(authController));
+exports.authRouter.post('/registration', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testAddUserReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.registration.bind(authController));
+exports.authRouter.post('/registration-email-resending', checkUsersRequest_1.checkUsersRequest, checkReqBodyMware_1.testEmailReqBody, checkReqBodyMware_1.checkReqBodyMware, authController.resendEmailConfirm.bind(authController));
+exports.authRouter.post('/logout', checkCookieMware_1.checkCookie, authController.logout.bind(authController));
+exports.authRouter.get('/me', authMware_1.authMware, authController.getMyInfo.bind(authController));

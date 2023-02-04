@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { authService } from '../domains/01.authService';
+import { AuthService } from '../domains/01.authService';
 import { checkUsersRequest } from './../middlewares/checkUsersRequest';
 import { checkCookie } from './../middlewares/checkCookieMware';
 import { authMware } from '../middlewares/authMware';
@@ -47,6 +47,12 @@ const loginIsExistError = {
 
 class AuthController {
 
+  authService: AuthService
+
+  constructor() {
+    this.authService = new AuthService();
+  }
+
   async login(req: Request<LoginInputModel>,
     res: Response<LoginSuccessViewModel>) {
 
@@ -56,7 +62,7 @@ class AuthController {
 
     const deviceName = `${req.useragent?.browser} ${req.useragent?.version}`;
 
-    const tokens = await authService
+    const tokens = await this.authService
       .checkAuth(loginOrEmail, password, ip, deviceName);
 
     if (!tokens) return res.sendStatus(HTTP.UNAUTHORIZED_401);
@@ -73,7 +79,7 @@ class AuthController {
   async sendPassRecoveryCode(req: Request<PasswordRecoveryInputModel>,
     res: Response) {
 
-    await authService.sendPasswordRecoveryCode(req.body.email);
+    await this.authService.sendPasswordRecoveryCode(req.body.email);
 
     res.sendStatus(HTTP.NO_CONTENT_204);
   }
@@ -81,7 +87,7 @@ class AuthController {
   async setNewPassword(req: Request<NewPasswordRecoveryInputModel>,
     res: Response) {
 
-    const result = await authService.updatePassword
+    const result = await this.authService.updatePassword
       (req.body.newPassword, req.body.recoveryCode);
 
     if (result) return res.sendStatus(HTTP.NO_CONTENT_204);
@@ -89,7 +95,7 @@ class AuthController {
   }
 
   async refreshTokens(req: Request, res: Response) {
-    const tokens = await authService
+    const tokens = await this.authService
       .getNewTokensPair(req.cookies.refreshToken);
 
     if (!tokens) return res.sendStatus(HTTP.UNAUTHORIZED_401);
@@ -106,7 +112,7 @@ class AuthController {
   async confirmEmail(req: Request<RegistrationConfirmationCodeModel>,
     res: Response) {
 
-    const result = await authService.confirmEmail(req.body.code);
+    const result = await this.authService.confirmEmail(req.body.code);
 
     if (result) res.sendStatus(HTTP.NO_CONTENT_204);
     else res.status(HTTP.BAD_REQUEST_400).json(confirmCodeError);
@@ -114,7 +120,7 @@ class AuthController {
 
   async registration(req: Request<UserInputModel>, res: Response) {
 
-    const userWasAdded = await authService.createUser(req.body, req.ip);
+    const userWasAdded = await this.authService.createUser(req.body, req.ip);
 
     if (!userWasAdded || userWasAdded === 'emailIsExist') {
       return res.status(HTTP.BAD_REQUEST_400).json(emailError);
@@ -130,7 +136,7 @@ class AuthController {
   async resendEmailConfirm(req: Request<RegistrationEmailResending>,
     res: Response) {
 
-    const result = await authService.resendConfirmation(req.body.email);
+    const result = await this.authService.resendConfirmation(req.body.email);
 
     if (result) res.sendStatus(HTTP.NO_CONTENT_204);
     else res.status(HTTP.BAD_REQUEST_400).json(emailError);
@@ -138,7 +144,7 @@ class AuthController {
 
   async logout(req: Request, res: Response) {
 
-    const refreshTokenWasRevoke = await authService
+    const refreshTokenWasRevoke = await this.authService
       .deleteRefreshToken(req.cookies.refreshToken);
 
     if (refreshTokenWasRevoke) return res.sendStatus(HTTP.NO_CONTENT_204);
@@ -166,46 +172,46 @@ authRouter.post('/login',
   checkUsersRequest,
   testLoginPassReqBody,
   checkReqBodyMware,
-  authController.login);
+  authController.login.bind(authController));
 
 authRouter.post('/password-recovery',
   checkUsersRequest,
   testEmailReqBody,
   checkReqBodyMware,
-  authController.sendPassRecoveryCode);
+  authController.sendPassRecoveryCode.bind(authController));
 
 authRouter.post('/new-password',
   checkUsersRequest,
   testReqRecoveryPass,
   checkReqBodyMware,
-  authController.setNewPassword);
+  authController.setNewPassword.bind(authController));
 
 authRouter.post('/refresh-token',
   checkCookie,
-  authController.refreshTokens);
+  authController.refreshTokens.bind(authController));
 
 authRouter.post('/registration-confirmation',
   checkUsersRequest,
   testCodeReqBody,
   checkReqBodyMware,
-  authController.confirmEmail);
+  authController.confirmEmail.bind(authController));
 
 authRouter.post('/registration',
   checkUsersRequest,
   testAddUserReqBody,
   checkReqBodyMware,
-  authController.registration);
+  authController.registration.bind(authController));
 
 authRouter.post('/registration-email-resending',
   checkUsersRequest,
   testEmailReqBody,
   checkReqBodyMware,
-  authController.resendEmailConfirm);
+  authController.resendEmailConfirm.bind(authController));
 
 authRouter.post('/logout',
   checkCookie,
-  authController.logout);
+  authController.logout.bind(authController));
 
 authRouter.get('/me',
   authMware,
-  authController.getMyInfo);
+  authController.getMyInfo.bind(authController));

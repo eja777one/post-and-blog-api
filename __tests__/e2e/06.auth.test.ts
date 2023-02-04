@@ -1,8 +1,8 @@
-import { passwordRecoveryRepository }
+import { PasswordRecoveryRepository }
   from './../../src/repositories/08.passwordsRecDBRepo';
 import mongoose from "mongoose";
 import { mongoUri } from "../../src/repositories/00.db";
-import { usersQueryRepository } from '../../src/repositories/05.usersQRepo';
+import { UsersQueryRepository } from '../../src/repositories/05.usersQRepo';
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
@@ -24,6 +24,9 @@ let token_01 = { ...token1 };
 let cookie: string[];
 
 // jest.setTimeout(30000);
+
+const passwordRecoveryRepository = new PasswordRecoveryRepository();
+const usersQueryRepository = new UsersQueryRepository();
 
 describe(`${URL}/auth`, () => {
   beforeAll(async () => {

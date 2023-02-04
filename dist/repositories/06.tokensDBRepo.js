@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tokensMetaRepository = void 0;
+exports.TokensMetaRepository = void 0;
 const _00_db_1 = require("./00.db");
 class TokensMetaRepository {
     addSession(sessionData) {
@@ -56,5 +56,5 @@ class TokensMetaRepository {
         });
     }
 }
+exports.TokensMetaRepository = TokensMetaRepository;
 ;
-exports.tokensMetaRepository = new TokensMetaRepository();

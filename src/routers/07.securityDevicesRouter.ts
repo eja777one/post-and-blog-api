@@ -1,14 +1,20 @@
-import { DeviceViewModel } from './../models';
 import { Router, Request, Response } from "express";
-import { securityDevicesService } from '../domains/06.securityDevicesService';
+import { SecurityDevicesService } from '../domains/06.securityDevicesService';
 import { checkCookie } from './../middlewares/checkCookieMware';
-import { HTTP } from '../models';
+import { HTTP, DeviceViewModel } from '../models';
 
 export const securityDevicesRouter = Router({});
 
 class SecurityDevicesController {
+
+  securityDevicesService: SecurityDevicesService;
+
+  constructor() {
+    this.securityDevicesService = new SecurityDevicesService();
+  }
+
   async getDevices(req: Request, res: Response<DeviceViewModel[]>) {
-    const usersSessions = await securityDevicesService
+    const usersSessions = await this.securityDevicesService
       .getUsersSessions(req.cookies.refreshToken);
 
     if (!usersSessions) return res.sendStatus(HTTP.UNAUTHORIZED_401);
@@ -17,7 +23,7 @@ class SecurityDevicesController {
   }
 
   async deleteNonCurrentDevices(req: Request, res: Response) {
-    const deleteOtherSessions = await securityDevicesService
+    const deleteOtherSessions = await this.securityDevicesService
       .deleteOtherSessions(req.cookies.refreshToken);
 
     if (!deleteOtherSessions) return res.sendStatus(HTTP.UNAUTHORIZED_401);
@@ -26,7 +32,7 @@ class SecurityDevicesController {
   }
 
   async deleteDevice(req: Request, res: Response) {
-    const deleteThisSession = await securityDevicesService
+    const deleteThisSession = await this.securityDevicesService
       .deleteThisSession(req.cookies.refreshToken, req.params.deviceId);
 
     res.sendStatus(HTTP[deleteThisSession]);
@@ -37,12 +43,13 @@ const securityDevicesController = new SecurityDevicesController();
 
 securityDevicesRouter.get('/',
   checkCookie,
-  securityDevicesController.getDevices);
+  securityDevicesController.getDevices.bind(securityDevicesController));
 
 securityDevicesRouter.delete('/',
   checkCookie,
-  securityDevicesController.deleteNonCurrentDevices);
+  securityDevicesController.deleteNonCurrentDevices
+    .bind(securityDevicesController));
 
 securityDevicesRouter.delete('/:deviceId',
   checkCookie,
-  securityDevicesController.deleteDevice);
+  securityDevicesController.deleteDevice.bind(securityDevicesController));

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsQueryRepository = void 0;
+exports.BlogsQueryRepository = void 0;
 const _00_db_1 = require("./00.db");
 const bson_1 = require("bson");
 const prepareBlog = (input) => {
@@ -53,5 +53,5 @@ class BlogsQueryRepository {
         });
     }
 }
+exports.BlogsQueryRepository = BlogsQueryRepository;
 ;
-exports.blogsQueryRepository = new BlogsQueryRepository();

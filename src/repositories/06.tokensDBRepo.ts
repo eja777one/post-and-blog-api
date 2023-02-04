@@ -1,7 +1,7 @@
 import { tokensMetaModel } from './00.db';
 import { TokensMetaDBModel } from "../models";
 
-class TokensMetaRepository {
+export class TokensMetaRepository {
 
   async addSession(sessionData: TokensMetaDBModel) {
     const result = await tokensMetaModel.collection.insertOne(sessionData);
@@ -46,5 +46,3 @@ class TokensMetaRepository {
     return result.deletedCount;
   }
 };
-
-export const tokensMetaRepository = new TokensMetaRepository();

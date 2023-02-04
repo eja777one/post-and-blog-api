@@ -1,7 +1,7 @@
 import { UsersRequestModel } from './00.db';
 import { usersRequestDBModel } from "../models";
 
-class UsersRequestRepository {
+export class UsersRequestRepository {
 
   async addLog(userLog: usersRequestDBModel) {
     const usersLogs = await UsersRequestModel
@@ -31,5 +31,3 @@ class UsersRequestRepository {
     return result.deletedCount;
   }
 };
-
-export const usersRequestRepository = new UsersRequestRepository();

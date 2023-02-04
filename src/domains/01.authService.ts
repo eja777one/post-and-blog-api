@@ -1,23 +1,37 @@
-import { PasswordDataDBModel, UserDBModel } from '../models';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import add from 'date-fns/add';
 import { ObjectID } from 'bson';
-import { emailManager } from '../managers/email-manager';
-import { usersRepository } from '../repositories/05.usersDBRepo';
-import { usersQueryRepository } from '../repositories/05.usersQRepo';
-import { tokensMetaRepository } from '../repositories/06.tokensDBRepo';
-import { tokensQueryMetaRepository } from '../repositories/06.tokensQRepo';
-import { passwordRecoveryRepository } from '../repositories/08.passwordsRecDBRepo';
-import { TokensMetaDBModel, UserInputModel } from "../models";
 import { jwtService } from '../application/jwt-service';
+import { emailManager } from '../managers/email-manager';
+import { UsersRepository } from '../repositories/05.usersDBRepo';
+import { UsersQueryRepository } from '../repositories/05.usersQRepo';
+import { TokensMetaRepository } from '../repositories/06.tokensDBRepo';
+import { TokensQueryMetaRepository } from '../repositories/06.tokensQRepo';
+import { PasswordRecoveryRepository } from '../repositories/08.passwordsRecDBRepo';
+import { TokensMetaDBModel, UserInputModel, PasswordDataDBModel, UserDBModel }
+  from "../models";
 
-class AuthService {
+export class AuthService {
+
+  usersRepository: UsersRepository
+  usersQueryRepository: UsersQueryRepository
+  tokensMetaRepository: TokensMetaRepository
+  tokensQueryMetaRepository: TokensQueryMetaRepository
+  passwordRecoveryRepository: PasswordRecoveryRepository
+
+  constructor() {
+    this.usersRepository = new UsersRepository();
+    this.usersQueryRepository = new UsersQueryRepository();
+    this.tokensMetaRepository = new TokensMetaRepository();
+    this.tokensQueryMetaRepository = new TokensQueryMetaRepository();
+    this.passwordRecoveryRepository = new PasswordRecoveryRepository();
+  }
 
   async checkAuth(loginOrEmail: string, password: string, ip: string,
     deviceName: string) {
 
-    const user = await usersQueryRepository.getDBUser(loginOrEmail);
+    const user = await this.usersQueryRepository.getDBUser(loginOrEmail);
     if (!user || !user.emailConfirmation.isConfirmed) return null;
 
     const inputPass = await this
@@ -25,11 +39,11 @@ class AuthService {
 
     if (inputPass !== user.accountData.passwordHash) return null;
 
-    const checkSession = await tokensQueryMetaRepository
+    const checkSession = await this.tokensQueryMetaRepository
       .checkSession(ip, deviceName, user._id.toString());
 
     if (checkSession) {
-      await tokensMetaRepository.deleteSessionBeforeLogin(
+      await this.tokensMetaRepository.deleteSessionBeforeLogin(
         ip, deviceName, user._id.toString())
     };
 
@@ -51,7 +65,7 @@ class AuthService {
       user._id.toString()
     );
 
-    const sessionId = await tokensMetaRepository.addSession(sessionData);
+    const sessionId = await this.tokensMetaRepository.addSession(sessionData);
 
     return { accessToken, refreshToken };
   }
@@ -61,7 +75,7 @@ class AuthService {
     const payload = await jwtService.getPayloadRefToken(refreshToken);
     if (!payload) return null;
 
-    const tokenCreatedAt = await tokensQueryMetaRepository
+    const tokenCreatedAt = await this.tokensQueryMetaRepository
       .getTokenMeta(payload.userId, payload.deviceId);
 
     if (!tokenCreatedAt) return null;
@@ -76,7 +90,7 @@ class AuthService {
     const newRefreshToken = await jwtService
       .createRefreshJwt(payload.userId, payload.deviceId, createdAt);
 
-    const updatedSession = await tokensMetaRepository
+    const updatedSession = await this.tokensMetaRepository
       .updateSession(payload.createdAt, createdAt, expiredAt);
 
     return { newAccessToken, newRefreshToken };
@@ -87,19 +101,19 @@ class AuthService {
     const payload = await jwtService.getExpiredPayloadRefToken(refreshToken);
     if (!payload) return false;
 
-    const deletedSession = await tokensMetaRepository
+    const deletedSession = await this.tokensMetaRepository
       .deleteSessionBeforeLogout(payload.userId, payload.deviceId);
 
     return deletedSession;
   }
 
   async confirmEmail(code: string) {
-    let user = await usersQueryRepository.getUserByConfirm(code);
+    let user = await this.usersQueryRepository.getUserByConfirm(code);
 
     if (!user || user.emailConfirmation.isConfirmed) return false;
     if (user.emailConfirmation.expirationDate < new Date()) return false;
 
-    let updatedId = await usersRepository.activateUser(user._id);
+    let updatedId = await this.usersRepository.activateUser(user._id);
 
     return true;
   }
@@ -108,7 +122,7 @@ class AuthService {
     const loginOrEmail = body.email ? body.email : body.login;
 
     const isLoginOrEmailExist =
-      await usersQueryRepository.findUser(loginOrEmail);
+      await this.usersQueryRepository.findUser(loginOrEmail);
 
     if (isLoginOrEmailExist) return isLoginOrEmailExist;
 
@@ -133,16 +147,16 @@ class AuthService {
       { ip }
     );
 
-    const newUserId = await usersRepository.addUser(user);
+    const newUserId = await this.usersRepository.addUser(user);
 
     try {
       const mail = await emailManager.sendEmailConfirmation(
         user.accountData.email,
         user.emailConfirmation.confirmationCode);
-      usersRepository.addConfirmMessage(user._id, mail);
+      await this.usersRepository.addConfirmMessage(user._id, mail);
     } catch (error) {
       console.error(error);
-      await usersRepository.deleteUser(user._id.toString());
+      await this.usersRepository.deleteUser(user._id.toString());
       return false;
     };
 
@@ -150,7 +164,7 @@ class AuthService {
   }
 
   async resendConfirmation(email: string) {
-    const user = await usersQueryRepository.getDBUser(email);
+    const user = await this.usersQueryRepository.getDBUser(email);
 
     if (!user || user.emailConfirmation.isConfirmed) return false;
     if (user.emailConfirmation.expirationDate < new Date()) return false;
@@ -163,7 +177,7 @@ class AuthService {
         user.accountData.email,
         newConfirmationCode
       );
-      usersRepository.updateConfirmation(
+      await this.usersRepository.updateConfirmation(
         user._id,
         mail,
         newConfirmationCode,
@@ -177,10 +191,10 @@ class AuthService {
   }
 
   async sendPasswordRecoveryCode(email: string) {
-    const user = await usersQueryRepository.getDBUser(email);
+    const user = await this.usersQueryRepository.getDBUser(email);
     if (!user) return null;
 
-    await passwordRecoveryRepository.deletePasswordData(user._id);
+    await this.passwordRecoveryRepository.deletePasswordData(user._id);
 
     const passwordData = new PasswordDataDBModel(
       new ObjectID(),
@@ -195,7 +209,7 @@ class AuthService {
         user.accountData.email,
         passwordData.passwordRecoveryCode
       );
-      await passwordRecoveryRepository.addData(passwordData);
+      await this.passwordRecoveryRepository.addData(passwordData);
       return true;
     } catch (error) {
       return false;
@@ -204,17 +218,18 @@ class AuthService {
 
   async updatePassword(newPassword: string, code: string) {
 
-    const passwordData = await passwordRecoveryRepository.getData(code);
+    const passwordData = await this.passwordRecoveryRepository.getData(code);
     if (!passwordData) return false;
 
     if (new Date(passwordData.expiredAt) < new Date()) {
 
-      await passwordRecoveryRepository.deletePasswordData(passwordData.userId);
+      await this.passwordRecoveryRepository
+        .deletePasswordData(passwordData.userId);
 
       return false;
     };
 
-    const userIsExist = await usersQueryRepository
+    const userIsExist = await this.usersQueryRepository
       .getDBUser(passwordData.userId.toString());
 
     if (!userIsExist) return false;
@@ -222,7 +237,7 @@ class AuthService {
     const passwordSalt = await bcrypt.genSalt(10);
     const passwordHash = await this._generateHash(newPassword, passwordSalt);
 
-    const setNewPassword = await usersRepository
+    const setNewPassword = await this.usersRepository
       .updatePassword(passwordData.userId, passwordHash, passwordSalt);
 
     if (!setNewPassword) return false;
@@ -235,5 +250,3 @@ class AuthService {
     return hash;
   }
 };
-
-export const authService = new AuthService();

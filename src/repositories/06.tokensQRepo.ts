@@ -1,7 +1,7 @@
 import { DeviceViewModel } from "../models";
 import { tokensMetaModel } from "./00.db";
 
-class TokensQueryMetaRepository {
+export class TokensQueryMetaRepository {
 
   async getSessionByDeviceId(deviceId: string) {
     const result = await tokensMetaModel.findOne({ deviceId });
@@ -36,5 +36,3 @@ class TokensQueryMetaRepository {
     return result;
   }
 };
-
-export const tokensQueryMetaRepository = new TokensQueryMetaRepository();

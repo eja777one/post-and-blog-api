@@ -13,6 +13,7 @@ exports.authMware = void 0;
 const jwt_service_1 = require("../application/jwt-service");
 const models_1 = require("../models");
 const _05_usersQRepo_1 = require("../repositories/05.usersQRepo");
+const usersQueryRepository = new _05_usersQRepo_1.UsersQueryRepository();
 const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.headers.authorization) {
         return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
@@ -22,7 +23,7 @@ const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
     if (!userId)
         return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-    const user = yield _05_usersQRepo_1.usersQueryRepository
+    const user = yield usersQueryRepository
         .getUser(userId.toString());
     if (!user)
         return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);

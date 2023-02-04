@@ -12,7 +12,7 @@ const prepareComment = (input: CommentDBModel): CommentViewModel => {
   };
 };
 
-class CommentsQueryRepository {
+export class CommentsQueryRepository {
 
   async getComment(id: string) {
     const comment = await CommentModel.findOne({ _id: new ObjectID(id) });
@@ -48,5 +48,3 @@ class CommentsQueryRepository {
     };
   }
 };
-
-export const commentsQueryRepository = new CommentsQueryRepository();

@@ -12,7 +12,7 @@ const prepareBlog = (input: BlogDBModel): BlogViewModel => {
   };
 };
 
-class BlogsQueryRepository {
+export class BlogsQueryRepository {
 
   async getBlogs(query: Query): Promise<Paginator<BlogViewModel>> {
 
@@ -50,5 +50,3 @@ class BlogsQueryRepository {
     return blog ? prepareBlog(blog) : null;
   }
 };
-
-export const blogsQueryRepository = new BlogsQueryRepository();

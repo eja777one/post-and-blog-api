@@ -1,7 +1,7 @@
 import { ObjectID } from 'bson';
 import { PasswordsRecoveryModel } from './00.db';
 
-class PasswordRecoveryRepository {
+export class PasswordRecoveryRepository {
 
   async addData(passwordData: any) {
     const result = await PasswordsRecoveryModel
@@ -30,6 +30,3 @@ class PasswordRecoveryRepository {
     return true;
   }
 };
-
-export const passwordRecoveryRepository = new PasswordRecoveryRepository();
-

@@ -1,13 +1,38 @@
-import { CommentDBModel } from '../models';
 import { ObjectID } from 'bson';
-import { UserViewModel, CommentInputModel } from '../models';
-import { commentsRepository } from '../repositories/03.commentsDBRepo';
-import { commentsQueryRepository } from '../repositories/03.commentsQRepo';
+import { UserViewModel, CommentInputModel, CommentDBModel, Query }
+  from '../models';
+import { CommentsRepository } from '../repositories/03.commentsDBRepo';
+import { CommentsQueryRepository } from '../repositories/03.commentsQRepo';
+import { PostsQueryRepository } from '../repositories/04.postsQRepo';
 
-class CommentsService {
+export class CommentsService {
+
+  commentsRepository: CommentsRepository;
+  commentsQueryRepository: CommentsQueryRepository;
+  postsQueryRepository: PostsQueryRepository;
+
+  constructor() {
+    this.commentsRepository = new CommentsRepository();
+    this.commentsQueryRepository = new CommentsQueryRepository();
+    this.postsQueryRepository = new PostsQueryRepository();
+  }
+
+  async getComments(query: Query, postId: string) {
+    const comments = await this.commentsQueryRepository
+      .getComments(query, postId);
+    return comments;
+  }
+
+  async getComment(commentId: string) {
+    const comment = await this.commentsQueryRepository.getComment(commentId);
+    return comment;
+  }
 
   async addComment(user: UserViewModel, postId: string,
     content: CommentInputModel) {
+
+    const post = await this.postsQueryRepository.getPost(postId);
+    if (!post) return null;
 
     const comment = new CommentDBModel(
       new ObjectID,
@@ -18,38 +43,39 @@ class CommentsService {
       postId
     );
 
-    const commentId = await commentsRepository.addComment(comment);
-    return commentId;
+    const commentId = await this.commentsRepository.addComment(comment);
+    const newComment = await this.commentsQueryRepository.getComment(commentId);
+    return newComment;
   }
 
   async updateComment(id: string, user: UserViewModel,
     content: CommentInputModel) {
 
-    const comment = await commentsQueryRepository.getComment(id);
+    const comment = await this.commentsQueryRepository.getComment(id);
 
     if (!comment) return 'NOT_FOUND_404';
     if (comment.userId !== user.id) return 'FORBIDDEN_403';
 
-    const updated = await commentsRepository.updateComment(id, content.content);
+    const updated = await this.commentsRepository.
+      updateComment(id, content.content);
+
     return updated ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
   }
 
   async deleteComment(id: string, user: UserViewModel) {
 
-    const comment = await commentsQueryRepository.getComment(id);
+    const comment = await this.commentsQueryRepository.getComment(id);
 
     if (!comment) return 'NOT_FOUND_404';
     if (comment.userId !== user.id) return 'FORBIDDEN_403';
 
-    const deleted = await commentsRepository.deleteComment(id);
+    const deleted = await this.commentsRepository.deleteComment(id);
 
     return deleted ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
   }
 
   async deleteAll() {
-    const result = await commentsRepository.deleteAll();
+    const result = await this.commentsRepository.deleteAll();
     return result;
   }
 };
-
-export const commentsService = new CommentsService();

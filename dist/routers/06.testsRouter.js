@@ -13,27 +13,36 @@ exports.testsRouter = void 0;
 const express_1 = require("express");
 const _06_tokensDBRepo_1 = require("../repositories/06.tokensDBRepo");
 const _07_usersReqDBRepo_1 = require("../repositories/07.usersReqDBRepo");
+const _02_blogsDBRepo_1 = require("../repositories/02.blogsDBRepo");
+const _04_postsDBRepo_1 = require("../repositories/04.postsDBRepo");
+const _03_commentsDBRepo_1 = require("../repositories/03.commentsDBRepo");
+const _05_usersDBRepo_1 = require("../repositories/05.usersDBRepo");
 const _08_passwordsRecDBRepo_1 = require("../repositories/08.passwordsRecDBRepo");
-const _02_blogsService_1 = require("../domains/02.blogsService");
-const _03_commentsService_1 = require("../domains/03.commentsService");
-const _04_postsService_1 = require("../domains/04.postsService");
-const _05_usersService_1 = require("../domains/05.usersService");
 const models_1 = require("../models");
 exports.testsRouter = (0, express_1.Router)({});
 class TestController {
+    constructor() {
+        this.tokensMetaRepository = new _06_tokensDBRepo_1.TokensMetaRepository();
+        this.usersRequestRepository = new _07_usersReqDBRepo_1.UsersRequestRepository();
+        this.passwordRecoveryRepository = new _08_passwordsRecDBRepo_1.PasswordRecoveryRepository();
+        this.blogsRepository = new _02_blogsDBRepo_1.BlogsRepository();
+        this.postsRepository = new _04_postsDBRepo_1.PostsRepository();
+        this.commentsRepository = new _03_commentsDBRepo_1.CommentsRepository();
+        this.usersRepository = new _05_usersDBRepo_1.UsersRepository();
+    }
     deleteAllData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield _02_blogsService_1.blogService.deleteAll();
-            yield _04_postsService_1.postsService.deleteAll();
-            yield _05_usersService_1.usersService.deleteAll();
-            yield _03_commentsService_1.commentsService.deleteAll();
-            yield _07_usersReqDBRepo_1.usersRequestRepository.deleteAll();
-            yield _06_tokensDBRepo_1.tokensMetaRepository.deleteAll();
-            yield _08_passwordsRecDBRepo_1.passwordRecoveryRepository.deleteAll();
+            yield this.blogsRepository.deleteAll();
+            yield this.postsRepository.deleteAll();
+            yield this.usersRepository.deleteAll();
+            yield this.commentsRepository.deleteAll();
+            yield this.usersRequestRepository.deleteAll();
+            yield this.tokensMetaRepository.deleteAll();
+            yield this.passwordRecoveryRepository.deleteAll();
             res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #1.1
         });
     }
 }
 ;
 const testController = new TestController();
-exports.testsRouter.delete('/', testController.deleteAllData);
+exports.testsRouter.delete('/', testController.deleteAllData.bind(testController));
