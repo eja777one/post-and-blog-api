@@ -25,9 +25,13 @@ class CommentsService {
             return comments;
         });
     }
-    getComment(commentId) {
+    getComment(commentId, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield this.commentsQueryRepository.getComment(commentId);
+            // if (user) {
+            //   const comment = await this.commentsQueryRepository
+            //     .getComment(commentId, user.id);
+            // }
+            const comment = yield this.commentsQueryRepository.getComment(commentId, user === null || user === void 0 ? void 0 : user.id);
             return comment;
         });
     }
@@ -36,15 +40,15 @@ class CommentsService {
             const post = yield this.postsQueryRepository.getPost(postId);
             if (!post)
                 return null;
-            const comment = new models_1.CommentDBModel(new bson_1.ObjectID, content.content, user.id, user.login, new Date().toISOString(), postId, 0, 0, 'None');
+            const comment = new models_1.CommentDBModel(new bson_1.ObjectID, content.content, user.id, user.login, new Date().toISOString(), postId, 0, 0, []);
             const commentId = yield this.commentsRepository.addComment(comment);
             const newComment = yield this.commentsQueryRepository.getComment(commentId);
             return newComment;
         });
     }
-    changeLikeStatus(commentId, likeStatus) {
+    changeLikeStatus(commentId, likeStatus, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield this.commentsQueryRepository.getComment(commentId);
+            const comment = yield this.commentsQueryRepository.getComment(commentId, userId);
             if (!comment)
                 return null;
             if (comment.likesInfo.myStatus === likeStatus)
@@ -54,13 +58,11 @@ class CommentsService {
                 dislikesCount: comment.likesInfo.dislikesCount,
                 myStatus: comment.likesInfo.myStatus,
             };
-            console.log(likesData);
             if (comment.likesInfo.myStatus === 'None' && likeStatus === 'Like') {
                 likesData.likesCount += 1;
             }
             else if (comment.likesInfo.myStatus === 'Like' && likeStatus === 'None') {
                 likesData.likesCount -= 1;
-                console.log('hello1');
             }
             ;
             if (comment.likesInfo.myStatus === 'None' && likeStatus === 'Dislike') {
@@ -80,9 +82,8 @@ class CommentsService {
             }
             ;
             likesData.myStatus = likeStatus;
-            console.log(likesData);
             const updated = yield this.commentsRepository
-                .updateLikeStatus(commentId, likesData);
+                .updateLikeStatus(commentId, likesData, userId);
             return updated;
         });
     }

@@ -19,7 +19,7 @@ export class CommentsController {
     if (!req.user) return res.sendStatus(HTTP.UNAUTHORIZED_401);
 
     const updated = await this.commentsService
-      .changeLikeStatus(req.params.commentId, req.body.likeStatus);
+      .changeLikeStatus(req.params.commentId, req.body.likeStatus, req.user.id);
 
     if (!updated) return res.sendStatus(HTTP.NOT_FOUND_404);
     res.sendStatus(HTTP.NO_CONTENT_204);
@@ -35,7 +35,9 @@ export class CommentsController {
   }
 
   async getComment(req: Request<{ commentId: string }>, res: Response) {
-    const comment = await this.commentsService.getComment(req.params.commentId);
+    const comment = await this.commentsService
+      .getComment(req.params.commentId, req.user);
+
     if (!comment) return res.sendStatus(HTTP.NOT_FOUND_404); // TEST #5.7, #5.12
     res.status(HTTP.OK_200).json(comment); // TEST #5.6
   }

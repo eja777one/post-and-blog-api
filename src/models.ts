@@ -181,24 +181,24 @@ export type CommentViewModel = {
 	commentatorInfo: CommentatorInfo
 	createdAt: string
 	likesInfo: LikesInfoViewModel
-}
+};
 
 export type CommentatorInfo = {
 	userId: string
 	userLogin: string
-}
+};
 
 export type LikesInfoViewModel = {
 	likesCount: number
 	dislikesCount: number
 	myStatus: 'None' | 'Like' | 'Dislike'
-}
+};
 
 export enum LikeStatus {
 	'None' = 'None',
 	'Like' = 'Like',
 	'Dislike' = 'Dislike',
-}
+};
 
 export class CommentDBModel {
 	constructor(
@@ -210,8 +210,13 @@ export class CommentDBModel {
 		public postId: string,
 		public likesCount: number,
 		public dislikesCount: number,
-		public myStatus: 'None' | 'Like' | 'Dislike'
+		public usersLikeStatus: UsersLikeStatus[]
 	) { }
+};
+
+export type UsersLikeStatus = {
+	userId: string,
+	likeStatus: 'None' | 'Like' | 'Dislike',
 };
 
 export type LoginSuccessViewModel = {

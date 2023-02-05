@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { commentsController } from "./00.compositionRoot";
 import { checkIsObjectId } from '../middlewares/checkParamMware';
-import { authMware } from '../middlewares/authMware';
+import { addOptionalUserInfo, authMware } from '../middlewares/authMware';
 import { checkReqBodyMware, testCommentBody, testLikeCommentBody }
   from '../middlewares/checkReqBodyMware';
 
@@ -28,5 +28,6 @@ commentsRouter.delete('/:commentId',
   commentsController.deleteComment.bind(commentsController));
 
 commentsRouter.get('/:commentId',
+  addOptionalUserInfo,
   checkIsObjectId,
   commentsController.getComment.bind(commentsController));

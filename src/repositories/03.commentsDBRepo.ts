@@ -16,15 +16,48 @@ export class CommentsRepository {
     return result.matchedCount === 1;
   }
 
-  async updateLikeStatus(id: string, likesData: LikesInfoViewModel) {
-    const result = await CommentModel.updateOne({ _id: new ObjectID(id) },
+  async updateLikeStatus(id: string, likesData: LikesInfoViewModel,
+    userId: string) {
+
+    const checkUser = await CommentModel.findOne(
       {
-        $set: {
-          likesCount: likesData.likesCount,
-          dislikesCount: likesData.dislikesCount,
-          myStatus: likesData.myStatus
-        }
-      });
+        _id: new ObjectID(id),
+        usersLikeStatus: { $elemMatch: { userId } }
+      })
+
+    let result: any;
+
+    if (!checkUser) {
+      console.log('hello0')
+      result = await CommentModel.updateOne({ _id: new ObjectID(id) },
+        {
+          $push: {
+            usersLikeStatus: {
+              userId,
+              likeStatus: likesData.myStatus
+            }
+          },
+          $set: {
+            likesCount: likesData.likesCount,
+            dislikesCount: likesData.dislikesCount,
+          }
+        });
+    } else {
+      console.log('hello1')
+      result = await CommentModel.updateOne(
+        {
+          _id: new ObjectID(id),
+          'usersLikeStatus.userId': userId
+        },
+        {
+          $set: {
+            likesCount: likesData.likesCount,
+            dislikesCount: likesData.dislikesCount,
+            'usersLikeStatus.$.likeStatus': likesData.myStatus
+          }
+        });
+    }
+
     return result.modifiedCount === 1;
   }
 

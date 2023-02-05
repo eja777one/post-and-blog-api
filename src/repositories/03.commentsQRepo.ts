@@ -2,31 +2,43 @@ import { ObjectID } from 'bson';
 import { CommentViewModel, CommentDBModel, Query, Paginator } from '../models';
 import { CommentModel } from './00.db';
 
-const prepareComment = (input: CommentDBModel): CommentViewModel => {
+const prepareComment = (dbComment: CommentDBModel,
+  userId?: string): CommentViewModel => {
+
+  let status: 'None' | 'Like' | 'Dislike' = 'None';
+
+  const statusesArr = dbComment.usersLikeStatus;
+
+  try {
+    status = statusesArr.filter(el => el.userId === userId)[0]?.likeStatus;
+  } catch (error) {
+    console.log('emptyArr')
+  }
+
   return {
-    id: input._id.toString(),
-    content: input.content,
+    id: dbComment._id.toString(),
+    content: dbComment.content,
     commentatorInfo: {
-      userId: input.userId,
-      userLogin: input.userLogin,
+      userId: dbComment.userId,
+      userLogin: dbComment.userLogin,
     },
-    createdAt: input.createdAt,
+    createdAt: dbComment.createdAt,
     likesInfo: {
-      likesCount: input.likesCount,
-      dislikesCount: input.dislikesCount,
-      myStatus: input.myStatus
+      likesCount: dbComment.likesCount,
+      dislikesCount: dbComment.dislikesCount,
+      myStatus: status ? status : 'None'
     }
   };
 };
 
 export class CommentsQueryRepository {
 
-  async getComment(id: string) {
-    const comment = await CommentModel.findOne({ _id: new ObjectID(id) });
-    return comment ? prepareComment(comment) : null;
+  async getComment(commentId: string, userId?: string) {
+    const comment = await CommentModel.findOne({ _id: new ObjectID(commentId) });
+    return comment ? prepareComment(comment, userId) : null;
   }
 
-  async getComments(query: Query, postId: string)
+  async getComments(query: Query, postId: string, userId?: string)
     : Promise<Paginator<CommentViewModel>> {
 
     const sortBy = query.sortBy;
@@ -46,12 +58,14 @@ export class CommentsQueryRepository {
 
     const pagesCount = Math.ceil(postsCommentsCount / query.pageSize);
 
+    let status: 'None' | 'Like' | 'Dislike' = 'None';
+
     return {
       pagesCount,
       page: query.pageNumber,
       pageSize: query.pageSize,
       totalCount: postsCommentsCount,
-      items: items.map((el: any) => prepareComment(el))
+      items: items.map((el: any) => prepareComment(el, userId))
     };
   }
 };

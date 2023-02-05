@@ -29,7 +29,7 @@ class CommentsController {
             if (!req.user)
                 return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
             const updated = yield this.commentsService
-                .changeLikeStatus(req.params.commentId, req.body.likeStatus);
+                .changeLikeStatus(req.params.commentId, req.body.likeStatus, req.user.id);
             if (!updated)
                 return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
             res.sendStatus(models_1.HTTP.NO_CONTENT_204);
@@ -46,7 +46,8 @@ class CommentsController {
     }
     getComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield this.commentsService.getComment(req.params.commentId);
+            const comment = yield this.commentsService
+                .getComment(req.params.commentId, req.user);
             if (!comment)
                 return res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #5.7, #5.12
             res.status(models_1.HTTP.OK_200).json(comment); // TEST #5.6

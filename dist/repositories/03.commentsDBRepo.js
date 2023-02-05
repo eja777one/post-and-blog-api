@@ -25,15 +25,41 @@ class CommentsRepository {
             return result.matchedCount === 1;
         });
     }
-    updateLikeStatus(id, likesData) {
+    updateLikeStatus(id, likesData, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield _00_db_1.CommentModel.updateOne({ _id: new bson_1.ObjectID(id) }, {
-                $set: {
-                    likesCount: likesData.likesCount,
-                    dislikesCount: likesData.dislikesCount,
-                    myStatus: likesData.myStatus
-                }
+            const checkUser = yield _00_db_1.CommentModel.findOne({
+                _id: new bson_1.ObjectID(id),
+                usersLikeStatus: { $elemMatch: { userId } }
             });
+            let result;
+            if (!checkUser) {
+                console.log('hello0');
+                result = yield _00_db_1.CommentModel.updateOne({ _id: new bson_1.ObjectID(id) }, {
+                    $push: {
+                        usersLikeStatus: {
+                            userId,
+                            likeStatus: likesData.myStatus
+                        }
+                    },
+                    $set: {
+                        likesCount: likesData.likesCount,
+                        dislikesCount: likesData.dislikesCount,
+                    }
+                });
+            }
+            else {
+                console.log('hello1');
+                result = yield _00_db_1.CommentModel.updateOne({
+                    _id: new bson_1.ObjectID(id),
+                    'usersLikeStatus.userId': userId
+                }, {
+                    $set: {
+                        likesCount: likesData.likesCount,
+                        dislikesCount: likesData.dislikesCount,
+                        'usersLikeStatus.$.likeStatus': likesData.myStatus
+                    }
+                });
+            }
             return result.modifiedCount === 1;
         });
     }

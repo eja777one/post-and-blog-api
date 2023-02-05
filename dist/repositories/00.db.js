@@ -108,7 +108,7 @@ const commentSchema = new mongoose_1.default.Schema({
     postId: { type: String, required: true },
     likesCount: { type: Number, required: true },
     dislikesCount: { type: Number, required: true },
-    myStatus: { type: String, required: true },
+    usersLikeStatus: []
 });
 exports.CommentModel = mongoose_1.default.model('comments', commentSchema);
 exports.usersRequestSchema = new mongoose_1.default.Schema({

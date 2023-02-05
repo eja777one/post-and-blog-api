@@ -18,8 +18,13 @@ export class CommentsService {
     return comments;
   }
 
-  async getComment(commentId: string) {
-    const comment = await this.commentsQueryRepository.getComment(commentId);
+  async getComment(commentId: string, user?: UserViewModel) {
+    // if (user) {
+    //   const comment = await this.commentsQueryRepository
+    //     .getComment(commentId, user.id);
+    // }
+
+    const comment = await this.commentsQueryRepository.getComment(commentId, user?.id);
     return comment;
   }
 
@@ -38,7 +43,7 @@ export class CommentsService {
       postId,
       0,
       0,
-      'None'
+      []
     );
 
     const commentId = await this.commentsRepository.addComment(comment);
@@ -46,8 +51,9 @@ export class CommentsService {
     return newComment;
   }
 
-  async changeLikeStatus(commentId: string, likeStatus: 'None' | 'Like' | 'Dislike') {
-    const comment = await this.commentsQueryRepository.getComment(commentId);
+  async changeLikeStatus(commentId: string,
+    likeStatus: 'None' | 'Like' | 'Dislike', userId: string) {
+    const comment = await this.commentsQueryRepository.getComment(commentId, userId);
     if (!comment) return null;
     if (comment.likesInfo.myStatus === likeStatus) return true;
 
@@ -80,7 +86,7 @@ export class CommentsService {
     likesData.myStatus = likeStatus;
 
     const updated = await this.commentsRepository
-      .updateLikeStatus(commentId, likesData);
+      .updateLikeStatus(commentId, likesData, userId);
 
     return updated;
   }

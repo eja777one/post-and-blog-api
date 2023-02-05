@@ -70,8 +70,9 @@ var LikeStatus;
     LikeStatus["Like"] = "Like";
     LikeStatus["Dislike"] = "Dislike";
 })(LikeStatus = exports.LikeStatus || (exports.LikeStatus = {}));
+;
 class CommentDBModel {
-    constructor(_id, content, userId, userLogin, createdAt, postId, likesCount, dislikesCount, myStatus) {
+    constructor(_id, content, userId, userLogin, createdAt, postId, likesCount, dislikesCount, usersLikeStatus) {
         this._id = _id;
         this.content = content;
         this.userId = userId;
@@ -80,7 +81,7 @@ class CommentDBModel {
         this.postId = postId;
         this.likesCount = likesCount;
         this.dislikesCount = dislikesCount;
-        this.myStatus = myStatus;
+        this.usersLikeStatus = usersLikeStatus;
     }
 }
 exports.CommentDBModel = CommentDBModel;

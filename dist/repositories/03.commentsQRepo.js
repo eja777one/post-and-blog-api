@@ -12,30 +12,39 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentsQueryRepository = void 0;
 const bson_1 = require("bson");
 const _00_db_1 = require("./00.db");
-const prepareComment = (input) => {
+const prepareComment = (dbComment, userId) => {
+    var _a;
+    let status = 'None';
+    const statusesArr = dbComment.usersLikeStatus;
+    try {
+        status = (_a = statusesArr.filter(el => el.userId === userId)[0]) === null || _a === void 0 ? void 0 : _a.likeStatus;
+    }
+    catch (error) {
+        console.log('emptyArr');
+    }
     return {
-        id: input._id.toString(),
-        content: input.content,
+        id: dbComment._id.toString(),
+        content: dbComment.content,
         commentatorInfo: {
-            userId: input.userId,
-            userLogin: input.userLogin,
+            userId: dbComment.userId,
+            userLogin: dbComment.userLogin,
         },
-        createdAt: input.createdAt,
+        createdAt: dbComment.createdAt,
         likesInfo: {
-            likesCount: input.likesCount,
-            dislikesCount: input.dislikesCount,
-            myStatus: input.myStatus
+            likesCount: dbComment.likesCount,
+            dislikesCount: dbComment.dislikesCount,
+            myStatus: status ? status : 'None'
         }
     };
 };
 class CommentsQueryRepository {
-    getComment(id) {
+    getComment(commentId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield _00_db_1.CommentModel.findOne({ _id: new bson_1.ObjectID(id) });
-            return comment ? prepareComment(comment) : null;
+            const comment = yield _00_db_1.CommentModel.findOne({ _id: new bson_1.ObjectID(commentId) });
+            return comment ? prepareComment(comment, userId) : null;
         });
     }
-    getComments(query, postId) {
+    getComments(query, postId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const sortBy = query.sortBy;
             const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
@@ -49,12 +58,13 @@ class CommentsQueryRepository {
             const postsCommentsCount = yield _00_db_1.CommentModel
                 .countDocuments({ postId: postId });
             const pagesCount = Math.ceil(postsCommentsCount / query.pageSize);
+            let status = 'None';
             return {
                 pagesCount,
                 page: query.pageNumber,
                 pageSize: query.pageSize,
                 totalCount: postsCommentsCount,
-                items: items.map((el) => prepareComment(el))
+                items: items.map((el) => prepareComment(el, userId))
             };
         });
     }

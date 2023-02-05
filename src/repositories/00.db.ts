@@ -5,7 +5,8 @@ import {
   PostDBModel,
   TokensMetaDBModel,
   UserDBModel,
-  usersRequestDBModel
+  usersRequestDBModel,
+  UsersLikeStatus
 } from '../models';
 import { MongoClient, ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
@@ -93,7 +94,7 @@ const commentSchema = new mongoose.Schema<CommentDBModel>({
   postId: { type: String, required: true },
   likesCount: { type: Number, required: true },
   dislikesCount: { type: Number, required: true },
-  myStatus: { type: String, required: true },
+  usersLikeStatus: []
 });
 
 export const CommentModel = mongoose.model('comments', commentSchema);
