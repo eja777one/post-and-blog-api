@@ -291,11 +291,18 @@ describe(`${URL}/posts`, () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(comment).toStrictEqual({
+      commentatorInfo: {
+        userId: user_01.id,
+        userLogin: user_01.login,
+      },
       id: expect.any(String),
       content: commentInput.content,
-      userId: user_01.id,
-      userLogin: user_01.login,
-      createdAt: expect.any(String)
+      createdAt: expect.any(String),
+      likesInfo: {
+        dislikesCount: 0,
+        likesCount: 0,
+        myStatus: "None"
+      }
     });
 
     comment_01 = { ...comment };

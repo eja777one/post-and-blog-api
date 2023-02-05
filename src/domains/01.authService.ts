@@ -14,19 +14,13 @@ import { TokensMetaDBModel, UserInputModel, PasswordDataDBModel, UserDBModel }
 
 export class AuthService {
 
-  usersRepository: UsersRepository
-  usersQueryRepository: UsersQueryRepository
-  tokensMetaRepository: TokensMetaRepository
-  tokensQueryMetaRepository: TokensQueryMetaRepository
-  passwordRecoveryRepository: PasswordRecoveryRepository
-
-  constructor() {
-    this.usersRepository = new UsersRepository();
-    this.usersQueryRepository = new UsersQueryRepository();
-    this.tokensMetaRepository = new TokensMetaRepository();
-    this.tokensQueryMetaRepository = new TokensQueryMetaRepository();
-    this.passwordRecoveryRepository = new PasswordRecoveryRepository();
-  }
+  constructor(
+    protected usersRepository: UsersRepository,
+    protected usersQueryRepository: UsersQueryRepository,
+    protected tokensMetaRepository: TokensMetaRepository,
+    protected tokensQueryMetaRepository: TokensQueryMetaRepository,
+    protected passwordRecoveryRepository: PasswordRecoveryRepository,
+  ) { }
 
   async checkAuth(loginOrEmail: string, password: string, ip: string,
     deviceName: string) {
@@ -49,7 +43,7 @@ export class AuthService {
 
     const deviceId = uuidv4();
     const createdAt = new Date().toISOString();
-    const expiredAt = add(new Date(), { seconds: 20 }).toISOString();
+    const expiredAt = add(new Date(), { minutes: 60 }).toISOString();
 
     const accessToken = await jwtService.createAccessJwt(user._id.toString());
 

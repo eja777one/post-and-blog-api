@@ -23,8 +23,7 @@ const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     const userId = yield jwt_service_1.jwtService.getUserIdByToken(token);
     if (!userId)
         return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-    const user = yield usersQueryRepository
-        .getUser(userId.toString());
+    const user = yield usersQueryRepository.getUser(userId.toString());
     if (!user)
         return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
     req.user = user;

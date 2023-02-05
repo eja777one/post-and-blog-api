@@ -1,21 +1,16 @@
 import { ObjectID } from 'bson';
-import { UserViewModel, CommentInputModel, CommentDBModel, Query }
-  from '../models';
 import { CommentsRepository } from '../repositories/03.commentsDBRepo';
 import { CommentsQueryRepository } from '../repositories/03.commentsQRepo';
 import { PostsQueryRepository } from '../repositories/04.postsQRepo';
+import { UserViewModel, CommentInputModel, CommentDBModel, Query, LikesInfoViewModel }
+  from '../models';
 
 export class CommentsService {
-
-  commentsRepository: CommentsRepository;
-  commentsQueryRepository: CommentsQueryRepository;
-  postsQueryRepository: PostsQueryRepository;
-
-  constructor() {
-    this.commentsRepository = new CommentsRepository();
-    this.commentsQueryRepository = new CommentsQueryRepository();
-    this.postsQueryRepository = new PostsQueryRepository();
-  }
+  constructor(
+    protected commentsRepository: CommentsRepository,
+    protected commentsQueryRepository: CommentsQueryRepository,
+    protected postsQueryRepository: PostsQueryRepository,
+  ) { }
 
   async getComments(query: Query, postId: string) {
     const comments = await this.commentsQueryRepository
@@ -40,12 +35,54 @@ export class CommentsService {
       user.id,
       user.login,
       new Date().toISOString(),
-      postId
+      postId,
+      0,
+      0,
+      'None'
     );
 
     const commentId = await this.commentsRepository.addComment(comment);
     const newComment = await this.commentsQueryRepository.getComment(commentId);
     return newComment;
+  }
+
+  async changeLikeStatus(commentId: string, likeStatus: 'None' | 'Like' | 'Dislike') {
+    const comment = await this.commentsQueryRepository.getComment(commentId);
+    if (!comment) return null;
+    if (comment.likesInfo.myStatus === likeStatus) return true;
+
+    const likesData: LikesInfoViewModel = {
+      likesCount: comment.likesInfo.likesCount,
+      dislikesCount: comment.likesInfo.dislikesCount,
+      myStatus: comment.likesInfo.myStatus,
+    };
+
+    if (comment.likesInfo.myStatus === 'None' && likeStatus === 'Like') {
+      likesData.likesCount += 1;
+    } else if (comment.likesInfo.myStatus === 'Like' && likeStatus === 'None') {
+      likesData.likesCount -= 1;
+    };
+
+    if (comment.likesInfo.myStatus === 'None' && likeStatus === 'Dislike') {
+      likesData.dislikesCount += 1;
+    } else if (comment.likesInfo.myStatus === 'Dislike' && likeStatus === 'None') {
+      likesData.dislikesCount -= 1;
+    };
+
+    if (comment.likesInfo.myStatus === 'Like' && likeStatus === 'Dislike') {
+      likesData.likesCount -= 1;
+      likesData.dislikesCount += 1;
+    } else if (comment.likesInfo.myStatus === 'Dislike' && likeStatus === 'Like') {
+      likesData.likesCount += 1;
+      likesData.dislikesCount -= 1;
+    };
+
+    likesData.myStatus = likeStatus;
+
+    const updated = await this.commentsRepository
+      .updateLikeStatus(commentId, likesData);
+
+    return updated;
   }
 
   async updateComment(id: string, user: UserViewModel,
@@ -54,7 +91,7 @@ export class CommentsService {
     const comment = await this.commentsQueryRepository.getComment(id);
 
     if (!comment) return 'NOT_FOUND_404';
-    if (comment.userId !== user.id) return 'FORBIDDEN_403';
+    if (comment.commentatorInfo.userId !== user.id) return 'FORBIDDEN_403';
 
     const updated = await this.commentsRepository.
       updateComment(id, content.content);
@@ -67,7 +104,7 @@ export class CommentsService {
     const comment = await this.commentsQueryRepository.getComment(id);
 
     if (!comment) return 'NOT_FOUND_404';
-    if (comment.userId !== user.id) return 'FORBIDDEN_403';
+    if (comment.commentatorInfo.userId !== user.id) return 'FORBIDDEN_403';
 
     const deleted = await this.commentsRepository.deleteComment(id);
 

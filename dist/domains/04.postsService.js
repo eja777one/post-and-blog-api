@@ -11,17 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsService = void 0;
 const bson_1 = require("bson");
-const _02_blogsQRepo_1 = require("../repositories/02.blogsQRepo");
-const _04_postsDBRepo_1 = require("../repositories/04.postsDBRepo");
-const _04_postsQRepo_1 = require("./../repositories/04.postsQRepo");
 const models_1 = require("../models");
-const _03_commentsQRepo_1 = require("../repositories/03.commentsQRepo");
 class PostsService {
-    constructor() {
-        this.commentsQueryRepository = new _03_commentsQRepo_1.CommentsQueryRepository();
-        this.blogsQueryRepository = new _02_blogsQRepo_1.BlogsQueryRepository();
-        this.postsQueryRepository = new _04_postsQRepo_1.PostsQueryRepository();
-        this.postsRepository = new _04_postsDBRepo_1.PostsRepository();
+    constructor(commentsQueryRepository, blogsQueryRepository, postsQueryRepository, postsRepository) {
+        this.commentsQueryRepository = commentsQueryRepository;
+        this.blogsQueryRepository = blogsQueryRepository;
+        this.postsQueryRepository = postsQueryRepository;
+        this.postsRepository = postsRepository;
     }
     getPost(postId) {
         return __awaiter(this, void 0, void 0, function* () {

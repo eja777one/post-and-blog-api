@@ -6,19 +6,13 @@ import { PostsQueryRepository } from '../repositories/04.postsQRepo';
 import { BlogInputModel, Query } from "../models";
 import { ObjectId } from 'mongodb';
 
-export class BlogService {
-
-	blogsQueryRepository: BlogsQueryRepository;
-	postsQueryRepository: PostsQueryRepository;
-	blogsRepository: BlogsRepository;
-	postsRepository: PostsRepository;
-
-	constructor() {
-		this.blogsRepository = new BlogsRepository();
-		this.postsRepository = new PostsRepository();
-		this.postsQueryRepository = new PostsQueryRepository();
-		this.blogsQueryRepository = new BlogsQueryRepository();
-	}
+export class BlogsService {
+	constructor(
+		protected blogsRepository: BlogsRepository,
+		protected postsRepository: PostsRepository,
+		protected postsQueryRepository: PostsQueryRepository,
+		protected blogsQueryRepository: BlogsQueryRepository,
+	) { }
 
 	async getBlogs(query: Query) {
 		const blogs = await this.blogsQueryRepository.getBlogs(query);

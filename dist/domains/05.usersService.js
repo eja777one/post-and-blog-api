@@ -13,16 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
-const _05_usersQRepo_1 = require("./../repositories/05.usersQRepo");
-const _05_usersDBRepo_1 = require("./../repositories/05.usersDBRepo");
 const models_1 = require("../models");
 const bson_1 = require("bson");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const add_1 = __importDefault(require("date-fns/add"));
 class UsersService {
-    constructor() {
-        this.usersRepository = new _05_usersDBRepo_1.UsersRepository();
-        this.usersQueryRepository = new _05_usersQRepo_1.UsersQueryRepository();
+    constructor(usersRepository, usersQueryRepository) {
+        this.usersRepository = usersRepository;
+        this.usersQueryRepository = usersQueryRepository;
     }
     getUsers(query) {
         return __awaiter(this, void 0, void 0, function* () {

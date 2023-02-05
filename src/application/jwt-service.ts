@@ -8,7 +8,7 @@ export const jwtService = {
     return jwt.sign(
       { userId },
       settings.ACCESS_JWT_SECRET,
-      { expiresIn: '10s' }
+      { expiresIn: '30m' }
     );
   },
 
@@ -20,7 +20,7 @@ export const jwtService = {
     return jwt.sign(
       { userId, deviceId, createdAt },
       settings.REFRESH_JWT_SECRET,
-      { expiresIn: '20s' }
+      { expiresIn: '60m' }
     );
   },
 

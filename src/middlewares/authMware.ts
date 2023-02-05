@@ -5,10 +5,7 @@ import { UsersQueryRepository } from '../repositories/05.usersQRepo';
 
 const usersQueryRepository = new UsersQueryRepository();
 
-export const authMware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction) => {
+export const authMware = async (req: Request, res: Response, next: NextFunction) => {
 
   if (!req.headers.authorization) {
     return res.sendStatus(HTTP.UNAUTHORIZED_401);
@@ -20,8 +17,7 @@ export const authMware = async (
 
   if (!userId) return res.sendStatus(HTTP.UNAUTHORIZED_401);
 
-  const user = await usersQueryRepository
-    .getUser(userId.toString());
+  const user = await usersQueryRepository.getUser(userId.toString());
 
   if (!user) return res.sendStatus(HTTP.UNAUTHORIZED_401);
 

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
+exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testLikeCommentBody = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
 const _02_blogsQRepo_1 = require("../repositories/02.blogsQRepo");
 const express_validator_1 = require("express-validator");
 const blogsQueryRepository = new _02_blogsQRepo_1.BlogsQueryRepository();
@@ -145,6 +145,14 @@ exports.testCommentBody = (0, express_validator_1.checkSchema)({
         isString: true,
         isLength: {
             options: { min: 20, max: 300 }
+        }
+    }
+});
+exports.testLikeCommentBody = (0, express_validator_1.checkSchema)({
+    likeStatus: {
+        isString: true,
+        isIn: {
+            options: [['None', 'Like', 'Dislike']]
         }
     }
 });

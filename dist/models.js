@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PasswordDataDBModel = exports.TokensMetaDBModel = exports.CommentDBModel = exports.UserDBModel = exports.PostDBModel = exports.BlogDBModel = exports.HTTP = exports.sortDirection = exports.PostInputModel = void 0;
+exports.PasswordDataDBModel = exports.TokensMetaDBModel = exports.CommentDBModel = exports.LikeStatus = exports.UserDBModel = exports.PostDBModel = exports.BlogDBModel = exports.HTTP = exports.sortDirection = exports.PostInputModel = void 0;
 class PostInputModel {
     constructor(title, shortDescription, content, blogId) {
         this.title = title;
@@ -64,14 +64,23 @@ class UserDBModel {
 }
 exports.UserDBModel = UserDBModel;
 ;
+var LikeStatus;
+(function (LikeStatus) {
+    LikeStatus["None"] = "None";
+    LikeStatus["Like"] = "Like";
+    LikeStatus["Dislike"] = "Dislike";
+})(LikeStatus = exports.LikeStatus || (exports.LikeStatus = {}));
 class CommentDBModel {
-    constructor(_id, content, userId, userLogin, createdAt, postId) {
+    constructor(_id, content, userId, userLogin, createdAt, postId, likesCount, dislikesCount, myStatus) {
         this._id = _id;
         this.content = content;
         this.userId = userId;
         this.userLogin = userLogin;
         this.createdAt = createdAt;
         this.postId = postId;
+        this.likesCount = likesCount;
+        this.dislikesCount = dislikesCount;
+        this.myStatus = myStatus;
     }
 }
 exports.CommentDBModel = CommentDBModel;

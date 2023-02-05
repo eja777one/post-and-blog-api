@@ -19,19 +19,14 @@ const add_1 = __importDefault(require("date-fns/add"));
 const bson_1 = require("bson");
 const jwt_service_1 = require("../application/jwt-service");
 const email_manager_1 = require("../managers/email-manager");
-const _05_usersDBRepo_1 = require("../repositories/05.usersDBRepo");
-const _05_usersQRepo_1 = require("../repositories/05.usersQRepo");
-const _06_tokensDBRepo_1 = require("../repositories/06.tokensDBRepo");
-const _06_tokensQRepo_1 = require("../repositories/06.tokensQRepo");
-const _08_passwordsRecDBRepo_1 = require("../repositories/08.passwordsRecDBRepo");
 const models_1 = require("../models");
 class AuthService {
-    constructor() {
-        this.usersRepository = new _05_usersDBRepo_1.UsersRepository();
-        this.usersQueryRepository = new _05_usersQRepo_1.UsersQueryRepository();
-        this.tokensMetaRepository = new _06_tokensDBRepo_1.TokensMetaRepository();
-        this.tokensQueryMetaRepository = new _06_tokensQRepo_1.TokensQueryMetaRepository();
-        this.passwordRecoveryRepository = new _08_passwordsRecDBRepo_1.PasswordRecoveryRepository();
+    constructor(usersRepository, usersQueryRepository, tokensMetaRepository, tokensQueryMetaRepository, passwordRecoveryRepository) {
+        this.usersRepository = usersRepository;
+        this.usersQueryRepository = usersQueryRepository;
+        this.tokensMetaRepository = tokensMetaRepository;
+        this.tokensQueryMetaRepository = tokensQueryMetaRepository;
+        this.passwordRecoveryRepository = passwordRecoveryRepository;
     }
     checkAuth(loginOrEmail, password, ip, deviceName) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -50,7 +45,7 @@ class AuthService {
             ;
             const deviceId = (0, uuid_1.v4)();
             const createdAt = new Date().toISOString();
-            const expiredAt = (0, add_1.default)(new Date(), { seconds: 20 }).toISOString();
+            const expiredAt = (0, add_1.default)(new Date(), { minutes: 60 }).toISOString();
             const accessToken = yield jwt_service_1.jwtService.createAccessJwt(user._id.toString());
             const refreshToken = yield jwt_service_1.jwtService
                 .createRefreshJwt(user._id.toString(), deviceId, createdAt);

@@ -1,5 +1,5 @@
 import { ObjectID } from 'bson';
-import { CommentDBModel } from '../models';
+import { CommentDBModel, LikesInfoViewModel } from '../models';
 import { CommentModel } from './00.db';
 
 export class CommentsRepository {
@@ -14,6 +14,18 @@ export class CommentsRepository {
       { $set: { content } });
 
     return result.matchedCount === 1;
+  }
+
+  async updateLikeStatus(id: string, likesData: LikesInfoViewModel) {
+    const result = await CommentModel.updateOne({ _id: new ObjectID(id) },
+      {
+        $set: {
+          likesCount: likesData.likesCount,
+          dislikesCount: likesData.dislikesCount,
+          myStatus: likesData.myStatus
+        }
+      });
+    return result.modifiedCount === 1;
   }
 
   async deleteComment(id: string) {

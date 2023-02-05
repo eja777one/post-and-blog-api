@@ -3,14 +3,10 @@ import { TokensQueryMetaRepository } from '../repositories/06.tokensQRepo';
 import { jwtService } from "../application/jwt-service";
 
 export class SecurityDevicesService {
-
-  tokensMetaRepository: TokensMetaRepository;
-  tokensQueryMetaRepository: TokensQueryMetaRepository;
-
-  constructor() {
-    this.tokensMetaRepository = new TokensMetaRepository();
-    this.tokensQueryMetaRepository = new TokensQueryMetaRepository();
-  }
+  constructor(
+    protected tokensMetaRepository: TokensMetaRepository,
+    protected tokensQueryMetaRepository: TokensQueryMetaRepository,
+  ) { }
 
   async getUsersSessions(refreshToken: string) {
 

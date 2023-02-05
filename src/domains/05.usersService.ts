@@ -6,14 +6,10 @@ import bcrypt from 'bcrypt';
 import add from 'date-fns/add';
 
 export class UsersService {
-
-  usersRepository: UsersRepository;
-  usersQueryRepository: UsersQueryRepository;
-
-  constructor() {
-    this.usersRepository = new UsersRepository();
-    this.usersQueryRepository = new UsersQueryRepository();
-  }
+  constructor(
+    protected usersRepository: UsersRepository,
+    protected usersQueryRepository: UsersQueryRepository,
+  ) { }
 
   async getUsers(query: Query) {
     const users = await this.usersQueryRepository.getUsers(query);

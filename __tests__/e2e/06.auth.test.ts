@@ -54,7 +54,7 @@ describe(`${URL}/auth`, () => {
   //     .post(`${URL}/auth/registration`)
   //     .send(userInput1);
 
-  //   for (let i = 0; i < 4; i++) {
+  //   for (let i = 0; i < 10; i++) {
   //     response = await request(app)
   //       .post(`${URL}/auth/registration`)
   //       .send(userInput1)

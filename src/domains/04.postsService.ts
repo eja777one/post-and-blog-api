@@ -6,18 +6,11 @@ import { PostInputModel, PostDBModel, Query, PostInputModelNoId } from '../model
 import { CommentsQueryRepository } from '../repositories/03.commentsQRepo';
 
 export class PostsService {
-
-	commentsQueryRepository: CommentsQueryRepository;
-	postsQueryRepository: PostsQueryRepository;
-	blogsQueryRepository: BlogsQueryRepository;
-	postsRepository: PostsRepository;
-
-	constructor() {
-		this.commentsQueryRepository = new CommentsQueryRepository();
-		this.blogsQueryRepository = new BlogsQueryRepository();
-		this.postsQueryRepository = new PostsQueryRepository();
-		this.postsRepository = new PostsRepository();
-	}
+	constructor(
+		protected commentsQueryRepository: CommentsQueryRepository,
+		protected blogsQueryRepository: BlogsQueryRepository,
+		protected postsQueryRepository: PostsQueryRepository,
+		protected postsRepository: PostsRepository,) { }
 
 	async getPost(postId: string) {
 		const post = this.postsQueryRepository.getPost(postId);

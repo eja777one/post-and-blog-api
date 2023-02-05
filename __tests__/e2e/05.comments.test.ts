@@ -170,11 +170,18 @@ describe(`${URL}/comments`, () => {
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.CREATED_201);
     expect(comment).toStrictEqual({
+      commentatorInfo: {
+        userId: user_01.id,
+        userLogin: user_01.login,
+      },
       id: expect.any(String),
       content: commentInput.content,
-      userId: user_01.id,
-      userLogin: user_01.login,
-      createdAt: expect.any(String)
+      createdAt: expect.any(String),
+      likesInfo: {
+        dislikesCount: 0,
+        likesCount: 0,
+        myStatus: "None"
+      }
     });
 
     comment_01 = comment;
@@ -228,6 +235,69 @@ describe(`${URL}/comments`, () => {
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
   // TEST #5.6
+  it('Like comment_100 by User_01. Status 404', async () => {
+    await request(app)
+      .put(`${URL}/comments/{comment_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: "Like" })
+      .expect(HTTP.NOT_FOUND_404)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.7
+  it('Like comment_01 by User_01. Status 401', async () => {
+    await request(app)
+      .put(`${URL}/comments/${comment_01.id}/like-status`)
+      .set('Authorization', `Bearer {token_01.accessToken}`)
+      .send({ likeStatus: "Like" })
+      .expect(HTTP.UNAUTHORIZED_401)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.8
+  it('Like comment_01 by User_01. Status 400', async () => {
+    await request(app)
+      .put(`${URL}/comments/${comment_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: "I don't like" })
+      .expect(HTTP.BAD_REQUEST_400)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.9
+  it('Like comment_01 by User_01. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/comments/${comment_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: "Like" })
+      .expect(HTTP.NO_CONTENT_204)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.10
+  it('Delete Like for comment_01 by User_01. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/comments/${comment_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: "None" })
+      .expect(HTTP.NO_CONTENT_204)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.11
+  it('Dislike comment_01 by User_01. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/comments/${comment_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: "Dislike" })
+      .expect(HTTP.NO_CONTENT_204)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.12
+  it('Dislike comment_01 by User_02. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/comments/${comment_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_02.accessToken}`)
+      .send({ likeStatus: "Dislike" })
+      .expect(HTTP.NO_CONTENT_204)
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+
+  // TEST #5.13
   it('Get comment_01. Status 200', async () => {
     const response = await request(app)
       .get(`${URL}/comments/${comment_01.id}`)
@@ -236,17 +306,30 @@ describe(`${URL}/comments`, () => {
 
     expect(response).toBeDefined();
     expect(response.status).toBe(HTTP.OK_200);
-    expect(comment).toStrictEqual(comment_01);
+    expect(comment).toStrictEqual({
+      commentatorInfo: {
+        userId: user_01.id,
+        userLogin: user_01.login,
+      },
+      id: expect.any(String),
+      content: commentInput.content,
+      createdAt: expect.any(String),
+      likesInfo: {
+        dislikesCount: 2,
+        likesCount: 0,
+        myStatus: "Dislike"
+      }
+    });
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
-  // TEST #5.7
-  it('Get comment with id 100. Status 200', async () => {
+  // TEST #5.14
+  it('Get comment with id 100. Status 404', async () => {
     const response = await request(app)
       .get(`${URL}/comments/100`)
       .expect(HTTP.NOT_FOUND_404)
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
-  // TEST #5.8
+  // TEST #5.15
   it('Delete comment with id 100. Status 404', async () => {
     await request(app)
       .delete(`${URL}/comments/100`)
@@ -254,7 +337,7 @@ describe(`${URL}/comments`, () => {
       .expect(HTTP.NOT_FOUND_404)
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
-  // TEST #5.9
+  // TEST #5.16
   it('Delete comment_01. Status 403', async () => {
     await request(app)
       .delete(`${URL}/comments/${comment_01.id}`)
@@ -262,7 +345,7 @@ describe(`${URL}/comments`, () => {
       .expect(HTTP.FORBIDDEN_403)
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
-  // TEST #5.10
+  // TEST #5.17
   it('Delete comment_01. Status 401', async () => {
     await request(app)
       .delete(`${URL}/comments/${comment_01.id}`)
@@ -270,7 +353,7 @@ describe(`${URL}/comments`, () => {
       .expect(HTTP.UNAUTHORIZED_401)
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
 
-  // TEST #5.11
+  // TEST #5.18
   it('Delete comment_01. Status 204', async () => {
     await request(app)
       .delete(`${URL}/comments/${comment_01.id}`)
@@ -278,7 +361,7 @@ describe(`${URL}/comments`, () => {
       .expect(HTTP.NO_CONTENT_204)
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
 
-  // TEST #5.12
+  // TEST #5.19
   it('Get comment1. Status 404', async () => {
     await request(app)
       .get(`${URL}/comments/${comment_01.id}`)

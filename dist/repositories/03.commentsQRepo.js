@@ -16,9 +16,16 @@ const prepareComment = (input) => {
     return {
         id: input._id.toString(),
         content: input.content,
-        userId: input.userId,
-        userLogin: input.userLogin,
-        createdAt: input.createdAt
+        commentatorInfo: {
+            userId: input.userId,
+            userLogin: input.userLogin,
+        },
+        createdAt: input.createdAt,
+        likesInfo: {
+            likesCount: input.likesCount,
+            dislikesCount: input.dislikesCount,
+            myStatus: input.myStatus
+        }
     };
 };
 class CommentsQueryRepository {

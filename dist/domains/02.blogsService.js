@@ -9,19 +9,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BlogService = void 0;
+exports.BlogsService = void 0;
 const models_1 = require("../models");
-const _02_blogsQRepo_1 = require("../repositories/02.blogsQRepo");
-const _02_blogsDBRepo_1 = require("../repositories/02.blogsDBRepo");
-const _04_postsDBRepo_1 = require("../repositories/04.postsDBRepo");
-const _04_postsQRepo_1 = require("../repositories/04.postsQRepo");
 const mongodb_1 = require("mongodb");
-class BlogService {
-    constructor() {
-        this.blogsRepository = new _02_blogsDBRepo_1.BlogsRepository();
-        this.postsRepository = new _04_postsDBRepo_1.PostsRepository();
-        this.postsQueryRepository = new _04_postsQRepo_1.PostsQueryRepository();
-        this.blogsQueryRepository = new _02_blogsQRepo_1.BlogsQueryRepository();
+class BlogsService {
+    constructor(blogsRepository, postsRepository, postsQueryRepository, blogsQueryRepository) {
+        this.blogsRepository = blogsRepository;
+        this.postsRepository = postsRepository;
+        this.postsQueryRepository = postsQueryRepository;
+        this.blogsQueryRepository = blogsQueryRepository;
     }
     getBlogs(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -81,5 +77,5 @@ class BlogService {
         });
     }
 }
-exports.BlogService = BlogService;
+exports.BlogsService = BlogsService;
 ;

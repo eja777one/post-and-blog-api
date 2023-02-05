@@ -25,6 +25,18 @@ class CommentsRepository {
             return result.matchedCount === 1;
         });
     }
+    updateLikeStatus(id, likesData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield _00_db_1.CommentModel.updateOne({ _id: new bson_1.ObjectID(id) }, {
+                $set: {
+                    likesCount: likesData.likesCount,
+                    dislikesCount: likesData.dislikesCount,
+                    myStatus: likesData.myStatus
+                }
+            });
+            return result.modifiedCount === 1;
+        });
+    }
     deleteComment(id) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield _00_db_1.CommentModel.deleteOne({ _id: new bson_1.ObjectID(id) });

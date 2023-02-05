@@ -19,12 +19,12 @@ const settings_1 = require("./settings");
 exports.jwtService = {
     createAccessJwt(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return jsonwebtoken_1.default.sign({ userId }, settings_1.settings.ACCESS_JWT_SECRET, { expiresIn: '10s' });
+            return jsonwebtoken_1.default.sign({ userId }, settings_1.settings.ACCESS_JWT_SECRET, { expiresIn: '30m' });
         });
     },
     createRefreshJwt(userId, deviceId, createdAt) {
         return __awaiter(this, void 0, void 0, function* () {
-            return jsonwebtoken_1.default.sign({ userId, deviceId, createdAt }, settings_1.settings.REFRESH_JWT_SECRET, { expiresIn: '20s' });
+            return jsonwebtoken_1.default.sign({ userId, deviceId, createdAt }, settings_1.settings.REFRESH_JWT_SECRET, { expiresIn: '60m' });
         });
     },
     getUserIdByToken(token) {

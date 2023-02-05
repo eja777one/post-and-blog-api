@@ -10,13 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SecurityDevicesService = void 0;
-const _06_tokensDBRepo_1 = require("../repositories/06.tokensDBRepo");
-const _06_tokensQRepo_1 = require("../repositories/06.tokensQRepo");
 const jwt_service_1 = require("../application/jwt-service");
 class SecurityDevicesService {
-    constructor() {
-        this.tokensMetaRepository = new _06_tokensDBRepo_1.TokensMetaRepository();
-        this.tokensQueryMetaRepository = new _06_tokensQRepo_1.TokensQueryMetaRepository();
+    constructor(tokensMetaRepository, tokensQueryMetaRepository) {
+        this.tokensMetaRepository = tokensMetaRepository;
+        this.tokensQueryMetaRepository = tokensQueryMetaRepository;
     }
     getUsersSessions(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {

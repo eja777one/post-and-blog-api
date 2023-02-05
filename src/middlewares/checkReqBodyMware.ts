@@ -145,6 +145,15 @@ export const testCommentBody = checkSchema({
   }
 });
 
+export const testLikeCommentBody = checkSchema({
+  likeStatus: {
+    isString: true,
+    isIn: {
+      options: [['None', 'Like', 'Dislike']]
+    }
+  }
+})
+
 export const testReqRecoveryPass = checkSchema({
   newPassword: {
     isString: true,
