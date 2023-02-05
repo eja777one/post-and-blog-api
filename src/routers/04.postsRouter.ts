@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { postsController } from "./00.compositionRoot";
-import { authMware } from '../middlewares/authMware';
+import { addOptionalUserInfo, authMware } from '../middlewares/authMware';
 import { checkIsObjectId } from '../middlewares/checkParamMware';
 import { checkAuthMware } from '../middlewares/checkAuthMware';
 import { testPostsReqBody, checkReqBodyMware, testCommentBody }
@@ -12,6 +12,7 @@ postsRouter.get('/',
   postsController.getPosts.bind(postsController));
 
 postsRouter.get('/:postId/comments',
+  addOptionalUserInfo,
   checkIsObjectId,
   postsController.getPostsComments.bind(postsController));
 

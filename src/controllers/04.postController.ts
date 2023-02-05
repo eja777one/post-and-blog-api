@@ -33,7 +33,7 @@ export class PostsController {
 
     const query = prepareQueries(req.query);
     const postsComments = await this.postsService
-      .getPostsComments(query, req.params.postId);
+      .getPostsComments(query, req.params.postId, req.user?.id);
 
     if (!postsComments) return res.sendStatus(HTTP.NOT_FOUND_404); // TEST #3.12
     res.status(HTTP.OK_200).json(postsComments); // TEST #3.13, #3.20

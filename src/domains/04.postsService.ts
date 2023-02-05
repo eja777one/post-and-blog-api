@@ -30,19 +30,15 @@ export class PostsService {
 		return posts;
 	}
 
-	async getPostsComments(query: Query, postId: string) {
+	async getPostsComments(query: Query, postId: string, userId?: string) {
 		const post = await this.postsQueryRepository.getPost(postId);
 		if (!post) return null;
 
 		const comments = await this.commentsQueryRepository
-			.getComments(query, postId);
+			.getComments(query, postId, userId);
 
 		return comments;
 	}
-
-	// async createPostsComment() {
-
-	// }
 
 	async createPost(body: PostInputModel) {
 		const blog = await this.blogsQueryRepository.getBlog(body.blogId);
