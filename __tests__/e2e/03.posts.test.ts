@@ -448,11 +448,7 @@ describe(`${URL}/posts`, () => {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: 'None',
-        newestLikes: [{
-          addedAt: expect.any(String),
-          userId: user_01.id,
-          login: user_01.login
-        }]
+        newestLikes: []
       }
     });
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
@@ -490,11 +486,7 @@ describe(`${URL}/posts`, () => {
         likesCount: 0,
         dislikesCount: 1,
         myStatus: 'Dislike',
-        newestLikes: [{
-          addedAt: expect.any(String),
-          userId: user_01.id,
-          login: user_01.login
-        }]
+        newestLikes: []
       }
     });
   }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
