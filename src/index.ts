@@ -1,4 +1,4 @@
-import { runDb } from './repositories/00.db';
+import { runDb } from './db';
 import { app, port } from './app';
 
 const startApp = async () => {

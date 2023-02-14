@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
+import { mongoUri } from "../../src/db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from '../../src/models';
@@ -108,7 +108,13 @@ describe(`${URL}/posts`, () => {
       content: postInput.content,
       blogId: postInput.blogId,
       blogName: blog_01.name,
-      createdAt: expect.any(String)
+      createdAt: expect.any(String),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: []
+      }
     });
 
     post_01 = post;
@@ -137,7 +143,13 @@ describe(`${URL}/posts`, () => {
       content: post_01.content,
       blogId: post_01.blogId,
       blogName: blog_01.name,
-      createdAt: post_01.createdAt
+      createdAt: post_01.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: []
+      }
     });
   }); // blogs = [blog_01]; posts = [post_01]; users = []; comments = [];
 
@@ -190,6 +202,12 @@ describe(`${URL}/posts`, () => {
       id: post_01.id,
       blogName: blog_01.name,
       createdAt: expect.any(String),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: []
+      },
       ...postInputToUpdate
     });
   }); // blogs = [blog_01]; posts = [post_01]; users = []; comments = [];
@@ -306,7 +324,8 @@ describe(`${URL}/posts`, () => {
     });
 
     comment_01 = { ...comment };
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01];
+  // comments = [comment_01];
 
   // TEST #3.20
   it('GET comments of post_01. Status 200', async () => {
@@ -319,33 +338,196 @@ describe(`${URL}/posts`, () => {
         totalCount: 1,
         items: [comment_01]
       });
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
 
   // TEST #3.21
+  it('Change like status of post_100 by user_01. Status 404', async () => {
+    await request(app)
+      .put(`${URL}/posts/{post_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: 'Like' })
+      .expect(HTTP.NOT_FOUND_404);
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.22
+  it('Change like status of post_01 by user_100. Status 401', async () => {
+    await request(app)
+      .put(`${URL}/posts/${post_01.id}/like-status`)
+      .set('Authorization', `Bearer {token_01.accessToken}`)
+      .send({ likeStatus: 'Like' })
+      .expect(HTTP.UNAUTHORIZED_401);
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.23
+  it('Change like status of post_01 by user_01. Status 400', async () => {
+    await request(app)
+      .put(`${URL}/posts/${post_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: 'Well' })
+      .expect(HTTP.BAD_REQUEST_400, {
+        errorsMessages: [{
+          message: 'incorrect likeStatus',
+          field: 'likeStatus'
+        }]
+      });
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.24
+  it('Change like status of post_01 by user_01. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/posts/${post_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: 'Like' })
+      .expect(HTTP.NO_CONTENT_204);
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.25
+  it('READ post_01. Status 200', async () => {
+    const response = await request(app)
+      .get(`${URL}/posts/${post_01.id}`)
+
+    const post = response.body;
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.OK_200);
+    expect(post).toStrictEqual({
+      id: post_01.id,
+      title: post_01.title,
+      shortDescription: post_01.shortDescription,
+      content: post_01.content,
+      blogId: post_01.blogId,
+      blogName: blog_01.name,
+      createdAt: post_01.createdAt,
+      extendedLikesInfo: {
+        likesCount: 1,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [{
+          addedAt: expect.any(String),
+          userId: user_01.id,
+          login: user_01.login
+        }]
+      }
+    });
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.26
+  it('Change like status of post_01 by user_01. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/posts/${post_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: 'None' })
+      .expect(HTTP.NO_CONTENT_204);
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.27
+  it('READ post_01. Status 200', async () => {
+    const response = await request(app)
+      .get(`${URL}/posts/${post_01.id}`)
+
+    const post = response.body;
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.OK_200);
+    expect(post).toStrictEqual({
+      id: post_01.id,
+      title: post_01.title,
+      shortDescription: post_01.shortDescription,
+      content: post_01.content,
+      blogId: post_01.blogId,
+      blogName: blog_01.name,
+      createdAt: post_01.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: [{
+          addedAt: expect.any(String),
+          userId: user_01.id,
+          login: user_01.login
+        }]
+      }
+    });
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.28 
+  it('Change like status of post_01 by user_01. Status 204', async () => {
+    await request(app)
+      .put(`${URL}/posts/${post_01.id}/like-status`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+      .send({ likeStatus: 'Dislike' })
+      .expect(HTTP.NO_CONTENT_204);
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.29
+  it('READ post_01. Status 200', async () => {
+    const response = await request(app)
+      .get(`${URL}/posts/${post_01.id}`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
+
+    const post = response.body;
+
+    expect(response).toBeDefined();
+    expect(response.status).toBe(HTTP.OK_200);
+    expect(post).toStrictEqual({
+      id: post_01.id,
+      title: post_01.title,
+      shortDescription: post_01.shortDescription,
+      content: post_01.content,
+      blogId: post_01.blogId,
+      blogName: blog_01.name,
+      createdAt: post_01.createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 1,
+        myStatus: 'Dislike',
+        newestLikes: [{
+          addedAt: expect.any(String),
+          userId: user_01.id,
+          login: user_01.login
+        }]
+      }
+    });
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
+
+  // TEST #3.30
   it('Delete post with id 100. Status 404', async () => {
     await request(app)
       .delete(`${URL}/posts/100`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NOT_FOUND_404);
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
 
-  // TEST #3.22
+  // TEST #3.31
   it('Delete post_01 (unauthorized). Status 401', async () => {
     await request(app)
       .delete(`${URL}/posts/${post_01.id}`)
       .auth('admin', 'admin', { type: 'basic' })
       .expect(HTTP.UNAUTHORIZED_401);
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01]; 
+  // comments = [comment_01];
 
-  // TEST #3.23
+  // TEST #3.32
   it('Delete post_01. Status 204', async () => {
     await request(app)
       .delete(`${URL}/posts/${post_01.id}`)
       .auth('admin', 'qwerty', { type: 'basic' })
       .expect(HTTP.NO_CONTENT_204);
-  }); // blogs = [blog_01]; posts = []; users = [user_01]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = []; users = [user_01]; 
+  // comments = [comment_01];
 
-  // TEST #3.24
+  // TEST #3.33
   it('READ posts. Status 200', async () => {
     await request(app)
       .get(`${URL}/posts`)
@@ -356,5 +538,6 @@ describe(`${URL}/posts`, () => {
         totalCount: 0,
         items: []
       });
-  }); // blogs = [blog_01]; posts = []; users = [user_01]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = []; users = [user_01]; 
+  // comments = [comment_01];
 });

@@ -10,9 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkReqBodyMware = exports.testReqRecoveryPass = exports.testLikeCommentBody = exports.testCommentBody = exports.testAddUserReqBody = exports.testEmailReqBody = exports.testCodeReqBody = exports.testLoginPassReqBody = exports.testPostsReqBodyNoBlogId = exports.testPostsReqBody = exports.testBlogsReqBody = void 0;
-const _02_blogsQRepo_1 = require("../repositories/02.blogsQRepo");
+const blogsQRepo_1 = require("../features/blogs/infrastructure/blogsQRepo");
 const express_validator_1 = require("express-validator");
-const blogsQueryRepository = new _02_blogsQRepo_1.BlogsQueryRepository();
+const models_1 = require("../models");
+const blogsQueryRepository = new blogsQRepo_1.BlogsQueryRepository();
 exports.testBlogsReqBody = (0, express_validator_1.checkSchema)({
     name: {
         isString: true,
@@ -172,18 +173,13 @@ exports.testReqRecoveryPass = (0, express_validator_1.checkSchema)({
 });
 const checkReqBodyMware = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        const rawErrors = [];
-        for (let el of errors.array()) {
-            rawErrors.push(el.param);
-        }
-        ;
-        const tempErrors = Array.from(new Set(rawErrors));
-        const myErrors = tempErrors.map(e => ({ message: `incorrect ${e}`, field: e }));
-        return res.status(400).json({ errorsMessages: myErrors });
-        // TEST #2.3, #2.9, #2.16, #3.3, #3.9, #3.18, #4.4, #4.12, #5.4
-    }
-    else
-        next();
+    if (errors.isEmpty())
+        return next();
+    const rawErrors = [];
+    for (let el of errors.array())
+        rawErrors.push(el.param);
+    const tempErrors = Array.from(new Set(rawErrors));
+    const myErrors = tempErrors.map(e => new models_1.FieldError(e));
+    return res.status(400).json(new models_1.APIErrorResult(myErrors));
 };
 exports.checkReqBodyMware = checkReqBodyMware;

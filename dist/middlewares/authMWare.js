@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addOptionalUserInfo = exports.authMware = void 0;
 const jwt_service_1 = require("../application/jwt-service");
 const models_1 = require("../models");
-const _05_usersQRepo_1 = require("../repositories/05.usersQRepo");
-const usersQueryRepository = new _05_usersQRepo_1.UsersQueryRepository();
+const usersQRepo_1 = require("../features/users/infrastructure/usersQRepo");
+const usersQueryRepository = new usersQRepo_1.UsersQueryRepository();
 const authMware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.headers.authorization) {
         return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);

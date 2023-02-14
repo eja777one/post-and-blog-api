@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { NextFunction, Request, Response } from "express";
-import { UsersRequestRepository } from '../repositories/07.usersReqDBRepo';
+import { UsersRequestRepository }
+  from '../features/users/infrastructure/usersReqDBRepo';
 
 const usersRequestRepository = new UsersRequestRepository();
 

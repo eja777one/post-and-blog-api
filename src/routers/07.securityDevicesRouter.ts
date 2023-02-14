@@ -1,18 +1,21 @@
 import { Router } from "express";
-import { securityDevicesController } from "./00.compositionRoot";
+import { container } from "./00.compositionRoot";
 import { checkCookie } from './../middlewares/checkCookieMware';
+import { SecurityDevicesController } from "../features/devices/api/securityDevicesController";
 
 export const securityDevicesRouter = Router({});
 
+const securityDevicesController = container.resolve(SecurityDevicesController);
+
 securityDevicesRouter.get('/',
   checkCookie,
-  securityDevicesController.getDevices.bind(securityDevicesController));
+  securityDevicesController.getDevices.bind(securityDevicesController)); //ok
 
 securityDevicesRouter.delete('/',
   checkCookie,
   securityDevicesController.deleteNonCurrentDevices
-    .bind(securityDevicesController));
+    .bind(securityDevicesController)); //ok
 
 securityDevicesRouter.delete('/:deviceId',
   checkCookie,
-  securityDevicesController.deleteDevice.bind(securityDevicesController));
+  securityDevicesController.deleteDevice.bind(securityDevicesController)); //ok

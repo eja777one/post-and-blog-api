@@ -1,12 +1,14 @@
-import { PasswordRecoveryRepository }
-  from './../../src/repositories/08.passwordsRecDBRepo';
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
-import { UsersQueryRepository } from '../../src/repositories/05.usersQRepo';
+import { mongoUri } from "../../src/db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
 import { ObjectID } from 'bson';
+import { container } from '../../src/routers/00.compositionRoot';
+import { UsersQueryRepository }
+  from "../../src/features/users/infrastructure/usersQRepo";
+import { PasswordRecoveryRepository }
+  from "../../src/features/users/infrastructure/passwordsRecDBRepo";
 import {
   badLoginBody,
   badLoginBody2,
@@ -25,8 +27,9 @@ let cookie: string[];
 
 // jest.setTimeout(30000);
 
-const passwordRecoveryRepository = new PasswordRecoveryRepository();
-const usersQueryRepository = new UsersQueryRepository();
+const passwordRecoveryRepository = container
+  .resolve(PasswordRecoveryRepository);
+const usersQueryRepository = container.resolve(UsersQueryRepository);
 
 describe(`${URL}/auth`, () => {
   beforeAll(async () => {
@@ -316,7 +319,7 @@ describe(`${URL}/auth`, () => {
   });
 
   // TEST #6.25
-  it('Send recovery password code to email, which is unexist in base. Status 204', async () => {
+  it('Send recPass code to email, which is unexist. Status 204', async () => {
     await request(app)
       .post(`${URL}/auth/password-recovery`)
       .send({ email: "pgs111213@yandex.ru" })

@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
+import { mongoUri } from "../../src/db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
-import { UsersQueryRepository } from "../../src/repositories/05.usersQRepo";
 import { ObjectID } from 'bson';
+import { UsersQueryRepository }
+  from "../../src/features/users/infrastructure/usersQRepo";
 import { loginInput1, token1, userInput1, URL, token2, userInput2, loginInput2 }
   from "./00.dataForTests";
 

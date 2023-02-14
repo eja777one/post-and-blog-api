@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
+import { mongoUri } from "../../src/db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
@@ -223,7 +223,13 @@ describe(`${URL}/blogs`, () => {
       content: blogPostInput.content,
       blogId: blog_01.id,
       blogName: blog_01.name,
-      createdAt: expect.any(String)
+      createdAt: expect.any(String),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: []
+      }
     });
 
     post_01 = { ...post };

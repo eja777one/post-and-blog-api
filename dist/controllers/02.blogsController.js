@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,71 +22,69 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BlogsController = void 0;
+const inversify_1 = require("inversify");
 const prepareQuery_1 = require("../application/prepareQuery");
-const models_1 = require("../models");
-class BlogsController {
+const _02_blogsService_1 = require("../domains/02.blogsService");
+const _04_postsService_1 = require("../domains/04.postsService");
+const inject_1 = require("inversify/dts/annotation/inject");
+let BlogsController = class BlogsController {
     constructor(blogService, postsService) {
         this.blogService = blogService;
         this.postsService = postsService;
     }
     getBlog(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield this.blogService.getBlog(req.params.id);
-            if (!blog)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.status(models_1.HTTP.OK_200).json(blog); // TEST #2.6, #2.11
+            const result = yield this.blogService.getBlog(req.params.id);
+            res.status(result.statusCode).json(result.data);
         });
     }
     getBlogs(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = (0, prepareQuery_1.prepareQueries)(req.query);
-            const blogs = yield this.blogService.getBlogs(query);
-            res.status(models_1.HTTP.OK_200).json(blogs); // TEST #2.1, #2.22
+            const result = yield this.blogService.getBlogs(query);
+            res.status(result.statusCode).json(result.data);
         });
     }
     createBlog(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield this.blogService.createBlog(req.body);
-            if (!blog)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.status(models_1.HTTP.CREATED_201).json(blog); // TEST #2.4
+            const result = yield this.blogService.createBlog(req.body);
+            res.status(result.statusCode).json(result.data);
         });
     }
     updateBlog(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updated = yield this.blogService.updateBlog(req.params.id, req.body);
-            if (!updated)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #2.10
+            const result = yield this.blogService.updateBlog(req.params.id, req.body);
+            res.sendStatus(result.statusCode);
         });
     }
     deleteBlog(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const deleted = yield this.blogService.deleteBlog(req.params.id);
-            if (!deleted)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.sendStatus(models_1.HTTP.NO_CONTENT_204); // TEST #2.21
+            const result = yield this.blogService.deleteBlog(req.params.id);
+            res.sendStatus(result.statusCode);
         });
     }
     getBlogsPosts(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = (0, prepareQuery_1.prepareQueries)(req.query);
-            const posts = yield this.postsService
+            const result = yield this.postsService
                 .getBlogsPosts(query, req.params.blogId);
-            if (!posts)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.status(models_1.HTTP.OK_200).json(posts); // TEST #2.13, #2.18
+            res.status(result.statusCode).json(result.data);
         });
     }
     createBlogsPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield this.postsService
+            const result = yield this.postsService
                 .createBlogsPost(req.params.blogId, req.body);
-            if (!post)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.status(models_1.HTTP.CREATED_201).json(post); // TEST #2.17
+            res.status(result.statusCode).json(result.data);
         });
     }
-}
+};
+BlogsController = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inject_1.inject)(_02_blogsService_1.BlogsService)),
+    __param(1, (0, inject_1.inject)(_04_postsService_1.PostsService)),
+    __metadata("design:paramtypes", [_02_blogsService_1.BlogsService,
+        _04_postsService_1.PostsService])
+], BlogsController);
 exports.BlogsController = BlogsController;
 ;

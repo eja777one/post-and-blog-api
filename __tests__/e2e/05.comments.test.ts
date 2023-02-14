@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
+import { mongoUri } from "../../src/db";
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
@@ -76,7 +76,13 @@ describe(`${URL}/comments`, () => {
       content: blogPostInput.content,
       blogId: blog_01.id,
       blogName: blog_01.name,
-      createdAt: expect.any(String)
+      createdAt: expect.any(String),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: 'None',
+        newestLikes: []
+      }
     });
 
     post_01 = post;
@@ -156,7 +162,8 @@ describe(`${URL}/comments`, () => {
     });
 
     token_02 = { ...accessToken };
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [];
 
   // TEST #000
   it('Create comment_01 for post_01 by user_01. Status 201', async () => {
@@ -185,7 +192,8 @@ describe(`${URL}/comments`, () => {
     });
 
     comment_01 = comment;
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.1
   it('Update comment with id 100. Status 404', async () => {
@@ -194,7 +202,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send(commentInputToUpdate)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.2
   it('Update comment_01. Status 403', async () => {
@@ -203,7 +212,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_02.accessToken}`)
       .send(commentInputToUpdate)
       .expect(HTTP.FORBIDDEN_403)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.3
   it('Update comment_01. Status 401', async () => {
@@ -212,7 +222,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer token_01.accessToken`)
       .send(commentInputToUpdate)
       .expect(HTTP.UNAUTHORIZED_401)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.4
   it('Update comment_01. Status 400', async () => {
@@ -221,7 +232,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ content: 'bad content' })
       .expect(HTTP.BAD_REQUEST_400)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.5
   it('Update comment_01. Status 204', async () => {
@@ -232,7 +244,8 @@ describe(`${URL}/comments`, () => {
       .expect(HTTP.NO_CONTENT_204)
 
     comment_01.content = commentInputToUpdate.content;
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.6
   it('Like comment_100 by User_01. Status 404', async () => {
@@ -241,7 +254,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ likeStatus: "Like" })
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.7
   it('Like comment_01 by User_01. Status 401', async () => {
@@ -250,7 +264,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer {token_01.accessToken}`)
       .send({ likeStatus: "Like" })
       .expect(HTTP.UNAUTHORIZED_401)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.8
   it('Like comment_01 by User_01. Status 400', async () => {
@@ -259,7 +274,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ likeStatus: "I don't like" })
       .expect(HTTP.BAD_REQUEST_400)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.9
   it('Like comment_01 by User_01. Status 204', async () => {
@@ -268,7 +284,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ likeStatus: "Like" })
       .expect(HTTP.NO_CONTENT_204)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.10
   it('Delete Like for comment_01 by User_01. Status 204', async () => {
@@ -277,7 +294,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ likeStatus: "None" })
       .expect(HTTP.NO_CONTENT_204)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.11
   it('Dislike comment_01 by User_01. Status 204', async () => {
@@ -286,7 +304,8 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .send({ likeStatus: "Dislike" })
       .expect(HTTP.NO_CONTENT_204)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.12
   it('Dislike comment_01 by User_02. Status 204', async () => {
@@ -295,12 +314,14 @@ describe(`${URL}/comments`, () => {
       .set('Authorization', `Bearer ${token_02.accessToken}`)
       .send({ likeStatus: "Dislike" })
       .expect(HTTP.NO_CONTENT_204)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.13
   it('Get comment_01. Status 200', async () => {
     const response = await request(app)
       .get(`${URL}/comments/${comment_01.id}`)
+      .set('Authorization', `Bearer ${token_01.accessToken}`)
 
     const comment = response.body;
 
@@ -312,7 +333,7 @@ describe(`${URL}/comments`, () => {
         userLogin: user_01.login,
       },
       id: expect.any(String),
-      content: commentInput.content,
+      content: commentInputToUpdate.content,
       createdAt: expect.any(String),
       likesInfo: {
         dislikesCount: 2,
@@ -320,14 +341,16 @@ describe(`${URL}/comments`, () => {
         myStatus: "Dislike"
       }
     });
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.14
   it('Get comment with id 100. Status 404', async () => {
     const response = await request(app)
       .get(`${URL}/comments/100`)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.15
   it('Delete comment with id 100. Status 404', async () => {
@@ -335,7 +358,8 @@ describe(`${URL}/comments`, () => {
       .delete(`${URL}/comments/100`)
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.16
   it('Delete comment_01. Status 403', async () => {
@@ -343,7 +367,8 @@ describe(`${URL}/comments`, () => {
       .delete(`${URL}/comments/${comment_01.id}`)
       .set('Authorization', `Bearer ${token_02.accessToken}`)
       .expect(HTTP.FORBIDDEN_403)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.17
   it('Delete comment_01. Status 401', async () => {
@@ -351,7 +376,8 @@ describe(`${URL}/comments`, () => {
       .delete(`${URL}/comments/${comment_01.id}`)
       .set('Authorization', `Bearer token_02.accessToken`)
       .expect(HTTP.UNAUTHORIZED_401)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [comment_01];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [comment_01];
 
   // TEST #5.18
   it('Delete comment_01. Status 204', async () => {
@@ -359,12 +385,14 @@ describe(`${URL}/comments`, () => {
       .delete(`${URL}/comments/${comment_01.id}`)
       .set('Authorization', `Bearer ${token_01.accessToken}`)
       .expect(HTTP.NO_CONTENT_204)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [];
 
   // TEST #5.19
   it('Get comment1. Status 404', async () => {
     await request(app)
       .get(`${URL}/comments/${comment_01.id}`)
       .expect(HTTP.NOT_FOUND_404)
-  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; comments = [];
+  }); // blogs = [blog_01]; posts = [post_01]; users = [user_01, user_02]; 
+      // comments = [];
 });

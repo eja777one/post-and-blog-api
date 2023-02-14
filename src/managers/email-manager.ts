@@ -1,14 +1,6 @@
-import { UserDBModel } from '../models';
 import { emailAdapter } from './../adapters/email-adapter';
 
 export const emailManager = {
-  // async sendEmailRecoveryPassword(user: UserDBModel) {
-  //   await emailAdapter.sendEmail(
-  //     user.accountData.email,
-  //     'password recovery',
-  //     '<div>password recovery</div>'
-  //   )
-  // },
   async sendEmailConfirmation(userEmail: string, code: string) {
 
     const message = `<h1>Thank for your registration</h1>
@@ -17,7 +9,8 @@ export const emailManager = {
       complete registration</a>
     </p>`;
 
-    const result = await emailAdapter.sendEmail(userEmail, 'Email confirmation', message);
+    const result = await emailAdapter
+      .sendEmail(userEmail, 'Email confirmation', message);
     return result.envelope;
   },
 
@@ -29,7 +22,8 @@ export const emailManager = {
        recovery password</a>
    </p>`;
 
-    const result = await emailAdapter.sendEmail(userEmail, 'Password recovery', message);
+    const result = await emailAdapter
+      .sendEmail(userEmail, 'Password recovery', message);
     return result.envelope;
   },
 };

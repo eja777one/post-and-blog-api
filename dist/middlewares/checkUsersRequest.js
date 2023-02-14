@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkUsersRequest = void 0;
 const mongodb_1 = require("mongodb");
-const _07_usersReqDBRepo_1 = require("../repositories/07.usersReqDBRepo");
-const usersRequestRepository = new _07_usersReqDBRepo_1.UsersRequestRepository();
+const usersReqDBRepo_1 = require("../features/users/infrastructure/usersReqDBRepo");
+const usersRequestRepository = new usersReqDBRepo_1.UsersRequestRepository();
 const checkUsersRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const attemtsInterval = 10 * 1000;
     const currentTime = new Date();

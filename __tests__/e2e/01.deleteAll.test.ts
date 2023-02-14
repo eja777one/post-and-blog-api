@@ -3,7 +3,7 @@ import { app } from "../../src/app";
 import { HTTP } from "../../src/models";
 import { URL } from './00.dataForTests';
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
+import { mongoUri } from "../../src/db"; 
 
 
 describe(`${URL}/testing/all-data`, () => {

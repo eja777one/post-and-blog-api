@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,8 +22,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SecurityDevicesService = void 0;
+const inversify_1 = require("inversify");
+const models_1 = require("./../models");
+const _06_tokensDBRepo_1 = require("../repositories/06.tokensDBRepo");
+const _06_tokensQRepo_1 = require("../repositories/06.tokensQRepo");
 const jwt_service_1 = require("../application/jwt-service");
-class SecurityDevicesService {
+let SecurityDevicesService = class SecurityDevicesService {
     constructor(tokensMetaRepository, tokensQueryMetaRepository) {
         this.tokensMetaRepository = tokensMetaRepository;
         this.tokensQueryMetaRepository = tokensQueryMetaRepository;
@@ -20,40 +36,53 @@ class SecurityDevicesService {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = yield jwt_service_1.jwtService.getPayloadRefToken(refreshToken);
             if (!payload)
-                return null;
+                return new models_1.BLLResponse(401);
             const sessions = yield this.tokensQueryMetaRepository
                 .getUsersSessions(payload.userId);
             if (!sessions)
-                return null;
-            return sessions;
+                return new models_1.BLLResponse(401);
+            return new models_1.BLLResponse(200, sessions);
         });
     }
     deleteOtherSessions(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = yield jwt_service_1.jwtService.getPayloadRefToken(refreshToken);
             if (!payload)
-                return false;
+                return new models_1.BLLResponse(401);
             const deletedSessions = yield this.tokensMetaRepository
                 .deleteOtherSessions(payload.userId, payload.deviceId);
-            return deletedSessions;
+            if (!deletedSessions)
+                return new models_1.BLLResponse(401);
+            else
+                return new models_1.BLLResponse(204);
         });
     }
     deleteThisSession(refreshToken, deviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = yield jwt_service_1.jwtService.getPayloadRefToken(refreshToken);
             if (!payload)
-                return 'UNAUTHORIZED_401';
+                return new models_1.BLLResponse(401);
             const getSession = yield this.tokensQueryMetaRepository
                 .getSessionByDeviceId(deviceId);
             if (!getSession)
-                return 'NOT_FOUND_404';
+                return new models_1.BLLResponse(404);
             if (getSession.userId !== payload.userId)
-                return 'FORBIDDEN_403';
+                return new models_1.BLLResponse(403);
             const deleteThisSessions = yield this.tokensMetaRepository
                 .deleteThisSessions(payload.userId, deviceId);
-            return deleteThisSessions ? 'NO_CONTENT_204' : 'NOT_FOUND_404';
+            if (!deleteThisSessions)
+                return new models_1.BLLResponse(404);
+            else
+                return new models_1.BLLResponse(204);
         });
     }
-}
+};
+SecurityDevicesService = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(_06_tokensDBRepo_1.TokensMetaRepository)),
+    __param(1, (0, inversify_1.inject)(_06_tokensQRepo_1.TokensQueryMetaRepository)),
+    __metadata("design:paramtypes", [_06_tokensDBRepo_1.TokensMetaRepository,
+        _06_tokensQRepo_1.TokensQueryMetaRepository])
+], SecurityDevicesService);
 exports.SecurityDevicesService = SecurityDevicesService;
 ;

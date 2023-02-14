@@ -9,7 +9,7 @@ import {
   CommentInputModel
 } from '../../src/models';
 
-export const URL = '/hometask_11/api';
+export const URL = '/hometask_12/api';
 
 // for Blogs
 

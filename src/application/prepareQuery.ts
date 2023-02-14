@@ -8,17 +8,9 @@ export const prepareQueries = (query: any) => {
     sortDirection: query.sortDirection || sortDirection.desc
   };
 
-  if (query.searchNameTerm) {
-    queryObj.searchNameTerm = query.searchNameTerm;
-  };
-
-  if (query.searchLoginTerm) {
-    queryObj.searchLoginTerm = query.searchLoginTerm;
-  };
-
-  if (query.searchEmailTerm) {
-    queryObj.searchEmailTerm = query.searchEmailTerm;
-  }
+  if (query.searchNameTerm) queryObj.searchNameTerm = query.searchNameTerm;
+  if (query.searchLoginTerm) queryObj.searchLoginTerm = query.searchLoginTerm;
+  if (query.searchEmailTerm) queryObj.searchEmailTerm = query.searchEmailTerm;
 
   return queryObj;
 };

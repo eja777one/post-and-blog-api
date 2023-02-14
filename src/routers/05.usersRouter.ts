@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { usersController } from "./00.compositionRoot";
+import { UsersController } from "../features/users/api/usersController";
+import { container } from "./00.compositionRoot";
 import { checkAuthMware } from "../middlewares/checkAuthMware";
 import { checkIsObjectId } from '../middlewares/checkParamMware';
 import { checkReqBodyMware, testAddUserReqBody }
@@ -7,17 +8,19 @@ import { checkReqBodyMware, testAddUserReqBody }
 
 export const usersRouter = Router({});
 
+const usersController = container.resolve(UsersController);
+
 usersRouter.get('/',
   checkAuthMware,
-  usersController.getUsers.bind(usersController));
+  usersController.getUsers.bind(usersController)); //ok
 
 usersRouter.post('/',
   checkAuthMware,
   testAddUserReqBody,
   checkReqBodyMware,
-  usersController.createUser.bind(usersController));
+  usersController.createUser.bind(usersController)); //ok
 
 usersRouter.delete('/:id',
   checkAuthMware,
   checkIsObjectId,
-  usersController.deleteUser.bind(usersController));
+  usersController.deleteUser.bind(usersController)); //ok

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongoUri } from "../../src/repositories/00.db";
+import { mongoUri } from "../../src/db"; 
 import request from "supertest";
 import { app } from "../../src/app";
 import { HTTP } from "../../src/models";

@@ -1,6 +1,8 @@
-import { BlogsQueryRepository } from '../repositories/02.blogsQRepo';
+import { BlogsQueryRepository }
+  from '../features/blogs/infrastructure/blogsQRepo';
 import { NextFunction, Request, Response } from "express";
 import { checkSchema, validationResult } from "express-validator";
+import { APIErrorResult, FieldError } from '../models';
 
 const blogsQueryRepository = new BlogsQueryRepository();
 
@@ -176,18 +178,15 @@ export const checkReqBodyMware = (
 ) => {
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    const rawErrors: string[] = [];
+  if (errors.isEmpty()) return next();
 
-    for (let el of errors.array()) {
-      rawErrors.push(el.param);
-    };
+  const rawErrors: string[] = [];
 
-    const tempErrors = Array.from(new Set(rawErrors));
+  for (let el of errors.array()) rawErrors.push(el.param);
 
-    const myErrors = tempErrors.map(e => (
-      { message: `incorrect ${e}`, field: e }));
-    return res.status(400).json({ errorsMessages: myErrors });
-    // TEST #2.3, #2.9, #2.16, #3.3, #3.9, #3.18, #4.4, #4.12, #5.4
-  } else next();
+  const tempErrors = Array.from(new Set(rawErrors));
+
+  const myErrors = tempErrors.map(e => new FieldError(e));
+
+  return res.status(400).json(new APIErrorResult(myErrors));
 };

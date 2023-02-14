@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,36 +22,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SecurityDevicesController = void 0;
-const models_1 = require("../models");
-class SecurityDevicesController {
+const inversify_1 = require("inversify");
+const _06_securityDevicesService_1 = require("../domains/06.securityDevicesService");
+let SecurityDevicesController = class SecurityDevicesController {
     constructor(securityDevicesService) {
         this.securityDevicesService = securityDevicesService;
     }
     getDevices(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const usersSessions = yield this.securityDevicesService
+            const result = yield this.securityDevicesService
                 .getUsersSessions(req.cookies.refreshToken);
-            if (!usersSessions)
-                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-            res.status(models_1.HTTP.OK_200).json(usersSessions);
+            res.status(result.statusCode).json(result.data);
         });
     }
     deleteNonCurrentDevices(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const deleteOtherSessions = yield this.securityDevicesService
+            const result = yield this.securityDevicesService
                 .deleteOtherSessions(req.cookies.refreshToken);
-            if (!deleteOtherSessions)
-                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-            res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+            res.sendStatus(result.statusCode);
         });
     }
     deleteDevice(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const deleteThisSession = yield this.securityDevicesService
+            const result = yield this.securityDevicesService
                 .deleteThisSession(req.cookies.refreshToken, req.params.deviceId);
-            res.sendStatus(models_1.HTTP[deleteThisSession]);
+            res.sendStatus(result.statusCode);
         });
     }
-}
+};
+SecurityDevicesController = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(_06_securityDevicesService_1.SecurityDevicesService)),
+    __metadata("design:paramtypes", [_06_securityDevicesService_1.SecurityDevicesService])
+], SecurityDevicesController);
 exports.SecurityDevicesController = SecurityDevicesController;
 ;

@@ -1,4 +1,16 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,49 +22,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentsController = void 0;
-const models_1 = require("../models");
-class CommentsController {
+const inversify_1 = require("inversify");
+const _03_commentsService_1 = require("./../domains/03.commentsService");
+let CommentsController = class CommentsController {
     constructor(commentsService) {
         this.commentsService = commentsService;
     }
     updateComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.user)
-                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401); // TEST #5.3
-            const modifiedStatus = yield this.commentsService
+            const result = yield this.commentsService
                 .updateComment(req.params.commentId, req.user, req.body);
-            res.sendStatus(models_1.HTTP[modifiedStatus]);
+            res.sendStatus(result.statusCode);
         });
     }
     changeLikeStatus(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.user)
-                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-            const updated = yield this.commentsService
+            const result = yield this.commentsService
                 .changeLikeStatus(req.params.commentId, req.body.likeStatus, req.user.id);
-            if (!updated)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404);
-            res.sendStatus(models_1.HTTP.NO_CONTENT_204);
+            res.sendStatus(result.statusCode);
         });
     }
     deleteComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.user)
-                return res.sendStatus(models_1.HTTP.UNAUTHORIZED_401);
-            const deletedStatus = yield this.commentsService
+            const result = yield this.commentsService
                 .deleteComment(req.params.commentId, req.user);
-            res.sendStatus(models_1.HTTP[deletedStatus]);
+            res.sendStatus(result.statusCode);
         });
     }
     getComment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield this.commentsService
+            const result = yield this.commentsService
                 .getComment(req.params.commentId, req.user);
-            if (!comment)
-                return res.sendStatus(models_1.HTTP.NOT_FOUND_404); // TEST #5.7, #5.12
-            res.status(models_1.HTTP.OK_200).json(comment); // TEST #5.6
+            res.status(result.statusCode).json(result.data);
         });
     }
-}
+};
+CommentsController = __decorate([
+    (0, inversify_1.injectable)(),
+    __param(0, (0, inversify_1.inject)(_03_commentsService_1.CommentsService)),
+    __metadata("design:paramtypes", [_03_commentsService_1.CommentsService])
+], CommentsController);
 exports.CommentsController = CommentsController;
 ;

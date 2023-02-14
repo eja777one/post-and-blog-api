@@ -1,13 +1,34 @@
 import { ObjectId } from 'mongodb';
 import { ObjectID } from "bson";
 
-export type APIErrorResult = {
-	errorsMessages: Array<FieldError>
+// export type APIErrorResult = {
+// 	errorsMessages: Array<FieldError>
+// };
+
+export class APIErrorResult {
+	constructor(
+		public errorsMessages: Array<FieldError>
+	) { }
 };
 
-export type FieldError = {
-	message: string | null
-	field: string | null
+export class FieldError {
+
+	public message: string | null
+	public field: string | null
+
+	constructor(field: string) {
+		this.message = `incorrect ${field}`
+		this.field = field
+	}
+};
+
+export class BLLResponse<T> {
+	constructor(
+		public statusCode: HTTP,
+		public data?: T | undefined,
+		public message?: string | undefined,
+		public error?: APIErrorResult | undefined,
+	) { }
 };
 
 export type Paginator<T> = {
@@ -18,13 +39,11 @@ export type Paginator<T> = {
 	items: Array<T>
 };
 
-export type BlogInputModel = {
-	name: string
-	description: string
-	websiteUrl: string
+export type LikeInputModel = {
+	likeStatus: LikeStatus
 };
 
-export type BlogPostInputModel = {
+export type PostInputModelNoId = {
 	title: string
 	shortDescription: string
 	content: string
@@ -39,14 +58,6 @@ export class PostInputModel {
 	) { }
 };
 
-export type BlogViewModel = {
-	id: string
-	name: string
-	description: string
-	websiteUrl: string
-	createdAt: string
-};
-
 export type PostViewModel = {
 	id: string
 	title: string
@@ -55,6 +66,46 @@ export type PostViewModel = {
 	blogId: string
 	blogName: string
 	createdAt: string
+	extendedLikesInfo: ExtendedLikesInfoViewModel
+};
+
+export class PostDBModel {
+	constructor(
+		public _id: ObjectID,
+		public title: string,
+		public shortDescription: string,
+		public content: string,
+		public blogId: string,
+		public blogName: string,
+		public createdAt: string,
+		public likesCount: number,
+		public dislikesCount: number,
+		public usersLikeStatus: LikeDetailsDBModel[]
+	) { }
+};
+
+export type LikeStatus = 'None' | 'Like' | 'Dislike'
+
+export type ExtendedLikesInfoViewModel = {
+	likesCount: number,
+	dislikesCount: number,
+	myStatus: LikeStatus,
+	newestLikes: LikeDetailsViewModel[]
+};
+
+export type LikeDetailsViewModel = {
+	addedAt: string,
+	userId: string,
+	login: string
+};
+
+export type LikeDetailsViewModelArr = LikeDetailsViewModel[]
+
+export type LikeDetailsDBModel = {
+	addedAt: string,
+	userId: string,
+	login: string,
+	status: LikeStatus
 };
 
 export enum sortDirection {
@@ -72,41 +123,6 @@ export enum HTTP {
 	'NOT_FOUND_404' = 404,
 	'METHOD_NOT_ALLOWED_405' = 405,
 	'TOO_MANY_REQUESTS_429' = 429
-};
-
-export class BlogDBModel {
-	constructor(
-		public _id: ObjectID,
-		public name: string,
-		public description: string,
-		public websiteUrl: string,
-		public createdAt: string
-	) { }
-};
-
-export type BlogDBInputModel = {
-	name: string
-	description: string
-	websiteUrl: string
-	createdAt: string
-};
-
-export class PostDBModel {
-	constructor(
-		public _id: ObjectID,
-		public title: string,
-		public shortDescription: string,
-		public content: string,
-		public blogId: string,
-		public blogName: string,
-		public createdAt: string
-	) { }
-};
-
-export type PostInputModelNoId = {
-	title: string
-	shortDescription: string
-	content: string
 };
 
 export type Query = {
@@ -167,14 +183,6 @@ export type CommentInputModel = {
 	content: string
 };
 
-// export type CommentViewModel = {
-// 	id: string | null
-// 	content: string
-// 	userId: string
-// 	userLogin: string
-// 	createdAt: string
-// };
-
 export type CommentViewModel = {
 	id: string | null
 	content: string
@@ -194,11 +202,11 @@ export type LikesInfoViewModel = {
 	myStatus: 'None' | 'Like' | 'Dislike'
 };
 
-export enum LikeStatus {
-	'None' = 'None',
-	'Like' = 'Like',
-	'Dislike' = 'Dislike',
-};
+// export enum LikeStatus {
+// 	'None' = 'None',
+// 	'Like' = 'Like',
+// 	'Dislike' = 'Dislike',
+// };
 
 export class CommentDBModel {
 	constructor(
@@ -249,7 +257,7 @@ export class TokensMetaDBModel {
 	) { }
 };
 
-export type usersRequestDBModel = {
+export type UsersRequestDBModel = {
 	_id: ObjectId
 	ip: string
 	url: string
@@ -280,4 +288,48 @@ export class PasswordDataDBModel {
 		public createdAt: string,
 		public expiredAt: string
 	) { }
+};
+
+export class TokensDTO {
+	constructor(
+		public accessToken: string,
+		public refreshToken: string
+	) { }
+}
+
+export type BlogInputModel = {
+	name: string
+	description: string
+	websiteUrl: string
+};
+
+export type BlogPostInputModel = {
+	title: string
+	shortDescription: string
+	content: string
+};
+
+export type BlogViewModel = {
+	id: string
+	name: string
+	description: string
+	websiteUrl: string
+	createdAt: string
+};
+
+export class BlogDBModel {
+	constructor(
+		public _id: ObjectID,
+		public name: string,
+		public description: string,
+		public websiteUrl: string,
+		public createdAt: string
+	) { }
+};
+
+export type BlogDBInputModel = {
+	name: string
+	description: string
+	websiteUrl: string
+	createdAt: string
 };

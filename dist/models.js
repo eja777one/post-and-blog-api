@@ -1,6 +1,34 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PasswordDataDBModel = exports.TokensMetaDBModel = exports.CommentDBModel = exports.LikeStatus = exports.UserDBModel = exports.PostDBModel = exports.BlogDBModel = exports.HTTP = exports.sortDirection = exports.PostInputModel = void 0;
+exports.BlogDBModel = exports.TokensDTO = exports.PasswordDataDBModel = exports.TokensMetaDBModel = exports.CommentDBModel = exports.UserDBModel = exports.HTTP = exports.sortDirection = exports.PostDBModel = exports.PostInputModel = exports.BLLResponse = exports.FieldError = exports.APIErrorResult = void 0;
+// export type APIErrorResult = {
+// 	errorsMessages: Array<FieldError>
+// };
+class APIErrorResult {
+    constructor(errorsMessages) {
+        this.errorsMessages = errorsMessages;
+    }
+}
+exports.APIErrorResult = APIErrorResult;
+;
+class FieldError {
+    constructor(field) {
+        this.message = `incorrect ${field}`;
+        this.field = field;
+    }
+}
+exports.FieldError = FieldError;
+;
+class BLLResponse {
+    constructor(statusCode, data, message, error) {
+        this.statusCode = statusCode;
+        this.data = data;
+        this.message = message;
+        this.error = error;
+    }
+}
+exports.BLLResponse = BLLResponse;
+;
 class PostInputModel {
     constructor(title, shortDescription, content, blogId) {
         this.title = title;
@@ -10,6 +38,22 @@ class PostInputModel {
     }
 }
 exports.PostInputModel = PostInputModel;
+;
+class PostDBModel {
+    constructor(_id, title, shortDescription, content, blogId, blogName, createdAt, likesCount, dislikesCount, usersLikeStatus) {
+        this._id = _id;
+        this.title = title;
+        this.shortDescription = shortDescription;
+        this.content = content;
+        this.blogId = blogId;
+        this.blogName = blogName;
+        this.createdAt = createdAt;
+        this.likesCount = likesCount;
+        this.dislikesCount = dislikesCount;
+        this.usersLikeStatus = usersLikeStatus;
+    }
+}
+exports.PostDBModel = PostDBModel;
 ;
 var sortDirection;
 (function (sortDirection) {
@@ -30,30 +74,6 @@ var HTTP;
     HTTP[HTTP["TOO_MANY_REQUESTS_429"] = 429] = "TOO_MANY_REQUESTS_429";
 })(HTTP = exports.HTTP || (exports.HTTP = {}));
 ;
-class BlogDBModel {
-    constructor(_id, name, description, websiteUrl, createdAt) {
-        this._id = _id;
-        this.name = name;
-        this.description = description;
-        this.websiteUrl = websiteUrl;
-        this.createdAt = createdAt;
-    }
-}
-exports.BlogDBModel = BlogDBModel;
-;
-class PostDBModel {
-    constructor(_id, title, shortDescription, content, blogId, blogName, createdAt) {
-        this._id = _id;
-        this.title = title;
-        this.shortDescription = shortDescription;
-        this.content = content;
-        this.blogId = blogId;
-        this.blogName = blogName;
-        this.createdAt = createdAt;
-    }
-}
-exports.PostDBModel = PostDBModel;
-;
 class UserDBModel {
     constructor(_id, accountData, emailConfirmation, registrationDataType) {
         this._id = _id;
@@ -64,13 +84,11 @@ class UserDBModel {
 }
 exports.UserDBModel = UserDBModel;
 ;
-var LikeStatus;
-(function (LikeStatus) {
-    LikeStatus["None"] = "None";
-    LikeStatus["Like"] = "Like";
-    LikeStatus["Dislike"] = "Dislike";
-})(LikeStatus = exports.LikeStatus || (exports.LikeStatus = {}));
-;
+// export enum LikeStatus {
+// 	'None' = 'None',
+// 	'Like' = 'Like',
+// 	'Dislike' = 'Dislike',
+// };
 class CommentDBModel {
     constructor(_id, content, userId, userLogin, createdAt, postId, likesCount, dislikesCount, usersLikeStatus) {
         this._id = _id;
@@ -109,4 +127,22 @@ class PasswordDataDBModel {
     }
 }
 exports.PasswordDataDBModel = PasswordDataDBModel;
+;
+class TokensDTO {
+    constructor(accessToken, refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+}
+exports.TokensDTO = TokensDTO;
+class BlogDBModel {
+    constructor(_id, name, description, websiteUrl, createdAt) {
+        this._id = _id;
+        this.name = name;
+        this.description = description;
+        this.websiteUrl = websiteUrl;
+        this.createdAt = createdAt;
+    }
+}
+exports.BlogDBModel = BlogDBModel;
 ;
