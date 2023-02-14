@@ -18,7 +18,7 @@ const preparePost = (dbPost: PostDBModel, userId?: string): PostViewModel => {
     newestDbArr = statusesArr.filter(el => el.status === 'Like');
 
     newestDbArr.sort((a, b) =>
-      ((a.addedAt < b.addedAt) ? -1 : (a.addedAt > b.addedAt) ? 1 : 0));
+      ((a.addedAt > b.addedAt) ? -1 : (a.addedAt < b.addedAt) ? 1 : 0));
 
     newestArr = newestDbArr.map(el => ({
       addedAt: el.addedAt,
